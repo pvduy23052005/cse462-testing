@@ -1,35 +1,43 @@
-# BÁO CÁO BÀI TẬP KIỂM THỬ HỘP ĐEN
-## HỌC PHẦN: KIỂM THỬ VÀ ĐẢM BẢO CHẤT LƯỢNG PHẦN MỀM (CSE462)
-### BÀI TẬP LỚN / USE CASE: UC_06 - THU THẬP HỒ SƠ ỨNG VIÊN
+# USE-CASE 06: THU THẬP HỒ SƠ
 
 ---
 
-## 📌 PHẦN 1: THÔNG TIN CHUNG VỀ BÀI TẬP VÀ USE CASE
+## 1. THÔNG TIN CHUNG VỀ BÀI TẬP VÀ USE CASE 06
 
 - **Học phần:** Kiểm thử và Đảm bảo chất lượng phần mềm (CSE462)
 - **Đề tài:** Hệ thống Quản lý Tuyển dụng – Trợ lý Tuyển dụng & Sàng lọc Hồ sơ Tự động
 - **Giảng viên hướng dẫn:** TS. Nguyễn Thị Phương Dung
 - **Nhóm sinh viên thực hiện:** Nhóm 09
 - **Sinh viên đảm nhận Use Case:** Phùng Văn Duy (Mã SV: **2351170589**)
-- **Use Case đảm nhận:** `UC_06 - Thu Thập Hồ Sơ`
-- **Ngày tạo:** 30/01/2026
-- **Chủ đề bài tập:** Áp dụng các kỹ thuật thiết kế ca kiểm thử hộp đen (Black-box Testing Techniques) để xây dựng bộ kiểm thử hoàn chỉnh cho Use Case nghiệp vụ.
 - **Mã Use Case:** `UC_06`
 - **Tên Use Case:** Thu Thập Hồ Sơ
-- **Tác nhân chính:** Chuyên viên tuyển dụng (Recruiter / HR Specialist)
-- **Mục tiêu Use Case:** Cung cấp giải pháp thu thập dữ liệu ứng viên từ hai nguồn độc lập:
-  1. *Quét dữ liệu trang web:* Extension tự động phân tích cấu trúc DOM của các nền tảng tuyển dụng (LinkedIn, TopCV, VietnamWorks...) để bóc tách thông tin ứng viên.
-  2. *Tải lên tệp CV:* Cho phép tải lên tệp CV (định dạng PDF, Word, Ảnh) để hệ thống AI (OCR kết hợp LLM) trích xuất thực thể và chuẩn hóa dữ liệu.
+- **Người tạo:** Phùng Văn Duy
+- **Ngày tạo:** 30/01/2026
+- **Tác nhân chính:** Chuyên viên tuyển dụng
+- **Kích hoạt:**
+  - Người dùng nhấn nút "Quét" hiển thị trên trang web tuyển dụng (LinkedIn, TopCV, VietnamWorks).
+  - Hoặc người dùng mở Extension và chọn tab "Upload CV".
+- **Tiền điều kiện:**
+  - Người dùng đã đăng nhập thành công vào Extension (Token còn hiệu lực).
+  - Kết nối Internet ổn định.
+  - Trang web đang mở là trang hồ sơ ứng viên hợp lệ hoặc có sẵn tệp CV (PDF/Word/Ảnh) trên máy tính.
+- **Hậu điều kiện:**
+  - Dữ liệu ứng viên được chuẩn hóa và lưu thành công vào CSDL.
+  - Dashboard cập nhật số lượng hồ sơ mới thu thập.
+- **Mô tả nghiệp vụ:**
+  Cho phép Chuyên viên tuyển dụng thu thập thông tin ứng viên từ hai nguồn độc lập:
+  1. *Quét tự động trang web:* Phân tích cấu trúc DOM của các trang tuyển dụng lớn (LinkedIn, TopCV, VietnamWorks...) để bóc tách thông tin ứng viên.
+  2. *Tải lên tệp CV:* Tải lên tệp CV (PDF/Ảnh/Word) để hệ thống AI (OCR kết hợp LLM) trích xuất thực thể và chuẩn hóa lưu vào CSDL.
 - **Tiêu chuẩn học thuật áp dụng:**
   - Giáo trình Kiểm thử và Đảm bảo chất lượng phần mềm (CSE462).
-  - Chuẩn kiểm thử quốc tế **ISTQB CTFL 2018 v3.1** (Chương 4: Test Techniques - Black-box Test Techniques).
+  - Chuẩn kiểm thử quốc tế **ISTQB CTFL 2018 v3.1** (Black-box Test Techniques).
   - Chuẩn quy trình kiểm thử phần mềm **ISO/IEC/IEEE 29119-4**.
 
 ---
 
-## 🎯 PHẦN 2: PHÂN TÍCH CƠ SỞ KIỂM THỬ
+## 2. PHÂN TÍCH CƠ SỞ KIỂM THỬ USE CASE 06
 
-Dựa trên tài liệu đặc tả Use Case UC_06, cơ sở kiểm thử được phân rã thành các luồng nghiệp vụ và các yếu tố đầu vào/đầu ra như sau:
+Dựa trên tài liệu đặc tả Use Case UC_06, cơ sở kiểm thử được phân rã thành các luồng nghiệp vụ, danh mục dữ liệu đầu vào (Inputs) và các quy tắc ràng buộc (Constraints) như sau:
 
 ### 1. Phân rã luồng sự kiện nghiệp vụ
 1. **Luồng chính - Quét dữ liệu trang web:**
@@ -49,69 +57,86 @@ Dựa trên tài liệu đặc tả Use Case UC_06, cơ sở kiểm thử đư�
    - Bước B.5: Gửi tệp lên máy chủ xử lý OCR và LLM bóc tách thực thể.
    - Bước B.6: Chuyển tiếp về Bước 5 của Luồng chính (Hiển thị Form xem trước để kiểm tra và Lưu).
 3. **Các luồng ngoại lệ:**
-   - **`EX_01` (Tệp không hợp lệ):** Tệp vượt quá 10 MB hoặc sai định dạng (ví dụ `.exe`, `.zip`) $
-ightarrow$ Hiển thị thông báo lỗi: *"Định dạng file không hỗ trợ hoặc dung lượng quá lớn"*, yêu cầu chọn tệp khác.
-   - **`EX_02` (Quá thời gian chờ phản hồi AI):** Phân tích DOM hoặc OCR/LLM kéo dài quá 10 giây $
-ightarrow$ Báo lỗi: *"Kết nối đến máy chủ AI bị gián đoạn"*, mở Form trống để người dùng tự nhập liệu bằng tay.
-   - **`EX_03` (Trang web không hỗ trợ):** Nhấn "Quét" trên domain lạ hoặc trang không phải profile cá nhân $
-ightarrow$ Báo lỗi: *"Extension chưa hỗ trợ cấu trúc trang web này. Vui lòng nhập tay hoặc Upload file"*.
+   - **`EX_01` (Tệp không hợp lệ):** Tệp vượt quá 10 MB hoặc sai định dạng (ví dụ `.exe`, `.zip`) $\rightarrow$ Hiển thị thông báo lỗi: *"Định dạng file không hỗ trợ hoặc dung lượng quá lớn"*, yêu cầu chọn tệp khác.
+   - **`EX_02` (Quá thời gian chờ phản hồi AI):** Phân tích DOM hoặc OCR/LLM kéo dài quá 10 giây $\rightarrow$ Báo lỗi: *"Kết nối đến máy chủ AI bị gián đoạn"*, mở Form trống để người dùng tự nhập liệu bằng tay.
+   - **`EX_03` (Trang web không hỗ trợ):** Nhấn "Quét" trên domain lạ hoặc trang không phải profile cá nhân $\rightarrow$ Báo lỗi: *"Extension chưa hỗ trợ cấu trúc trang web này. Vui lòng nhập tay hoặc Upload file"*.
 
-### 2. Xác định các biến đầu vào và điều kiện môi trường
-- Biến $V_1$: **Nền tảng trang web** (Website URL / Domain)
-- Biến $V_2$: **Định dạng tệp CV** (File Extension / MIME Type)
-- Biến $V_3$: **Kích thước tệp CV** (File Size - định lượng Byte / MB)
-- Biến $V_4$: **Thời gian phản hồi của dịch vụ AI** (Response Time - định lượng giây)
-- Biến $V_5$: **Trạng thái phiên làm việc** (Authentication / Session Token)
-- Biến $V_6$: **Trạng thái kết nối mạng** (Network Connectivity)
+### 2. Yêu cầu Đầu vào
+
+| STT | Tên tham số đầu vào | Kiểu dữ liệu | Nguồn dữ liệu (Source) | Mô tả chi tiết |
+| :---: | :--- | :---: | :--- | :--- |
+| $IP_{06\_1}$ | **Phương thức thu thập** | `Enum` | Thao tác người dùng | Nhấn nút "Quét" trên trang web hoặc chọn tab "Upload CV". |
+| $IP_{06\_2}$ | **Địa chỉ URL & Cấu trúc DOM** | `URL / HTML DOM` | Trình duyệt / Web page | URL trang web đang duyệt và cây DOM chứa thông tin ứng viên. |
+| $IP_{06\_3}$ | **Tệp tin CV tải lên** | `Binary File Blob`| Kéo thả hoặc duyệt file | Tệp CV từ máy tính gồm: Tên tệp, đuôi mở rộng và nội dung tệp. |
+| $IP_{06\_4}$ | **Họ và tên ứng viên** | `String` | DOM / AI trích xuất / Nhập tay | Tên đầy đủ của ứng viên hiển thị trên Form xem trước. |
+| $IP_{06\_5}$ | **Vị trí / Chức danh công việc**| `String` | DOM / AI trích xuất / Nhập tay | Chức danh nghề nghiệp hiện tại hoặc vị trí ứng tuyển. |
+| $IP_{06\_6}$ | **Số năm kinh nghiệm** | `Float / Number` | DOM / AI trích xuất / Nhập tay | Tổng số năm kinh nghiệm làm việc tích lũy của ứng viên. |
+| $IP_{06\_7}$ | **Địa chỉ Email liên hệ** | `String (Email)` | DOM / AI trích xuất / Nhập tay | Email cá nhân của ứng viên dùng để định danh và liên hệ. |
+| $IP_{06\_8}$ | **Số điện thoại liên hệ** | `String (Phone)` | DOM / AI trích xuất / Nhập tay | Số điện thoại liên lạc của ứng viên. |
+| $IP_{06\_9}$ | **Danh sách kỹ năng** | `Array of Strings`| DOM / AI trích xuất / Nhập tay | Tập hợp các kỹ năng chuyên môn và kỹ năng mềm. |
+| $IP_{06\_10}$| **Mã Token phiên làm việc** | `String (JWT)` | Bộ nhớ Extension Storage | Token xác thực quyền truy cập của Chuyên viên tuyển dụng. |
+
+### 3. Yêu cầu Ràng buộc
+
+| Nhóm ràng buộc | Mã ràng buộc | Quy tắc ràng buộc chi tiết | Hành vi hệ thống khi vi phạm |
+| :--- | :---: | :--- | :--- |
+| **Ràng buộc nguồn web** | $C_{06\_1}$ | Chỉ hỗ trợ quét trên các trang cá nhân thuộc domain: `linkedin.com/in/*`, `topcv.vn/*`, `vietnamworks.com/*`. | Chặn quét, xuất thông báo lỗi ngoại lệ `EX_03`. |
+| | $C_{06\_2}$ | Không hỗ trợ quét trên các trang không chứa cấu trúc profile cá nhân (Bảng tin, Tìm kiếm việc làm, Trang đăng nhập). | Hiển thị thông báo không nhận diện được cấu trúc hồ sơ (`EX_03`). |
+| **Ràng buộc định dạng tệp**| $C_{06\_3}$ | Chỉ chấp nhận các định dạng tệp: PDF (`.pdf`), Word (`.docx`, `.doc`), Ảnh (`.png`, `.jpg`, `.jpeg`). | Từ chối nhận tệp, hiển thị lỗi ngoại lệ `EX_01`. |
+| | $C_{06\_4}$ | Cấm tuyệt đối các tệp thực thi (`.exe`, `.bat`, `.sh`, `.cmd`), tệp nén (`.zip`, `.rar`) hoặc bảng tính (`.xlsx`). | Chặn ngay tại tầng Client, hiển thị cảnh báo tệp không hợp lệ (`EX_01`). |
+| | $C_{06\_5}$ | Tệp phải có phần mở rộng hợp lệ, cấm tệp không có đuôi hoặc tệp giả mạo phần mở rộng kép (ví dụ: `cv.pdf.exe`). | Kiểm tra định dạng byte header thực tế, chặn tải lên nếu sai lệch. |
+| **Ràng buộc kích thước** | $C_{06\_6}$ | Kích thước tệp CV bắt buộc thỏa mãn: $0\text{ Byte} < \text{Dung lượng} \le 10\text{ MB}$ ($10,240\text{ KB}$). | Vượt quá 10MB hoặc tệp rỗng 0 Byte $\rightarrow$ Báo lỗi `EX_01`. |
+| **Ràng buộc thời gian** | $C_{06\_7}$ | Thời gian xử lý trích xuất DOM hoặc OCR/LLM tối đa là **10.0 giây**. | Quá 10.0 giây $\rightarrow$ Ngắt kết nối (Timeout), kích hoạt ngoại lệ `EX_02`. |
+| **Ràng buộc tiền điều kiện** | $C_{06\_8}$ | Người dùng bắt buộc phải đăng nhập Extension và Token phiên làm việc phải còn hạn hiệu lực. | Chưa đăng nhập hoặc hết hạn phiên $\rightarrow$ Chuyển về màn hình đăng nhập. |
+| | $C_{06\_9}$ | Phải có kết nối Internet ổn định trong suốt quá trình quét DOM và gửi dữ liệu lên máy chủ. | Mất mạng $\rightarrow$ Thông báo lỗi kết nối và bảo lưu dữ liệu nhập. |
+| **Ràng buộc toàn vẹn** | $C_{06\_10}$| Khi lưu hồ sơ, bắt buộc phải có ít nhất `Họ tên` VÀ (`Email` HOẶC `Số điện thoại`). | Thiếu cả Email và Số điện thoại $\rightarrow$ Đánh dấu đỏ trường dữ liệu bắt buộc. |
+| | $C_{06\_11}$| Kiểm tra trùng lặp: Nếu Email hoặc Số điện thoại đã tồn tại trong CSDL $\rightarrow$ Phải cảnh báo trùng lặp. | Hiển thị hộp thoại cảnh báo trùng hồ sơ, cho phép cập nhật đè hoặc lưu bản sao. |
+| **Ràng buộc tương tranh** | $C_{06\_12}$| Nút "Lưu hồ sơ" phải bị vô hiệu hóa (disabled) ngay sau lần click đầu tiên để chống spam click lưu trùng bản ghi. | Ngăn chặn việc gửi nhiều request cùng lúc vào CSDL. |
+| **Ràng buộc bảo mật** | $C_{06\_13}$| Toàn bộ dữ liệu chữ trích xuất từ DOM hoặc nhập tay phải được làm sạch (Sanitize) trước khi lưu. | Khử toàn bộ các thẻ `<script>`, mã HTML/SQL độc hại để chống tấn công XSS/SQLi. |
 
 ---
 
-## 🔬 PHẦN 3: ÁP DỤNG PHƯƠNG PHÁP PHÂN VÙNG TƯƠNG ĐƯƠNG
+## 3. ÁP DỤNG PHƯƠNG PHÁP PHÂN VÙNG TƯƠNG ĐƯƠNG
 
-### 1. Nguyên lý và phân tích miền tương đương
-Phương pháp Phân vùng tương đương chia miền đầu vào của chương trình thành các lớp dữ liệu tương đương sao cho tất cả các phần tử trong cùng một phân vùng đều đem lại hành vi xử lý giống nhau.
-- **Phân vùng tương đương hợp lệ:** Chứa các giá trị được hệ thống chấp nhận và xử lý bình thường.
-- **Phân vùng tương đương không hợp lệ:** Chứa các giá trị sai lệch, bị hệ thống từ chối hoặc kích hoạt thông báo lỗi.
+### 1. Phân tích miền tương đương hợp lệ và không hợp lệ
+Dựa trên các yêu cầu Đầu vào ($IP_{06\_1} \rightarrow IP_{06\_10}$) và Ràng buộc ($C_{06\_1} \rightarrow C_{06\_13}$), không gian kiểm thử được chia thành các phân vùng tương đương hợp lệ (hệ thống xử lý bình thường) và phân vùng không hợp lệ (hệ thống từ chối hoặc báo lỗi).
 
 ### 2. Bảng định nghĩa các phân vùng tương đương
 
-| Tham số đầu vào | Mã phân vùng | Mô tả phân vùng | Tính chất | Kỳ vọng xử lý |
+| Tham số đầu vào / Ràng buộc | Mã phân vùng | Mô tả phân vùng dữ liệu | Tính chất | Kỳ vọng xử lý |
 | :--- | :--- | :--- | :---: | :--- |
-| **Định dạng tệp tin CV** | `EP_F1` | Tệp định dạng PDF (`.pdf`) | Hợp lệ | Tiếp nhận và xử lý trích xuất |
+| **Định dạng tệp tin CV** ($C_{06\_3}, C_{06\_4}, C_{06\_5}$) | `EP_F1` | Tệp định dạng PDF (`.pdf`) | Hợp lệ | Tiếp nhận và xử lý trích xuất |
 | | `EP_F2` | Tệp định dạng Word (`.docx`, `.doc`) | Hợp lệ | Tiếp nhận và xử lý trích xuất |
 | | `EP_F3` | Tệp định dạng Ảnh (`.png`, `.jpg`, `.jpeg`) | Hợp lệ | Tiếp nhận và kích hoạt OCR |
 | | `EP_F4` | Tệp thực thi nguy hiểm (`.exe`, `.bat`, `.sh`) | Không hợp lệ | Chặn ngay, báo lỗi EX_01 |
 | | `EP_F5` | Tệp nén / tài liệu khác (`.zip`, `.rar`, `.xlsx`) | Không hợp lệ | Chặn tải lên, báo lỗi EX_01 |
-| | `EP_F6` | Tệp không có phần mở rộng (No extension) | Không hợp lệ | Chặn tải lên, báo lỗi EX_01 |
-| **Dung lượng tệp CV** | `EP_S1` | $0 < 	ext{Dung lượng} \le 10	ext{ MB}$ | Hợp lệ | Tải lên thành công |
-| | `EP_S2` | $	ext{Dung lượng} = 0	ext{ Byte}$ (Tệp rỗng) | Không hợp lệ | Báo lỗi tệp không có dữ liệu |
-| | `EP_S3` | $	ext{Dung lượng} > 10	ext{ MB}$ | Không hợp lệ | Chặn tải lên, báo lỗi EX_01 |
-| **Nền tảng trang web** | `EP_W1` | Trang hồ sơ ứng viên trên LinkedIn | Hợp lệ | Quét DOM thành công |
+| | `EP_F6` | Tệp không có phần mở rộng hoặc đuôi kép (`.pdf.exe`) | Không hợp lệ | Chặn tải lên, báo lỗi EX_01 |
+| **Dung lượng tệp CV** ($C_{06\_6}$) | `EP_S1` | $0 < \text{Dung lượng} \le 10\text{ MB}$ | Hợp lệ | Tải lên thành công |
+| | `EP_S2` | $\text{Dung lượng} = 0\text{ Byte}$ (Tệp rỗng) | Không hợp lệ | Báo lỗi tệp không có dữ liệu |
+| | `EP_S3` | $\text{Dung lượng} > 10\text{ MB}$ | Không hợp lệ | Chặn tải lên, báo lỗi EX_01 |
+| **Nền tảng trang web** ($C_{06\_1}, C_{06\_2}$) | `EP_W1` | Trang hồ sơ cá nhân trên LinkedIn | Hợp lệ | Quét DOM thành công |
 | | `EP_W2` | Trang hồ sơ ứng viên trên TopCV | Hợp lệ | Quét DOM thành công |
 | | `EP_W3` | Trang hồ sơ ứng viên trên VietnamWorks | Hợp lệ | Quét DOM thành công |
 | | `EP_W4` | Website bên ngoài không hỗ trợ (Facebook, Youtube...) | Không hợp lệ | Báo lỗi EX_03 |
 | | `EP_W5` | Thuộc domain hỗ trợ nhưng sai trang (Bảng tin, Tìm kiếm) | Không hợp lệ | Báo lỗi EX_03 |
-| **Thời gian phản hồi AI** | `EP_T1` | $T \le 10.0	ext{ giây}$ | Hợp lệ | Trả kết quả, mở Form xem trước |
-| | `EP_T2` | $T > 10.0	ext{ giây}$ | Không hợp lệ | Kích hoạt Timeout EX_02 |
-| **Trạng thái xác thực** | `EP_A1` | Đã đăng nhập Extension và Token hợp lệ | Hợp lệ | Cho phép thực hiện tác vụ |
-| | `EP_A2` | Chưa đăng nhập Extension | Không hợp lệ | Yêu cầu đăng nhập |
-| | `EP_A3` | Đang thao tác thì phiên làm việc hết hạn | Không hợp lệ | Hết hạn phiên, yêu cầu đăng nhập lại |
-| **Kết nối mạng Internet** | `EP_N1` | Kết nối mạng bình thường, ổn định | Hợp lệ | Xử lý thông suốt |
+| **Thời gian phản hồi AI** ($C_{06\_7}$) | `EP_T1` | $T \le 10.0\text{ giây}$ | Hợp lệ | Trả kết quả, mở Form xem trước |
+| | `EP_T2` | $T > 10.0\text{ giây}$ | Không hợp lệ | Kích hoạt Timeout EX_02 |
+| **Trạng thái xác thực** ($C_{06\_8}$) | `EP_A1` | Đã đăng nhập Extension và Token hợp lệ | Hợp lệ | Cho phép thực hiện tác vụ |
+| | `EP_A2` | Chưa đăng nhập Extension | Không hợp lệ | Chặn tác vụ, yêu cầu đăng nhập |
+| | `EP_A3` | Đang thao tác thì phiên làm việc hết hạn | Không hợp lệ | Báo hết hạn phiên, yêu cầu đăng nhập lại |
+| **Kết nối mạng Internet** ($C_{06\_9}$) | `EP_N1` | Kết nối mạng bình thường, ổn định | Hợp lệ | Xử lý thông suốt |
 | | `EP_N2` | Mất mạng hoàn toàn trước khi bấm thao tác | Không hợp lệ | Báo lỗi mất kết nối mạng |
 | | `EP_N3` | Mất mạng đột ngột trong khi đang truyền dữ liệu | Không hợp lệ | Ngắt luồng, thông báo lỗi mạng |
 
 ### 3. Thiết kế ca kiểm thử theo lớp tương đương
-- **Lớp tương đương yếu (Weak Normal Equivalence):** Chọn mỗi phân vùng hợp lệ xuất hiện ít nhất trong một ca kiểm thử.
-- **Lớp tương đương mạnh (Strong Equivalence):** Tổ hợp các phân vùng hợp lệ và các phân vùng biên/ngoại lệ để kiểm tra tính toàn vẹn hệ thống.
+- **Lớp tương đương yếu (Weak Equivalence Class):** Chọn mỗi phân vùng hợp lệ và không hợp lệ xuất hiện ít nhất 1 lần trong bộ kiểm thử.
+- **Lớp tương đương mạnh (Strong Equivalence Class):** Tổ hợp các điều kiện đầu vào và ngoại lệ để kiểm tra toàn diện tính chịu lỗi của hệ thống.
 
 ---
 
-## 📏 PHẦN 4: ÁP DỤNG PHƯƠNG PHÁP PHÂN TÍCH GIÁ TRỊ BIÊN
+## 4. ÁP DỤNG PHƯƠNG PHÁP PHÂN TÍCH GIÁ TRỊ BIÊN
 
-### 1. Nguyên lý áp dụng
-Lỗi phần mềm thường tập trung chủ yếu tại các đường ranh giới của các phân vùng tương đương. Phương pháp Phân tích giá trị biên (BVA) tập trung vào các giá trị cận trên, cận dưới và các giá trị ngay sát ngoài đường biên.
-
-### 2. Phân tích giá trị biên cho tham số Dung lượng tệp tin (Ngưỡng 10 MB = 10,240 KB)
+### 1. Phân tích giá trị biên cho tham số Dung lượng tệp tin (Ngưỡng 10 MB = 10,240 KB)
 Sơ đồ trục số phân tích biên:
 ```
 Dung lượng tệp (KB):
@@ -130,7 +155,7 @@ Bảng xác định giá trị biên:
 | **Vượt biên trên tối thiểu** | `10.01 MB` (10,250 KB)| Invalid Min+ | Chặn ngay tại máy khách, báo lỗi EX_01 |
 | **Vượt biên trên cực lớn (Robust)**| `50.0 MB` | Extreme Invalid | Chặn tải lên, báo lỗi EX_01 |
 
-### 3. Phân tích giá trị biên cho tham số Thời gian chờ xử lý AI (Ngưỡng 10.0 giây)
+### 2. Phân tích giá trị biên cho tham số Thời gian chờ xử lý AI (Ngưỡng 10.0 giây)
 | Vị trí biên | Giá trị thời gian | Phân loại | Kết quả kỳ vọng |
 | :--- | :--- | :---: | :--- |
 | **Giá trị danh định thông thường** | `3.0s - 7.0s` | Nominal | Xử lý thành công, mở Form xem trước |
@@ -141,17 +166,14 @@ Bảng xác định giá trị biên:
 
 ---
 
-## 📋 PHẦN 5: ÁP DỤNG PHƯƠNG PHÁP BẢNG QUYẾT ĐỊNH
+## 5. ÁP DỤNG PHƯƠNG PHÁP BẢNG QUYẾT ĐỊNH
 
-### 1. Nguyên lý và mô hình hóa bảng quyết định
-Bảng quyết định (Decision Table) là kỹ thuật lý tưởng để biểu diễn các quy tắc nghiệp vụ phức tạp chứa nhiều điều kiện logic đầu vào kết hợp với các hành động đầu ra tương ứng.
-
-### 2. Danh sách Điều kiện và Hành động
+### 1. Danh sách Điều kiện và Hành động
 - **Điều kiện (Conditions):**
   - $C_1$: Phương thức thu thập dữ liệu (Quét trang web / Tải lên tệp CV)
   - $C_2$: Nguồn dữ liệu hợp lệ (Trang web thuộc LinkedIn/TopCV/VietnamWorks HOẶC tệp CV đuôi `.pdf/.docx/.img`)
-  - $C_3$: Dung lượng tệp $\le 10	ext{ MB}$
-  - $C_4$: Thời gian máy chủ AI phản hồi $\le 10	ext{ giây}$
+  - $C_3$: Dung lượng tệp $\le 10\text{ MB}$
+  - $C_4$: Thời gian máy chủ AI phản hồi $\le 10\text{ giây}$
   - $C_5$: Người dùng đã đăng nhập Extension và Token hợp lệ
 - **Hành động (Actions):**
   - $A_1$: Hiển thị Form xem trước với dữ liệu đã trích xuất sẵn
@@ -161,14 +183,14 @@ Bảng quyết định (Decision Table) là kỹ thuật lý tưởng để bi�
   - $A_5$: Hiển thị thông báo lỗi `EX_03` (Trang web không được hỗ trợ)
   - $A_6$: Chuyển hướng về màn hình đăng nhập Extension
 
-### 3. Bảng quyết định rút gọn
+### 2. Bảng quyết định rút gọn
 
 | Điều kiện / Hành động | Quy tắc 1 (R1) | Quy tắc 2 (R2) | Quy tắc 3 (R3) | Quy tắc 4 (R4) | Quy tắc 5 (R5) | Quy tắc 6 (R6) | Quy tắc 7 (R7) | Quy tắc 8 (R8) |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
 | **C1: Phương thức** | Quét Web | Quét Web | Quét Web | Tải tệp CV | Tải tệp CV | Tải tệp CV | Tải tệp CV | Bất kỳ |
 | **C2: Nguồn hợp lệ** | Đúng | Đúng | **Sai** | Đúng | **Sai** | Đúng | Đúng | Bất kỳ |
-| **C3: Dung lượng $\le 10	ext{MB}$** | Không áp dụng | Không áp dụng | Không áp dụng | Đúng | Không áp dụng | **Sai** | Đúng | Không áp dụng |
-| **C4: AI phản hồi $\le 10	ext{s}$** | Có | **Không** | Không áp dụng | Có | Không áp dụng | Không áp dụng | **Không** | Không áp dụng |
+| **C3: Dung lượng $\le 10\text{MB}$** | Không áp dụng | Không áp dụng | Không áp dụng | Đúng | Không áp dụng | **Sai** | Đúng | Không áp dụng |
+| **C4: AI phản hồi $\le 10\text{s}$** | Có | **Không** | Không áp dụng | Có | Không áp dụng | Không áp dụng | **Không** | Không áp dụng |
 | **C5: Đã đăng nhập** | Có | Có | Có | Có | Có | Có | Có | **Không** |
 | **HÀNH ĐỘNG** | | | | | | | | |
 | **A1: Form xem trước điền sẵn** | **X** | | | **X** | | | | |
@@ -180,24 +202,9 @@ Bảng quyết định (Decision Table) là kỹ thuật lý tưởng để bi�
 
 ---
 
-## 🔄 PHẦN 6: ÁP DỤNG PHƯƠNG PHÁP KIỂM THỬ CHUYỂN TRẠNG THÁI
+## 6. ÁP DỤNG PHƯƠNG PHÁP KIỂM THỬ CHUYỂN TRẠNG THÁI
 
-### 1. Mô hình hóa trạng thái hệ thống
-Use Case 06 hoạt động như một máy trạng thái hữu hạn (Finite State Machine). Các trạng thái chính gồm:
-- $S_0$: `Chưa đăng nhập` (LoggedOut)
-- $S_1$: `Sẵn sàng` (Idle / Authenticated)
-- $S_2$: `Đang quét DOM trang web` (ScanningDOM)
-- $S_3$: `Đang tải tệp lên` (UploadingFile)
-- $S_4$: `Đang xử lý AI / OCR` (ProcessingAI)
-- $S_5$: `Hiển thị Form xem trước` (PreviewForm)
-- $S_6$: `Mở Form trống nhập tay` (BlankForm)
-- $S_7$: `Đang lưu vào CSDL` (SavingToDB)
-- $S_8$: `Lưu thành công` (SavedSuccess)
-- $S_9$: `Lỗi EX_01` (Error_InvalidFile)
-- $S_{10}$: `Lỗi EX_02` (Error_AITimeout)
-- $S_{11}$: `Lỗi EX_03` (Error_UnsupportedWeb)
-
-### 2. Sơ đồ chuyển trạng thái
+### 1. Sơ đồ chuyển trạng thái
 
 ```mermaid
 stateDiagram-v2
@@ -234,7 +241,7 @@ stateDiagram-v2
     S8_LuuThanhCong --> S1_SanSang: Đóng thông báo & Cập nhật Dashboard
 ```
 
-### 3. Bảng chuyển trạng thái và phát hiện bất thường
+### 2. Bảng chuyển trạng thái
 
 | Trạng thái hiện tại | Sự kiện kích hoạt (Event) | Điều kiện bảo vệ (Guard) | Trạng thái tiếp theo | Hành động thực hiện (Action) |
 | :--- | :--- | :--- | :--- | :--- |
@@ -242,12 +249,12 @@ stateDiagram-v2
 | `S0_ChuaDangNhap` | Đăng nhập thành công | Tài khoản hợp lệ | `S1_SanSang` | Lưu Token, hiển thị giao diện chính |
 | `S1_SanSang` | Nhấn nút "Quét" | Trang thuộc LinkedIn/TopCV | `S2_DangQuetDOM` | Phân tích cấu trúc DOM |
 | `S1_SanSang` | Nhấn nút "Quét" | Trang web lạ không hỗ trợ | `S11_LoiEX03` | Xuất thông báo lỗi EX_03 |
-| `S1_SanSang` | Kéo thả tệp CV | Tệp `.pdf/.docx/.png` $\le 10	ext{MB}$ | `S4_DangXuLyAI` | Tải tệp, gửi lên máy chủ OCR |
-| `S1_SanSang` | Kéo thả tệp CV | Tệp `.exe` hoặc dung lượng $> 10	ext{MB}$ | `S9_LoiEX01` | Chặn tệp, hiển thị lỗi EX_01 |
-| `S2_DangQuetDOM` | Xử lý hoàn tất | Thời gian $T \le 10	ext{s}$ | `S5_FormXemTruoc` | Hiển thị Form với dữ liệu đã điền |
-| `S2_DangQuetDOM` | Hết thời gian chờ | Thời gian $T > 10	ext{s}$ | `S10_LoiEX02` | Ngắt kết nối, báo lỗi EX_02 |
-| `S4_DangXuLyAI` | Xử lý OCR/LLM xong | Thời gian $T \le 10	ext{s}$ | `S5_FormXemTruoc` | Đổ dữ liệu trích xuất vào Form |
-| `S4_DangXuLyAI` | Máy chủ AI timeout | Thời gian $T > 10	ext{s}$ | `S10_LoiEX02` | Báo lỗi gián đoạn AI |
+| `S1_SanSang` | Kéo thả tệp CV | Tệp `.pdf/.docx/.png` $\le 10\text{MB}$ | `S4_DangXuLyAI` | Tải tệp, gửi lên máy chủ OCR |
+| `S1_SanSang` | Kéo thả tệp CV | Tệp `.exe` hoặc dung lượng $> 10\text{MB}$ | `S9_LoiEX01` | Chặn tệp, hiển thị lỗi EX_01 |
+| `S2_DangQuetDOM` | Xử lý hoàn tất | Thời gian $T \le 10\text{s}$ | `S5_FormXemTruoc` | Hiển thị Form với dữ liệu đã điền |
+| `S2_DangQuetDOM` | Hết thời gian chờ | Thời gian $T > 10\text{s}$ | `S10_LoiEX02` | Ngắt kết nối, báo lỗi EX_02 |
+| `S4_DangXuLyAI` | Xử lý OCR/LLM xong | Thời gian $T \le 10\text{s}$ | `S5_FormXemTruoc` | Đổ dữ liệu trích xuất vào Form |
+| `S4_DangXuLyAI` | Máy chủ AI timeout | Thời gian $T > 10\text{s}$ | `S10_LoiEX02` | Báo lỗi gián đoạn AI |
 | `S5_FormXemTruoc` | Nhấn nút "Lưu hồ sơ" | Dữ liệu hợp lệ | `S7_DangLuuCSDL` | Gửi request lưu dữ liệu vào DB |
 | `S5_FormXemTruoc` | Nhấn nút "Hủy bỏ" | Người dùng xác nhận hủy | `S1_SanSang` | Đóng Form, reset trường dữ liệu |
 | `S7_DangLuuCSDL` | Phản hồi từ Database | Lưu thành công | `S8_LuuThanhCong` | Thông báo thành công, cập nhật đếm |
@@ -255,7 +262,7 @@ stateDiagram-v2
 
 ---
 
-## 📑 PHẦN 7: BẢNG TỔNG HỢP CÁC CA KIỂM THỬ HỘP ĐEN
+## 7. BẢNG TỔNG HỢP CÁC CA KIỂM THỬ HỘP ĐEN CHO USE CASE 06
 
 | Mã ca kiểm thử | Tên ca kiểm thử | Kỹ thuật hộp đen áp dụng | Tiền điều kiện | Các bước thực hiện | Dữ liệu thử nghiệm | Kết quả mong đợi | Mức độ ưu tiên |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :---: |
@@ -300,7 +307,7 @@ stateDiagram-v2
 
 ---
 
-## 📊 PHẦN 8: ĐÁNH GIÁ ĐỘ BAO PHỦ VÀ KẾT LUẬN
+## 8. ĐÁNH GIÁ ĐỘ BAO PHỦ VÀ KẾT LUẬN USE CASE 06
 
 ### 1. Thống kê số lượng ca kiểm thử theo kỹ thuật hộp đen
 

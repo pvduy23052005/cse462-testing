@@ -1,29 +1,30 @@
-# BÁO CÁO BÀI TẬP KIỂM THỬ HỘP ĐEN
-## HỌC PHẦN: KIỂM THỬ VÀ ĐẢM BẢO CHẤT LƯỢNG PHẦN MỀM (CSE462)
-### BÀI TẬP LỚN / USE CASE: UC_08 - KIỂM CHỨNG VÀ XÁC THỰC HỒ SƠ
+# USE-CASE 08: KIỂM CHỨNG VÀ XÁC THỰC HỒ SƠ
 
 ---
 
-## 📌 PHẦN 1: THÔNG TIN CHUNG VỀ BÀI TẬP VÀ USE CASE
+## 1. THÔNG TIN CHUNG VỀ BÀI TẬP VÀ USE CASE 08
 
 - **Học phần:** Kiểm thử và Đảm bảo chất lượng phần mềm (CSE462)
 - **Đề tài:** Hệ thống Quản lý Tuyển dụng – Trợ lý Tuyển dụng & Sàng lọc Hồ sơ Tự động
 - **Giảng viên hướng dẫn:** TS. Nguyễn Thị Phương Dung
 - **Nhóm sinh viên thực hiện:** Nhóm 09
 - **Sinh viên đảm nhận Use Case:** Phùng Văn Duy (Mã SV: **2351170589**)
-- **Use Case đảm nhận:** `UC_08 - Kiểm chứng và Xác thực Hồ sơ`
-- **Ngày tạo:** 30/01/2026
-- **Chủ đề bài tập:** Áp dụng các kỹ thuật thiết kế ca kiểm thử hộp đen (Black-box Testing Techniques) để xây dựng bộ kiểm thử hoàn chỉnh cho Use Case nghiệp vụ.
 - **Mã Use Case:** `UC_08`
 - **Tên Use Case:** Kiểm chứng và Xác thực Hồ sơ
-- **Tác nhân chính:** Chuyên viên tuyển dụng (Recruiter / HR Specialist)
-- **Mục tiêu Use Case:** Cung cấp cơ chế thẩm định lý lịch và phòng ngừa gian lận hồ sơ ứng viên tự động:
-  1. *Truy vết dấu vết số:* Kích hoạt tiến trình chạy ngầm thu thập dữ liệu công khai của ứng viên trên Internet (Google, GitHub, LinkedIn, Facebook).
-  2. *Đối chiếu chéo thông tin:* Tự động so sánh dữ liệu tìm được với các nội dung kê khai trong CV:
-     + Lịch sử làm việc: Đối chiếu mốc thời gian bắt đầu và kết thúc tại các công ty cũ (CV so với LinkedIn).
-     + Năng lực thực tế: Đối chiếu các dự án, số lượt đóng góp mã nguồn (Commits), kho lưu trữ (Repositories) và xếp hạng ngôn ngữ lập trình (CV so với GitHub).
-  3. *Cảnh báo sai lệch phân cấp:* Xuất Báo cáo kết quả kiểm chứng kèm liên kết bằng chứng và các cảnh báo sai lệch (màu xanh: khớp chuẩn, màu vàng: sai lệch nhẹ, màu đỏ: sai lệch nghiêm trọng).
-  4. *Xác thực và dán liên kết thủ công:* Hỗ trợ chuyên viên dán bổ sung URL nếu hệ thống không tự tìm thấy, và lưu trạng thái thẩm định: *"Xác thực uy tín"*, *"Có rủi ro"*, hoặc *"Không tìm thấy dữ liệu"*.
+- **Người tạo:** Phùng Văn Duy
+- **Ngày tạo:** 30/01/2026
+- **Tác nhân chính:** Chuyên viên tuyển dụng
+- **Kích hoạt:**
+  - Chuyên viên tuyển dụng nhấn nút "Kiểm chứng" tại giao diện Chi tiết hồ sơ ứng viên.
+- **Tiền điều kiện:**
+  - Chuyên viên tuyển dụng đã đăng nhập và đang xem chi tiết một hồ sơ ứng viên.
+  - Hồ sơ ứng viên phải có ít nhất một thông tin định danh: Email hoặc Số điện thoại (kèm Họ tên đầy đủ).
+  - Kết nối Internet ổn định để truy cập các nguồn dữ liệu bên ngoài.
+- **Hậu điều kiện:**
+  - Báo cáo kiểm chứng dấu vết số và đối chiếu chéo (thời gian làm việc, kỹ năng GitHub) được tạo và lưu vào CSDL.
+  - Trạng thái kiểm chứng của hồ sơ được cập nhật: "Đã xác thực", "Có rủi ro", hoặc "Không tìm thấy dữ liệu".
+- **Mô tả nghiệp vụ:**
+  Cho phép Chuyên viên tuyển dụng kích hoạt tiến trình ngầm để tìm kiếm dấu vết số của ứng viên trên Internet (Google, GitHub, LinkedIn, Facebook). Hệ thống tự động đối chiếu thông tin tìm được với CV để phát hiện sự gian dối, không trung thực hoặc sai lệch về thời gian làm việc và kỹ năng thực tế.
 - **Tiêu chuẩn học thuật áp dụng:**
   - Giáo trình Kiểm thử và Đảm bảo chất lượng phần mềm (CSE462).
   - Chuẩn kiểm thử quốc tế **ISTQB CTFL 2018 v3.1** (Black-box Test Techniques).
@@ -31,9 +32,9 @@
 
 ---
 
-## 🎯 PHẦN 2: PHÂN TÍCH CƠ SỞ KIỂM THỬ
+## 2. PHÂN TÍCH CƠ SỞ KIỂM THỬ USE CASE 08
 
-Dựa trên tài liệu đặc tả Use Case UC_08, cơ sở kiểm thử được phân rã thành các luồng nghiệp vụ và các tham số kiểm thử như sau:
+Dựa trên tài liệu đặc tả Use Case UC_08, cơ sở kiểm thử được phân rã thành các luồng nghiệp vụ, danh mục dữ liệu đầu vào (Inputs) và các quy tắc ràng buộc (Constraints) như sau:
 
 ### 1. Phân rã luồng sự kiện nghiệp vụ
 1. **Luồng chính:**
@@ -54,23 +55,47 @@ Dựa trên tài liệu đặc tả Use Case UC_08, cơ sở kiểm thử đư�
    - **`EX_02` (Mất kết nối Internet):** Mạng Internet bị ngắt khi đang quét $\rightarrow$ Hệ thống dừng quy trình, hiển thị lỗi: *"Lỗi kết nối. Vui lòng kiểm tra mạng và thử lại"*.
    - **`EX_03` (Hồ sơ thiếu thông tin định danh):** Hồ sơ thiếu cả Email và Số điện thoại $\rightarrow$ Chặn ngay từ đầu, báo lỗi: *"Không đủ thông tin định danh để thực hiện kiểm chứng. Vui lòng cập nhật Email hoặc SĐT"*.
 
-### 2. Xác định các biến đầu vào và miền giá trị
-- Biến $Y_1$: **Thông tin định danh trong CV** (Email, Số điện thoại, Họ tên)
-- Biến $Y_2$: **Độ lệch thời gian kinh nghiệm** (Định lượng số tháng: $|\text{Tháng}_{\text{CV}} - \text{Tháng}_{\text{LinkedIn}}|$)
-- Biến $Y_3$: **Kết quả thu thập dấu vết số** (Tìm thấy đủ / Tìm thấy 1 phần / Không tìm thấy / Bị chặn Captcha)
-- Biến $Y_4$: **Định dạng đường dẫn URL thủ công** (Chuỗi liên kết web)
-- Biến $Y_5$: **Thời gian thực thi của tiến trình ngầm** (Định lượng giây $\le 30.0\text{s}$)
-- Biến $Y_6$: **Hành động xác nhận của chuyên viên** (Xác thực uy tín / Gắn cờ rủi ro / Bỏ qua)
+### 2. Yêu cầu Đầu vào
+
+| STT | Tên tham số đầu vào | Kiểu dữ liệu | Nguồn dữ liệu (Source) | Mô tả chi tiết |
+| :---: | :--- | :---: | :--- | :--- |
+| $IP_{08\_1}$ | **Họ và tên ứng viên** | `String` | Hồ sơ ứng viên | Dùng kết hợp tạo cụm từ khóa tìm kiếm trên Google/LinkedIn. |
+| $IP_{08\_2}$ | **Địa chỉ Email ứng viên** | `String (Email)` | Hồ sơ ứng viên | Khóa định danh chính xác để truy vết tài khoản GitHub/LinkedIn. |
+| $IP_{08\_3}$ | **Số điện thoại ứng viên** | `String (Phone)` | Hồ sơ ứng viên | Khóa định danh bổ trợ để tìm kiếm profile mạng xã hội. |
+| $IP_{08\_4}$ | **Công ty làm việc gần nhất** | `String` | CV / CSDL | Dùng để kết hợp truy vấn: `Họ tên + Tên công ty`. |
+| $IP_{08\_5}$ | **Trường đại học đào tạo** | `String` | CV / CSDL | Dùng để kết hợp truy vấn: `Họ tên + Tên trường học`. |
+| $IP_{08\_6}$ | **Đường dẫn mạng xã hội thủ công**| `String (URL)` | Chuyên viên dán vào (Luồng 3a) | URL LinkedIn hoặc GitHub cá nhân do chuyên viên tự nhập. |
+| $IP_{08\_7}$ | **Từ khóa tìm kiếm mở rộng** | `String` | Chuyên viên nhập (Luồng 5a) | Nickname hoặc từ khóa thay thế khi lần tìm kiếm đầu không có kết quả. |
+| $IP_{08\_8}$ | **Hành động xác nhận thẩm định** | `Action Button` | Chuyên viên tuyển dụng click | Chọn "Xác thực uy tín", "Gắn cờ rủi ro", "Bỏ qua", hoặc "Kiểm chứng lại". |
+| $IP_{08\_9}$ | **Thao tác giải Captcha** | `Human Interaction`| Chuyên viên thao tác (EX_01) | Tương tác giải Captcha khi Google/LinkedIn kích hoạt chống bot. |
+
+### 3. Yêu cầu Ràng buộc
+
+| Nhóm ràng buộc | Mã ràng buộc | Quy tắc ràng buộc chi tiết | Hành vi hệ thống khi vi phạm |
+| :--- | :---: | :--- | :--- |
+| **Ràng buộc định danh** | $C_{08\_1}$ | Hồ sơ bắt buộc phải có ít nhất **01 thông tin định danh**: `Email` HOẶC `Số điện thoại` (kèm Họ tên). | Thiếu cả Email và Số điện thoại $\rightarrow$ Chặn ngay, báo lỗi ngoại lệ `EX_03`. |
+| **Ràng buộc kết nối mạng**| $C_{08\_2}$ | Phải có kết nối Internet ổn định trong suốt quá trình quét dữ liệu bên ngoài. | Mất mạng $\rightarrow$ Dừng tiến trình ngầm, báo lỗi ngoại lệ `EX_02`. |
+| **Ràng buộc Captcha** | $C_{08\_3}$ | Khi Google hoặc LinkedIn chặn bot bằng Captcha $\rightarrow$ Tiến trình ngầm phải tạm dừng an toàn. | Xuất thông báo `EX_01`, chờ người dùng giải Captcha xong mới tiếp tục. |
+| **Ràng buộc URL thủ công** | $C_{08\_4}$ | URL dán thủ công bắt buộc phải thuộc domain: `linkedin.com` hoặc `github.com`. | Báo lỗi đường dẫn không thuộc nền tảng hỗ trợ. |
+| | $C_{08\_5}$ | Tự động làm sạch URL (*URL Normalization*): Lược bỏ các tham số rác/tracking (`?utm_...`, `?ref_...`). | Giữ lại URL chuẩn xác để đối chiếu. |
+| | $C_{08\_6}$ | Từ chối các liên kết không hợp lệ, liên kết chết (Lỗi 404) hoặc chứa mã độc (`javascript:...`). | Chặn thực thi, báo lỗi liên kết không thể truy cập. |
+| **Ràng buộc sai lệch thời gian**| $C_{08\_7}$ | Ngưỡng sai lệch thời gian công tác (CV vs LinkedIn):<br>- Độ lệch $= 0\text{ tháng}$: Khớp hoàn hảo $\rightarrow$ Nhãn xanh an toàn.<br>- $1 \le \text{Độ lệch} < 6\text{ tháng}$: Sai số làm tròn $\rightarrow$ Cảnh báo nhẹ màu vàng.<br>- $\text{Độ lệch} \ge 6\text{ tháng}$: Sai lệch nghiêm trọng $\rightarrow$ Kích hoạt Cảnh báo đỏ rủi ro cao. | Hiển thị màu sắc và mức độ cảnh báo tương ứng trên Báo cáo kết quả. |
+| | $C_{08\_8}$ | Phát hiện trùng lặp thời gian làm việc toàn thời gian tại 2 công ty khác nhau cùng thời điểm. | Bắt buộc xuất cảnh báo đỏ: Trùng lặp thời gian bất khả thi. |
+| **Ràng buộc thời gian chờ**| $C_{08\_9}$ | Thời gian thực thi tối đa của tiến trình ngầm là **30.0 giây**. | Quá 30.0 giây $\rightarrow$ Ngắt tiến trình, thông báo lỗi quá thời gian chờ. |
+| **Ràng buộc giao diện** | $C_{08\_10}$| Tiến trình ngầm phải chạy bất đồng bộ (Non-blocking UI), không làm đóng băng giao diện người dùng. | Chuyên viên vẫn có thể cuộn trang và xem các mục khác. |
+| **Ràng buộc tương tranh** | $C_{08\_11}$| Nút "Kiểm chứng" phải bị vô hiệu hóa ngay sau khi nhấn để tránh tạo nhiều worker trùng lặp. | Ngăn chặn việc sinh ra hàng loạt tiến trình ngầm cho cùng 1 hồ sơ. |
+| **Ràng buộc kiểm toán** | $C_{08\_12}$| Mỗi lần cập nhật trạng thái ("Đã xác thực" hoặc "Có rủi ro") bắt buộc phải lưu Audit Log (Người duyệt, Thời gian, Link). | Ghi nhận nhật ký kiểm toán không thể xóa sửa vào CSDL. |
+| **Ràng buộc an toàn web** | $C_{08\_13}$| Toàn bộ các liên kết bằng chứng mở ra ngoài phải có `target="_blank"` và `rel="noopener noreferrer"`. | Chống tấn công Reverse Tabnabbing qua liên kết ngoài. |
 
 ---
 
-## 🔬 PHẦN 3: ÁP DỤNG PHƯƠNG PHÁP PHÂN VÙNG TƯƠNG ĐƯƠNG
+## 3. ÁP DỤNG PHƯƠNG PHÁP PHÂN VÙNG TƯƠNG ĐƯƠNG
 
 ### 1. Phân chia các lớp tương đương
 
-| Tham số đầu vào | Mã phân vùng | Chi tiết phân vùng | Tính chất | Kỳ vọng xử lý |
+| Tham số đầu vào / Ràng buộc | Mã phân vùng | Chi tiết phân vùng | Tính chất | Kỳ vọng xử lý |
 | :--- | :--- | :--- | :---: | :--- |
-| **Thông tin định danh trong CV**| `EP_ID1` | Đầy đủ cả Email, Số điện thoại và Họ tên | Hợp lệ (Tối ưu) | Tạo câu truy vấn chính xác nhất, kích hoạt kiểm chứng |
+| **Thông tin định danh trong CV** ($IP_{08\_1 \rightarrow 3}, C_{08\_1}$)| `EP_ID1` | Đầy đủ cả Email, Số điện thoại và Họ tên | Hợp lệ (Tối ưu) | Tạo câu truy vấn chính xác nhất, kích hoạt kiểm chứng |
 | | `EP_ID2` | Có Email và Họ tên (để trống Số điện thoại) | Hợp lệ | Tiếp nhận, truy vấn dựa trên Email + Họ tên |
 | | `EP_ID3` | Có Số điện thoại và Họ tên (để trống Email) | Hợp lệ | Tiếp nhận, truy vấn dựa trên SĐT + Họ tên |
 | | `EP_ID4` | Thiếu cả Email và Số điện thoại (chỉ có Họ tên) | Không hợp lệ | Chặn ngay, kích hoạt ngoại lệ EX_03 |
@@ -81,22 +106,22 @@ Dựa trên tài liệu đặc tả Use Case UC_08, cơ sở kiểm thử đư�
 | | `EP_SR3` | Không tìm thấy bất kỳ dấu vết công khai nào | Hợp lệ (Ngoại lệ) | Kích hoạt luồng thay thế 5a |
 | | `EP_SR4` | Bị nền tảng mục tiêu chặn bởi Captcha | Không hợp lệ | Kích hoạt ngoại lệ EX_01, yêu cầu giải Captcha |
 | | `EP_SR5` | Trả về kết quả của người khác trùng tên | Không hợp lệ | Thuật toán đối chiếu lọc bỏ kết quả không khớp Email/Cty |
-| **Mức độ sai lệch thời gian** | `EP_TL1` | Trùng khớp hoàn toàn (0 tháng lệch) | Hợp lệ | Đánh giá khớp chuẩn, gắn nhãn an toàn |
+| **Mức độ sai lệch thời gian** ($C_{08\_7}, C_{08\_8}$) | `EP_TL1` | Trùng khớp hoàn toàn (0 tháng lệch) | Hợp lệ | Đánh giá khớp chuẩn, gắn nhãn an toàn |
 | | `EP_TL2` | Lệch nhỏ trong mức cho phép ($1 \le \text{Lệch} < 6$ tháng) | Hợp lệ | Cảnh báo nhẹ màu vàng (Sai số làm tròn) |
 | | `EP_TL3` | Sai lệch lớn ($\ge 6$ tháng hoặc trùng lặp thời gian) | Không hợp lệ | Cảnh báo nghiêm trọng màu đỏ, gợi ý gắn cờ rủi ro |
 | | `EP_TL4` | Ngày tháng vô lý (Ngày bắt đầu sau ngày kết thúc) | Không hợp lệ | Báo lỗi dữ liệu thời gian không hợp lệ |
-| **Nhập liên kết thủ công** | `EP_URL1` | URL LinkedIn hợp lệ (`https://linkedin.com/in/...`) | Hợp lệ | Quét dữ liệu profile LinkedIn |
+| **Nhập liên kết thủ công** ($IP_{08\_6}, C_{08\_4 \rightarrow 6}$) | `EP_URL1` | URL LinkedIn hợp lệ (`https://linkedin.com/in/...`) | Hợp lệ | Quét dữ liệu profile LinkedIn |
 | | `EP_URL2` | URL GitHub hợp lệ (`https://github.com/...`) | Hợp lệ | Quét dữ liệu repositories GitHub |
 | | `EP_URL3` | URL không đúng định dạng hoặc sai domain | Không hợp lệ | Báo lỗi đường dẫn không hợp lệ |
 | | `EP_URL4` | Link hỏng / Trang không tồn tại (Lỗi 404) | Không hợp lệ | Báo lỗi không thể truy cập liên kết |
 | | `EP_URL5` | Chèn mã độc XSS vào ô dán URL (`javascript:...`) | Không hợp lệ | Chặn thực thi script, làm sạch URL |
-| **Trạng thái sau kiểm chứng** | `EP_ST1` | Trạng thái "Đã xác thực" | Hợp lệ | Cập nhật hồ sơ uy tín, gắn biểu tượng xác minh |
+| **Trạng thái sau kiểm chứng** ($IP_{08\_8}, C_{08\_12}$) | `EP_ST1` | Trạng thái "Đã xác thực" | Hợp lệ | Cập nhật hồ sơ uy tín, gắn biểu tượng xác minh |
 | | `EP_ST2` | Trạng thái "Có rủi ro" | Hợp lệ | Cập nhật cờ rủi ro màu đỏ trên Dashboard |
 | | `EP_ST3` | Trạng thái "Không tìm thấy dữ liệu" | Hợp lệ | Đánh dấu chưa thể thẩm định |
 
 ---
 
-## 📏 PHẦN 4: ÁP DỤNG PHƯƠNG PHÁP PHÂN TÍCH GIÁ TRỊ BIÊN
+## 4. ÁP DỤNG PHƯƠNG PHÁP PHÂN TÍCH GIÁ TRỊ BIÊN
 
 ### 1. Phân tích giá trị biên cho tham số Độ lệch thời gian làm việc (Ngưỡng cảnh báo 6 tháng)
 ```
@@ -132,7 +157,7 @@ Bảng xác định giá trị biên:
 
 ---
 
-## 📋 PHẦN 5: ÁP DỤNG PHƯƠNG PHÁP BẢNG QUYẾT ĐỊNH
+## 5. ÁP DỤNG PHƯƠNG PHÁP BẢNG QUYẾT ĐỊNH
 
 ### 1. Danh sách Điều kiện và Hành động
 - **Điều kiện (Conditions):**
@@ -176,7 +201,7 @@ Bảng xác định giá trị biên:
 
 ---
 
-## 🔄 PHẦN 6: ÁP DỤNG PHƯƠNG PHÁP KIỂM THỬ CHUYỂN TRẠNG THÁI
+## 6. ÁP DỤNG PHƯƠNG PHÁP KIỂM THỬ CHUYỂN TRẠNG THÁI
 
 ### 1. Sơ đồ chuyển trạng thái của tiến trình kiểm chứng
 
@@ -227,7 +252,7 @@ stateDiagram-v2
 
 ---
 
-## 📑 PHẦN 7: BẢNG TỔNG HỢP CÁC CA KIỂM THỬ HỘP ĐEN
+## 7. BẢNG TỔNG HỢP CÁC CA KIỂM THỬ HỘP ĐEN CHO USE CASE 08
 
 | Mã ca kiểm thử | Tên ca kiểm thử | Kỹ thuật hộp đen áp dụng | Tiền điều kiện | Các bước thực hiện | Dữ liệu thử nghiệm | Kết quả mong đợi | Mức độ ưu tiên |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :---: |
@@ -272,7 +297,7 @@ stateDiagram-v2
 
 ---
 
-## 📊 PHẦN 8: ĐÁNH GIÁ ĐỘ BAO PHỦ VÀ KẾT LUẬN
+## 8. ĐÁNH GIÁ ĐỘ BAO PHỦ VÀ KẾT LUẬN USE CASE 08
 
 ### 1. Thống kê tỷ lệ ca kiểm thử theo kỹ thuật hộp đen
 
