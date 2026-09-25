@@ -15,7 +15,7 @@
 
 | STT | Họ và tên sinh viên | Mã sinh viên | Vai trò & Use Case đảm nhận | Nhiệm vụ cụ thể | Trạng thái |
 | :---: | :--- | :--- :--- | :--- | :--- | :---: |
-| 1 | **Phùng Văn Duy** | **2351170589** | **Thành viên chính**<br>- `USE-CASE 06`: **Thu Thập Hồ Sơ**<br>- `USE-CASE 07`: **Quản lý và Phân tích Hồ sơ Ứng viên**<br>- `USE-CASE 08`: **Kiểm chứng và Xác thực Hồ sơ** | - Phân tích chi tiết quy trình 4 giai đoạn chuẩn Senior QA / Test Lead cho 3 Use Case.<br>- Lập bảng phân tích ràng buộc từng trường dữ liệu theo EP và BVA.<br>- Phân tích quan hệ chéo, Bảng quyết định, Pre/Post-conditions và Sơ đồ trạng thái.<br>- Thiết kế chi tiết **114 ca kiểm thử** định dạng Markdown và CSV. | **Hoàn thành (100%)** |
+| 1 | **Phùng Văn Duy** | **2351170589** | **Thành viên chính**<br>- `USE-CASE 06`: **Thu Thập Hồ Sơ**<br>- `USE-CASE 07`: **Quản lý và Phân tích Hồ sơ Ứng viên**<br>- `USE-CASE 08`: **Kiểm chứng và Xác thực Hồ sơ** | - Phân tích chi tiết quy trình phân tích và thiết kế kiểm thử hộp đen chuẩn Senior QA / Test Lead cho 3 Use Case.<br>- Lập bảng phân tích ràng buộc từng trường dữ liệu theo EP và BVA.<br>- Phân tích quan hệ chéo, Bảng quyết định, Pre/Post-conditions và Sơ đồ trạng thái.<br>- Thiết kế chi tiết **114 ca kiểm thử** định dạng Markdown và CSV. | **Hoàn thành (100%)** |
 | 2 | **Lê Quý Dương** | **2351170587** | **Thành viên nhóm** | Đảm nhận các Use Case khác của Nhóm 09 & phối hợp kiểm thử tích hợp. | Đang thực hiện |
 | 3 | **Phạm Ngọc Bách** | **2351170576** | **Thành viên nhóm** | Đảm nhận các Use Case khác của Nhóm 09 & phối hợp kiểm thử tích hợp. | Đang thực hiện |
 | 4 | **Phạm Văn Hưng** | **2351170598** | **Thành viên nhóm** | Đảm nhận các Use Case khác của Nhóm 09 & phối hợp kiểm thử tích hợp. | Đang thực hiện |
@@ -27,24 +27,24 @@
 - **PHẦN MỞ ĐẦU: THÔNG TIN CHUNG & BẢNG PHÂN CHIA NHIỆM VỤ**
 - **USE-CASE 06: THU THẬP HỒ SƠ**
   - `1. THÔNG TIN CHUNG VỀ BÀI TẬP VÀ USE CASE 06`
-  - `2. GIAI ĐOẠN 1: PHÂN TÍCH RÀNG BUỘC TỪNG TRƯỜNG DỮ LIỆU`
-  - `3. GIAI ĐOẠN 2: PHÂN TÍCH QUAN HỆ CHÉO VÀ LOGIC NGHIỆP VỤ`
-  - `4. GIAI ĐOẠN 3: PHÂN TÍCH LUỒNG SỰ KIỆN`
-  - `5. GIAI ĐOẠN 4: BẢNG CA KIỂM THỬ CHI TIẾT TỔNG HỢP`
+  - `2. PHÂN TÍCH RÀNG BUỘC TỪNG TRƯỜNG DỮ LIỆU`
+  - `3. PHÂN TÍCH QUAN HỆ CHÉO VÀ LOGIC NGHIỆP VỤ`
+  - `4. PHÂN TÍCH LUỒNG SỰ KIỆN`
+  - `5. BẢNG CA KIỂM THỬ CHI TIẾT TỔNG HỢP`
   - `6. ĐÁNH GIÁ ĐỘ BAO PHỦ VÀ KẾT LUẬN USE CASE 06`
 - **USE-CASE 07: QUẢN LÝ VÀ PHÂN TÍCH HỒ SƠ ỨNG VIÊN**
   - `1. THÔNG TIN CHUNG VỀ BÀI TẬP VÀ USE CASE 07`
-  - `2. GIAI ĐOẠN 1: PHÂN TÍCH RÀNG BUỘC TỪNG TRƯỜNG DỮ LIỆU`
-  - `3. GIAI ĐOẠN 2: PHÂN TÍCH QUAN HỆ CHÉO VÀ LOGIC NGHIỆP VỤ`
-  - `4. GIAI ĐOẠN 3: PHÂN TÍCH LUỒNG SỰ KIỆN`
-  - `5. GIAI ĐOẠN 4: BẢNG CA KIỂM THỬ CHI TIẾT TỔNG HỢP`
+  - `2. PHÂN TÍCH RÀNG BUỘC TỪNG TRƯỜNG DỮ LIỆU`
+  - `3. PHÂN TÍCH QUAN HỆ CHÉO VÀ LOGIC NGHIỆP VỤ`
+  - `4. PHÂN TÍCH LUỒNG SỰ KIỆN`
+  - `5. BẢNG CA KIỂM THỬ CHI TIẾT TỔNG HỢP`
   - `6. ĐÁNH GIÁ ĐỘ BAO PHỦ VÀ KẾT LUẬN USE CASE 07`
 - **USE-CASE 08: KIỂM CHỨNG VÀ XÁC THỰC HỒ SƠ**
   - `1. THÔNG TIN CHUNG VỀ BÀI TẬP VÀ USE CASE 08`
-  - `2. GIAI ĐOẠN 1: PHÂN TÍCH RÀNG BUỘC TỪNG TRƯỜNG DỮ LIỆU`
-  - `3. GIAI ĐOẠN 2: PHÂN TÍCH QUAN HỆ CHÉO VÀ LOGIC NGHIỆP VỤ`
-  - `4. GIAI ĐOẠN 3: PHÂN TÍCH LUỒNG SỰ KIỆN`
-  - `5. GIAI ĐOẠN 4: BẢNG CA KIỂM THỬ CHI TIẾT TỔNG HỢP`
+  - `2. PHÂN TÍCH RÀNG BUỘC TỪNG TRƯỜNG DỮ LIỆU`
+  - `3. PHÂN TÍCH QUAN HỆ CHÉO VÀ LOGIC NGHIỆP VỤ`
+  - `4. PHÂN TÍCH LUỒNG SỰ KIỆN`
+  - `5. BẢNG CA KIỂM THỬ CHI TIẾT TỔNG HỢP`
   - `6. ĐÁNH GIÁ ĐỘ BAO PHỦ VÀ KẾT LUẬN USE CASE 08`
 - **TỔNG KẾT VÀ ĐÁNH GIÁ ĐỘ BAO PHỦ TOÀN DIỆN (114 CA KIỂM THỬ)**
   - `1. Ma trận tổng hợp phân bổ kỹ thuật hộp đen cho cả 3 Use Case`
@@ -91,7 +91,7 @@
 
 ---
 
-## 2. GIAI ĐOẠN 1: PHÂN TÍCH RÀNG BUỘC TỪNG TRƯỜNG DỮ LIỆU
+## 2. PHÂN TÍCH RÀNG BUỘC TỪNG TRƯỜNG DỮ LIỆU
 
 ### 1. Bảng phân tích chi tiết từng trường dữ liệu áp dụng phân vùng tương đương và giá trị biên
 
@@ -110,7 +110,7 @@
 
 ---
 
-## 3. GIAI ĐOẠN 2: PHÂN TÍCH QUAN HỆ CHÉO VÀ LOGIC NGHIỆP VỤ
+## 3. PHÂN TÍCH QUAN HỆ CHÉO VÀ LOGIC NGHIỆP VỤ
 
 ### 1. Ràng buộc phụ thuộc giữa các trường dữ liệu
 1. **Phụ thuộc giữa Phương thức thu thập và Trường dữ liệu tương ứng:**
@@ -195,7 +195,7 @@ stateDiagram-v2
 
 ---
 
-## 4. GIAI ĐOẠN 3: PHÂN TÍCH LUỒNG SỰ KIỆN
+## 4. PHÂN TÍCH LUỒNG SỰ KIỆN
 
 ### 1. Luồng chính thành công chuẩn
 - **Mục tiêu:** Thu thập thành công thông tin hồ sơ ứng viên thông qua quét DOM trực tiếp trên trang cá nhân LinkedIn/TopCV.
@@ -236,7 +236,7 @@ stateDiagram-v2
 
 ---
 
-## 5. GIAI ĐOẠN 4: BẢNG CA KIỂM THỬ CHI TIẾT TỔNG HỢP
+## 5. BẢNG CA KIỂM THỬ CHI TIẾT TỔNG HỢP
 
 | Test Case ID | Module / Feature | Test Type | Pre-conditions | Test Steps | Test Data | Expected Result | Priority |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :---: |
@@ -341,7 +341,7 @@ stateDiagram-v2
 
 ---
 
-## 2. GIAI ĐOẠN 1: PHÂN TÍCH RÀNG BUỘC TỪNG TRƯỜNG DỮ LIỆU
+## 2. PHÂN TÍCH RÀNG BUỘC TỪNG TRƯỜNG DỮ LIỆU
 
 ### 1. Bảng phân tích chi tiết từng trường dữ liệu áp dụng phân vùng tương đương và giá trị biên
 
@@ -358,7 +358,7 @@ stateDiagram-v2
 
 ---
 
-## 3. GIAI ĐOẠN 2: PHÂN TÍCH QUAN HỆ CHÉO VÀ LOGIC NGHIỆP VỤ
+## 3. PHÂN TÍCH QUAN HỆ CHÉO VÀ LOGIC NGHIỆP VỤ
 
 ### 1. Ràng buộc phụ thuộc giữa các trường dữ liệu
 1. **Quan hệ phối hợp đa tiêu chí lọc (Logic AND):**
@@ -442,7 +442,7 @@ stateDiagram-v2
 
 ---
 
-## 4. GIAI ĐOẠN 3: PHÂN TÍCH LUỒNG SỰ KIỆN
+## 4. PHÂN TÍCH LUỒNG SỰ KIỆN
 
 ### 1. Luồng chính thành công chuẩn
 - **Mục tiêu:** Tìm kiếm, lọc hồ sơ ứng viên và sử dụng AI so khớp với JD để đưa ra quyết định tuyển dụng.
@@ -479,7 +479,7 @@ stateDiagram-v2
 
 ---
 
-## 5. GIAI ĐOẠN 4: BẢNG CA KIỂM THỬ CHI TIẾT TỔNG HỢP
+## 5. BẢNG CA KIỂM THỬ CHI TIẾT TỔNG HỢP
 
 | Test Case ID | Module / Feature | Test Type | Pre-conditions | Test Steps | Test Data | Expected Result | Priority |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :---: |
@@ -580,7 +580,7 @@ stateDiagram-v2
 
 ---
 
-## 2. GIAI ĐOẠN 1: PHÂN TÍCH RÀNG BUỘC TỪNG TRƯỜNG DỮ LIỆU
+## 2. PHÂN TÍCH RÀNG BUỘC TỪNG TRƯỜNG DỮ LIỆU
 
 ### 1. Bảng phân tích chi tiết từng trường dữ liệu áp dụng phân vùng tương đương và giá trị biên
 
@@ -597,7 +597,7 @@ stateDiagram-v2
 
 ---
 
-## 3. GIAI ĐOẠN 2: PHÂN TÍCH QUAN HỆ CHÉO VÀ LOGIC NGHIỆP VỤ
+## 3. PHÂN TÍCH QUAN HỆ CHÉO VÀ LOGIC NGHIỆP VỤ
 
 ### 1. Ràng buộc phụ thuộc giữa các trường dữ liệu
 1. **Ràng buộc định danh tối thiểu để kích hoạt Agent:**
@@ -680,7 +680,7 @@ stateDiagram-v2
 
 ---
 
-## 4. GIAI ĐOẠN 3: PHÂN TÍCH LUỒNG SỰ KIỆN
+## 4. PHÂN TÍCH LUỒNG SỰ KIỆN
 
 ### 1. Luồng chính thành công chuẩn
 - **Mục tiêu:** Kiểm chứng tự động dấu vết số của ứng viên, đối chiếu trung thực với CV và xác nhận uy tín hồ sơ.
@@ -720,7 +720,7 @@ stateDiagram-v2
 
 ---
 
-## 5. GIAI ĐOẠN 4: BẢNG CA KIỂM THỬ CHI TIẾT TỔNG HỢP
+## 5. BẢNG CA KIỂM THỬ CHI TIẾT TỔNG HỢP
 
 | Test Case ID | Module / Feature | Test Type | Pre-conditions | Test Steps | Test Data | Expected Result | Priority |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :---: |

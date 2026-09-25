@@ -36,7 +36,7 @@
 
 ---
 
-## 2. GIAI ĐOẠN 1: PHÂN TÍCH RÀNG BUỘC TỪNG TRƯỜNG DỮ LIỆU
+## 2. PHÂN TÍCH RÀNG BUỘC TỪNG TRƯỜNG DỮ LIỆU
 
 ### 1. Bảng phân tích chi tiết từng trường dữ liệu áp dụng phân vùng tương đương và giá trị biên
 
@@ -53,7 +53,7 @@
 
 ---
 
-## 3. GIAI ĐOẠN 2: PHÂN TÍCH QUAN HỆ CHÉO VÀ LOGIC NGHIỆP VỤ
+## 3. PHÂN TÍCH QUAN HỆ CHÉO VÀ LOGIC NGHIỆP VỤ
 
 ### 1. Ràng buộc phụ thuộc giữa các trường dữ liệu
 1. **Quan hệ phối hợp đa tiêu chí lọc (Logic AND):**
@@ -137,7 +137,7 @@ stateDiagram-v2
 
 ---
 
-## 4. GIAI ĐOẠN 3: PHÂN TÍCH LUỒNG SỰ KIỆN
+## 4. PHÂN TÍCH LUỒNG SỰ KIỆN
 
 ### 1. Luồng chính thành công chuẩn
 - **Mục tiêu:** Tìm kiếm, lọc hồ sơ ứng viên và sử dụng AI so khớp với JD để đưa ra quyết định tuyển dụng.
@@ -174,7 +174,7 @@ stateDiagram-v2
 
 ---
 
-## 5. GIAI ĐOẠN 4: BẢNG CA KIỂM THỬ CHI TIẾT TỔNG HỢP
+## 5. BẢNG CA KIỂM THỬ CHI TIẾT TỔNG HỢP
 
 | Test Case ID | Module / Feature | Test Type | Pre-conditions | Test Steps | Test Data | Expected Result | Priority |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :---: |
