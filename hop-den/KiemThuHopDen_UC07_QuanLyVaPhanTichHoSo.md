@@ -36,282 +36,204 @@
 
 ---
 
-## 2. PHÂN TÍCH CƠ SỞ KIỂM THỬ USE CASE 07
+## 2. GIAI ĐOẠN 1: PHÂN TÍCH RÀNG BUỘC TỪNG TRƯỜNG DỮ LIỆU
 
-Dựa trên tài liệu đặc tả Use Case UC_07, cơ sở kiểm thử được phân rã thành các luồng nghiệp vụ, danh mục dữ liệu đầu vào (Inputs) và các quy tắc ràng buộc (Constraints) như sau:
+### 1. Bảng phân tích chi tiết từng trường dữ liệu áp dụng phân vùng tương đương và giá trị biên
 
-### 1. Phân rã luồng sự kiện nghiệp vụ
-1. **Luồng chính:**
-   - Bước 1: Chuyên viên tuyển dụng chọn menu "Danh sách ứng viên" trên Dashboard / Extension.
-   - Bước 2: Hệ thống hiển thị bảng danh sách ứng viên có phân trang (10 ứng viên/trang) với các cột tóm tắt: Họ tên, Vị trí ứng tuyển, Số năm kinh nghiệm, Ngày lưu, Trạng thái.
-   - Bước 3: Chuyên viên thiết lập bộ lọc (Kỹ năng, Kinh nghiệm, Trạng thái) $\rightarrow$ Hệ thống lọc tức thì hoặc sau khi bấm "Áp dụng".
-   - Bước 4: Chuyên viên click vào tên ứng viên cụ thể trong danh sách.
-   - Bước 5: Hệ thống hiển thị giao diện "Chi tiết hồ sơ ứng viên" gồm: Thông tin cá nhân, Lịch sử làm việc, Trình độ học vấn, Kỹ năng, Chứng chỉ đã trích xuất.
-   - Bước 6: Chuyên viên chọn 1 JD đang mở tuyển từ danh mục để làm căn cứ so sánh, sau đó nhấn nút "Phân tích AI".
-   - Bước 7: Hệ thống kích hoạt AI so khớp dữ liệu ứng viên với JD đã chọn và hiển thị kết quả phân tích:
-     + Điểm phù hợp (Matching Score) trên thang điểm 100%.
-     + Bảng phân tích khoảng cách kỹ năng (Gap Analysis) liệt kê kỹ năng còn thiếu.
-     + Cảnh báo rủi ro (Red Flags) nếu phát hiện bất thường.
-     + Tóm tắt đánh giá (Summary) tổng kết điểm mạnh và điểm yếu.
-   - Bước 8: Chuyên viên nhấn "Lưu kết quả" hoặc cập nhật trạng thái hồ sơ (chuyển sang Phù hợp, Phỏng vấn...).
-   - Bước 9: Hệ thống lưu kết quả vào CSDL và thông báo: *"Cập nhật thành công"*.
-2. **Luồng thay thế:**
-   - **Luồng 3a (Xóa bộ lọc):** Người dùng nhấn "Xóa bộ lọc" $\rightarrow$ Đặt lại toàn bộ tiêu chí lọc về mặc định và tải lại danh sách ban đầu.
-   - **Luồng 4a (Xem nhanh):** Người dùng rê chuột vào hình đại diện của ứng viên $\rightarrow$ Hiển thị thẻ xem nhanh tóm tắt thông tin và liên kết xem CV gốc.
-   - **Luồng 8a (Xuất báo cáo PDF):** Người dùng nhấn nút "In / Xuất PDF" $\rightarrow$ Hệ thống tạo và tải xuống tệp PDF chứa đầy đủ thông tin ứng viên và kết quả phân tích AI.
-3. **Các luồng ngoại lệ:**
-   - **`EX_01` (Không tìm thấy kết quả phù hợp):** Bộ lọc không khớp với bất kỳ hồ sơ nào trong CSDL $\rightarrow$ Hiển thị thông báo: *"Không tìm thấy ứng viên phù hợp với tiêu chí đã chọn"*.
-   - **`EX_02` (Chưa chọn JD so sánh):** Bấm "Phân tích AI" khi chưa chọn JD $\rightarrow$ Hiển thị cảnh báo: *"Vui lòng chọn JD (Mô tả công việc) để thực hiện so khớp"*, đồng thời tự động mở rộng danh mục JD để người dùng chọn nhanh.
-
-### 2. Yêu cầu Đầu vào
-
-| STT | Tên tham số đầu vào | Kiểu dữ liệu | Nguồn dữ liệu (Source) | Mô tả chi tiết |
-| :---: | :--- | :---: | :--- | :--- |
-| $IP_{07\_1}$ | **Từ khóa lọc kỹ năng** | `String` | Nhập từ ô tìm kiếm | Kỹ năng cần tìm (đơn lẻ hoặc tổ hợp phân cách bằng dấu phẩy). |
-| $IP_{07\_2}$ | **Khoảng số năm kinh nghiệm**| `Float Range` | Dropdown hoặc Slider | Khoảng kinh nghiệm yêu cầu: $0$, $0-2$, $2-5$, hoặc $>5$ năm. |
-| $IP_{07\_3}$ | **Trạng thái hồ sơ cần lọc** | `Enum` | Dropdown trạng thái | Giá trị: Tất cả, Mới, Đã xem, Phù hợp, Phỏng vấn, Từ chối. |
-| $IP_{07\_4}$ | **Số thứ tự trang cần xem** | `Integer` | Thanh điều hướng phân trang| Chỉ số trang hiện tại ($1 \le \text{Page} \le \text{TotalPages}$) hoặc nút Next/Prev. |
-| $IP_{07\_5}$ | **Mã định danh ứng viên (ID)** | `Integer / UUID` | Click chọn dòng trên bảng | ID hồ sơ ứng viên được chọn để mở xem chi tiết hoặc hover xem nhanh. |
-| $IP_{07\_6}$ | **Mã Mô tả công việc (JD ID)** | `Integer / UUID` | Dropdown chọn JD | ID của bản JD đang mở tuyển được chọn làm căn cứ so sánh AI. |
-| $IP_{07\_7}$ | **Trạng thái cập nhật mới** | `Enum` | Dropdown cập nhật | Trạng thái mới của ứng viên được chuyên viên cập nhật thủ công. |
-| $IP_{07\_8}$ | **Lệnh xuất báo cáo** | `Action Button` | Nút bấm "In / Xuất PDF"| Yêu cầu hệ thống kết xuất kết quả đánh giá ra tệp PDF. |
-
-### 3. Yêu cầu Ràng buộc
-
-| Nhóm ràng buộc | Mã ràng buộc | Quy tắc ràng buộc chi tiết | Hành vi hệ thống khi vi phạm |
-| :--- | :---: | :--- | :--- |
-| **Ràng buộc tiền điều kiện**| $C_{07\_1}$ | CSDL phải có ít nhất 01 hồ sơ ứng viên để hiển thị bảng danh sách. | CSDL rỗng ($0$ hồ sơ) $\rightarrow$ Hiển thị giao diện trạng thái trống (Empty State). |
-| | $C_{07\_2}$ | Hệ thống phải có ít nhất 01 JD đang hoạt động (Active JD) để phục vụ so sánh AI. | Chưa có JD $\rightarrow$ Dropdown JD báo rỗng kèm nút dẫn tới trang Tạo JD mới. |
-| **Ràng buộc phân trang** | $C_{07\_3}$ | Kích thước mỗi trang cố định là **10 bản ghi/trang** (Page Size = 10). | Hiển thị tối đa 10 dòng/trang, tự động tính tổng số trang. |
-| | $C_{07\_4}$ | Nút "Previous (<)" bị vô hiệu hóa (disabled) tại Trang 1; Nút "Next (>)" bị vô hiệu hóa tại Trang cuối. | Ngăn người dùng chuyển trang về số âm hoặc vượt quá tổng số trang. |
-| **Ràng buộc bộ lọc** | $C_{07\_5}$ | Tìm kiếm kỹ năng không phân biệt chữ hoa/thường (*Case-insensitivity*: `reactjs` $\equiv$ `ReactJS`). | Trả về kết quả chính xác bất kể kiểu chữ hoa thường. |
-| | $C_{07\_6}$ | Hệ thống phải tự động cắt bỏ khoảng trắng thừa ở hai đầu chuỗi tìm kiếm (*Trim whitespace*). | Chuỗi `"   NodeJS   "` được xử lý như `"NodeJS"`. |
-| | $C_{07\_7}$ | Số năm kinh nghiệm lọc bắt buộc phải là số thực không âm ($\text{Exp} \ge 0$). | Nhập số âm $\rightarrow$ Báo lỗi số năm kinh nghiệm không hợp lệ. |
-| | $C_{07\_8}$ | Khi chọn nhiều tiêu chí lọc đồng thời $\rightarrow$ Áp dụng logic `AND` (thỏa mãn tất cả tiêu chí). | Nếu không có ứng viên nào khớp $\rightarrow$ Kích hoạt ngoại lệ `EX_01`. |
-| **Ràng buộc phân tích AI** | $C_{07\_9}$ | Bắt buộc phải chọn 1 JD trước khi nhấn nút "Phân tích AI". | Chưa chọn JD mà bấm Phân tích $\rightarrow$ Kích hoạt lỗi `EX_02`, mở danh mục JD. |
-| | $C_{07\_10}$| Điểm số phù hợp (Matching Score) do AI sinh ra bắt buộc nằm trong đoạn $[0\%, 100\%]$. | Chặn hiển thị nếu điểm $< 0\%$ hoặc $> 100\%$, ghi log lỗi thuật toán AI. |
-| | $C_{07\_11}$| Thời gian xử lý so khớp AI không được vượt quá **10.0 giây**. | Quá 10.0 giây $\rightarrow$ Ngắt kết nối, báo lỗi timeout máy chủ AI. |
-| **Ràng buộc chuyển trạng thái**| $C_{07\_12}$| Hồ sơ `Mới` tự động chuyển sang `Đã xem` khi chuyên viên mở chi tiết lần đầu. | Cập nhật CSDL và hiển thị nhãn "Đã xem". |
-| | $C_{07\_13}$| Chuyển trạng thái phải tuân thủ luồng tuyển dụng: `Mới` $\rightarrow$ `Đã xem` $\rightarrow$ `Phù hợp` $\rightarrow$ `Phỏng vấn` $\rightarrow$ `Trúng tuyển`/`Từ chối`. Không cho phép chuyển ngược từ `Trúng tuyển` về `Mới`. | Chặn các hành vi chuyển trạng thái trái phép qua giao diện hoặc API. |
-| **Ràng buộc tương tranh** | $C_{07\_14}$| Nút "Phân tích AI" bị khóa mờ ngay sau lần nhấn đầu tiên để chống spam click. | Ngăn chặn việc gửi nhiều tác vụ phân tích trùng lặp lên máy chủ AI. |
-| | $C_{07\_15}$| Nút "In / Xuất PDF" chỉ được kích hoạt sau khi AI hoàn tất phân tích. | Khóa nút Xuất PDF khi đang phân tích để tránh xuất tệp dữ liệu rỗng. |
-| **Ràng buộc bảo mật** | $C_{07\_16}$| Toàn bộ các ô lọc tìm kiếm phải chống tấn công SQL Injection và XSS. | Sử dụng Parameterized Queries và khử mã HTML độc hại. |
-
----
-
-## 3. ÁP DỤNG PHƯƠNG PHÁP PHÂN VÙNG TƯƠNG ĐƯƠNG
-
-### 1. Phân chia các lớp tương đương
-
-| Tham số đầu vào / Ràng buộc | Mã phân vùng | Chi tiết phân vùng | Tính chất | Kỳ vọng xử lý |
-| :--- | :--- | :--- | :---: | :--- |
-| **Kỹ năng cần lọc** ($IP_{07\_1}, C_{07\_5}$) | `EP_SK1` | Kỹ năng đơn lẻ có trong CSDL (ví dụ: `ReactJS`) | Hợp lệ | Trả về danh sách ứng viên có kỹ năng |
-| | `EP_SK2` | Tổ hợp nhiều kỹ năng đồng thời (ví dụ: `ReactJS`, `Node.js`) | Hợp lệ | Trả về ứng viên thỏa mãn đồng thời các kỹ năng |
-| | `EP_SK3` | Kỹ năng không tồn tại trong bất kỳ hồ sơ nào | Hợp lệ (Ngoại lệ) | Kích hoạt ngoại lệ EX_01 |
-| | `EP_SK4` | Chèn ký tự đặc biệt, mã độc SQL/XSS (`' OR 1=1--`, `<script>`) | Không hợp lệ | Lọc sạch dữ liệu (Sanitize), không lỗi cú pháp |
-| **Số năm kinh nghiệm** ($IP_{07\_2}, C_{07\_7}$) | `EP_EX1` | $\text{Exp} = 0$ (Fresher / Chưa có kinh nghiệm) | Hợp lệ | Lọc đúng nhóm ứng viên mới ra trường |
-| | `EP_EX2` | $0 < \text{Exp} < 2$ năm (Kinh nghiệm cơ bản) | Hợp lệ | Lọc đúng nhóm ứng viên sơ cấp |
-| | `EP_EX3` | $2 \le \text{Exp} < 5$ năm (Kinh nghiệm trung cấp) | Hợp lệ | Lọc đúng nhóm ứng viên trung cấp |
-| | `EP_EX4` | $\text{Exp} \ge 5$ năm (Kinh nghiệm chuyên sâu / Lâu năm) | Hợp lệ | Lọc đúng nhóm ứng viên cao cấp |
-| | `EP_EX5` | $\text{Exp} < 0$ (Số năm âm) | Không hợp lệ | Chặn nhập liệu, báo lỗi số năm không hợp lệ |
-| | `EP_EX6` | Nhập ký tự chữ hoặc ký hiệu lạ vào ô kinh nghiệm | Không hợp lệ | Không cho nhập hoặc báo lỗi định dạng số |
-| **Trạng thái ứng viên** ($IP_{07\_3}, C_{07\_13}$)| `EP_ST1` | Trạng thái "Mới" | Hợp lệ | Lọc ra các hồ sơ mới thu thập chưa duyệt |
-| | `EP_ST2` | Trạng thái "Đã xem" | Hợp lệ | Lọc ra các hồ sơ chuyên viên đã mở xem |
-| | `EP_ST3` | Trạng thái "Phù hợp" | Hợp lệ | Lọc ra các hồ sơ đạt tiêu chuẩn sơ tuyển |
-| | `EP_ST4` | Trạng thái "Phỏng vấn" | Hợp lệ | Lọc ra các hồ sơ đang trong vòng phỏng vấn |
-| | `EP_ST5` | Trạng thái "Từ chối" | Hợp lệ | Lọc ra các hồ sơ đã bị loại |
-| | `EP_ST6` | Giá trị trạng thái giả mạo qua API | Không hợp lệ | Báo lỗi 400 Bad Request, từ chối cập nhật |
-| **Lựa chọn JD so sánh** ($IP_{07\_6}, C_{07\_9}$)| `EP_JD1` | Chọn 1 JD hợp lệ đang mở tuyển | Hợp lệ | Kích hoạt AI phân tích so khớp bình thường |
-| | `EP_JD2` | Không chọn JD nào (để trống) | Không hợp lệ | Chặn phân tích, báo lỗi EX_02 |
-| | `EP_JD3` | JD đã đóng tuyển dụng hoặc bị xóa | Không hợp lệ | Báo lỗi JD không còn hoạt động |
-| **Điểm số phù hợp** ($C_{07\_10}$) | `EP_SC1` | Điểm thấp: $0\% \le \text{Điểm} < 50\%$ | Hợp lệ | Hiển thị màu đỏ / Đánh giá không phù hợp |
-| | `EP_SC2` | Điểm trung bình: $50\% \le \text{Điểm} < 75\%$ | Hợp lệ | Hiển thị màu vàng / Cần xem xét thêm |
-| | `EP_SC3` | Điểm cao: $75\% \le \text{Điểm} \le 100\%$ | Hợp lệ | Hiển thị màu xanh / Rất phù hợp |
-| | `EP_SC4` | $\text{Điểm} < 0\%$ hoặc $\text{Điểm} > 100\%$ do lỗi tính toán | Không hợp lệ | Chặn hiển thị số liệu sai, ghi log lỗi hệ thống |
-| **Phân trang danh sách** ($IP_{07\_4}, C_{07\_3}, C_{07\_4}$)| `EP_PG1` | Trang đầu tiên ($\text{Trang} = 1$) | Hợp lệ | Nút "Trang trước" bị vô hiệu hóa |
-| | `EP_PG2` | Các trang ở giữa ($1 < \text{Trang} < \text{Tổng số}$) | Hợp lệ | Cả hai nút "Trước" và "Sau" đều hoạt động |
-| | `EP_PG3` | Trang cuối cùng ($\text{Trang} = \text{Tổng số}$) | Hợp lệ | Nút "Trang sau" bị vô hiệu hóa |
-| | `EP_PG4` | Nhập số trang $\le 0$ hoặc vượt tổng số trang | Không hợp lệ | Điều hướng về trang 1 hoặc thông báo lỗi |
-
----
-
-## 4. ÁP DỤNG PHƯƠNG PHÁP PHÂN TÍCH GIÁ TRỊ BIÊN
-
-### 1. Phân tích giá trị biên cho tham số Số năm kinh nghiệm (Ngưỡng phân cấp 2.0 năm)
-```
-Số năm kinh nghiệm:
-[--- 0 năm (Biên dưới) --- 1.9 năm (Cận dưới) ---|--- 2.0 năm (Biên chuẩn) --- 2.1 năm (Cận trên) ---]
-```
-- Điểm cận dưới: `1.9 năm` (23 tháng) $\rightarrow$ Không thỏa mãn tiêu chí $\ge 2$ năm.
-- Điểm tại biên: `2.0 năm` (24 tháng) $\rightarrow$ Thỏa mãn tiêu chí $\ge 2$ năm.
-- Điểm cận trên: `2.1 năm` $\rightarrow$ Thỏa mãn tiêu chí $\ge 2$ năm.
-
-### 2. Phân tích giá trị biên cho tham số Điểm phù hợp theo thang điểm 0% - 100%
-```
-Thang điểm phù hợp (%):
-[--- < 0% (Lỗi) ---|--- 0% (Biên dưới) -------- 100% (Biên trên) ---|--- > 100% (Lỗi) ---]
-```
-| Vị trí biên | Giá trị cụ thể | Phân loại | Ý nghĩa kiểm thử |
-| :--- | :--- | :---: | :--- |
-| **Biên dưới tuyệt đối** | `0%` | Valid Min | Không phù hợp tiêu chí nào (CV và JD hoàn toàn lệch ngành) |
-| **Biên dưới tối thiểu** | `1%` | Valid Min+ | Mức độ phù hợp tối thiểu |
-| **Giá trị trung vị** | `50%` | Nominal | Ngưỡng ranh giới giữa không phù hợp và tiềm năng |
-| **Cận biên trên** | `99%` | Valid Max- | Phù hợp gần như tuyệt đối |
-| **Biên trên tuyệt đối** | `100%` | Valid Max | Hồ sơ hoàn hảo, khớp toàn bộ kỹ năng và yêu cầu |
-| **Vượt biên ngoài phạm vi** | `-1%` / `101%` | Invalid Extreme | Lỗi thuật toán làm tròn hoặc công thức chấm điểm AI |
-
-### 3. Phân tích giá trị biên cho Kích thước phân trang theo ngưỡng 10 bản ghi
-| Vị trí biên | Tổng số hồ sơ | Số trang hiển thị | Trạng thái các nút điều hướng |
-| :--- | :--- | :---: | :--- |
-| **Danh sách rỗng** | `0 hồ sơ` | 0 trang | Hiển thị trạng thái trống, không có phân trang |
-| **Vừa đúng 1 trang** | `10 hồ sơ` | 1 trang | Trang 1 duy nhất, nút Trang trước và Trang sau đều bị vô hiệu hóa |
-| **Bắt đầu sang trang 2**| `11 hồ sơ` | 2 trang | Trang 1 hiển thị 10 hồ sơ, kích hoạt nút chuyển sang trang 2 |
-
----
-
-## 5. ÁP DỤNG PHƯƠNG PHÁP BẢNG QUYẾT ĐỊNH
-
-### 1. Danh sách Điều kiện và Hành động
-- **Điều kiện (Conditions):**
-  - $C_1$: Bộ lọc có tìm thấy hồ sơ phù hợp trong CSDL?
-  - $C_2$: Chuyên viên đã chọn một ứng viên cụ thể để mở xem chi tiết?
-  - $C_3$: Chuyên viên đã chọn JD làm căn cứ so sánh?
-  - $C_4$: Chuyên viên nhấn nút "Phân tích AI"?
-  - $C_5$: Chuyên viên nhấn nút "In / Xuất PDF"?
-- **Hành động (Actions):**
-  - $A_1$: Hiển thị danh sách ứng viên tương ứng với bộ lọc
-  - $A_2$: Hiển thị thông báo ngoại lệ `EX_01` ("Không tìm thấy ứng viên phù hợp")
-  - $A_3$: Mở màn hình Chi tiết hồ sơ ứng viên
-  - $A_4$: Hiển thị thông báo ngoại lệ `EX_02` ("Vui lòng chọn JD để so khớp")
-  - $A_5$: Hiển thị kết quả AI (Điểm phù hợp, Khoảng cách kỹ năng, Tóm tắt, Cảnh báo)
-  - $A_6$: Cho phép cập nhật trạng thái ứng viên
-  - $A_7$: Tải xuống tệp PDF báo cáo kết quả đánh giá
-
-### 2. Bảng quyết định rút gọn
-
-| Điều kiện / Hành động | Quy tắc 1 (R1) | Quy tắc 2 (R2) | Quy tắc 3 (R3) | Quy tắc 4 (R4) | Quy tắc 5 (R5) | Quy tắc 6 (R6) |
-| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
-| **C1: Bộ lọc có kết quả trong CSDL?** | Có | **Không** | Có | Có | Có | Có |
-| **C2: Đã chọn 1 ứng viên xem chi tiết?**| Không | Không áp dụng | Có | Có | Có | Có |
-| **C3: Đã chọn JD so sánh?** | Không áp dụng | Không áp dụng | **Không** | Có | Có | Có |
-| **C4: Nhấn nút "Phân tích AI"?** | Không áp dụng | Không áp dụng | Có | Có | Không | Có |
-| **C5: Nhấn nút "In / Xuất PDF"?** | Không áp dụng | Không áp dụng | Không áp dụng | Không | Không | **Có** |
-| **HÀNH ĐỘNG** | | | | | | |
-| **A1: Hiển thị bảng danh sách ứng viên** | **X** | | | | | |
-| **A2: Báo lỗi EX_01 ("Không tìm thấy")** | | **X** | | | | |
-| **A3: Mở Chi tiết hồ sơ ứng viên** | | | **X** | **X** | **X** | **X** |
-| **A4: Báo lỗi EX_02 ("Vui lòng chọn JD")**| | | **X** | | | |
-| **A5: Hiển thị kết quả phân tích AI** | | | | **X** | | **X** |
-| **A6: Cập nhật trạng thái ứng viên** | | | | **X** | **X** | **X** |
-| **A7: Tải xuống báo cáo PDF** | | | | | | **X** |
-
----
-
-## 6. ÁP DỤNG PHƯƠNG PHÁP KIỂM THỬ CHUYỂN TRẠNG THÁI
-
-### 1. Vòng đời trạng thái hồ sơ ứng viên
-```mermaid
-stateDiagram-v2
-    [*] --> Moi: Thu thập từ UC_06 (Mới)
-    Moi --> DaXem: Click mở chi tiết hồ sơ
-    DaXem --> PhuHop: AI Matching Score >= 75% / Duyệt sơ loại
-    DaXem --> TuChoi: Không phù hợp tiêu chí / Loại hồ sơ
-    PhuHop --> PhongVan: Chuyển sang vòng Phỏng vấn
-    PhongVan --> TrungTuyen: Đạt phỏng vấn (Trúng tuyển)
-    PhongVan --> TuChoi: Trượt phỏng vấn
-    TrungTuyen --> [*]
-    TuChoi --> [*]
-```
-
-### 2. Vòng đời tiến trình phân tích so khớp AI
-```mermaid
-stateDiagram-v2
-    [*] --> ChuaPhanTich: Mở chi tiết hồ sơ
-    ChuaPhanTich --> BaoLoi_EX02: Bấm Phân tích (Chưa chọn JD)
-    BaoLoi_EX02 --> ChuaPhanTich: Chọn nhanh JD bổ sung
-    ChuaPhanTich --> DangPhanTich: Đã chọn JD & Nhấn Phân tích
-    DangPhanTich --> DaPhanTich: AI trả kết quả (Score, Gap, Summary)
-    DangPhanTich --> LoiTimeout: Quá 10 giây không có kết quả
-    LoiTimeout --> ChuaPhanTich: Thử lại phân tích
-    DaPhanTich --> DaLuuKetQua: Nhấn "Lưu kết quả"
-    DaPhanTich --> XuatBaoCaoPDF: Nhấn "In" / Xuất PDF
-```
-
-### 3. Bảng chuyển trạng thái
-
-| Trạng thái hiện tại | Sự kiện kích hoạt (Event) | Điều kiện bảo vệ | Trạng thái tiếp theo | Hành động thực hiện |
+| Tên trường | Ràng buộc nghiệp vụ và kỹ thuật | Phân vùng hợp lệ và Giá trị đại diện | Phân vùng không hợp lệ và Giá trị đại diện | Các giá trị biên cần kiểm thử |
 | :--- | :--- | :--- | :--- | :--- |
-| `Hồ sơ Mới` | Click vào tên ứng viên | Người dùng mở xem chi tiết | `Đã xem` | Mở màn hình chi tiết, đổi trạng thái sang "Đã xem" |
-| `Đã xem` | Nhấn "Phân tích AI" | Chưa chọn JD trong dropdown | `Cảnh báo thiếu JD` | Báo lỗi EX_02, tự động mở danh sách JD |
-| `Đã xem` | Nhấn "Phân tích AI" | Đã chọn 1 JD hợp lệ | `Đang phân tích` | Hiển thị thanh tiến trình, gửi request tới AI |
-| `Đang phân tích` | AI trả về kết quả | Thời gian $T \le 10\text{s}$ | `Đã phân tích` | Hiển thị Điểm phù hợp, Gap, Summary, Red Flags |
-| `Đang phân tích` | Quá thời gian chờ | Thời gian $T > 10\text{s}$ | `Lỗi kết nối AI` | Thông báo gián đoạn máy chủ AI, cho phép thử lại |
-| `Đã phân tích` | Nhấn "Lưu kết quả" | Dữ liệu đầy đủ | `Đã lưu kết quả` | Lưu điểm số và bảng so khớp vào CSDL |
-| `Đã phân tích` | Chọn trạng thái "Phù hợp" | Chuyên viên xác nhận | `Phù hợp` | Cập nhật trạng thái mới của ứng viên trong CSDL |
-| `Đã phân tích` | Nhấn "In / Xuất PDF" | Hồ sơ đã phân tích xong | `Đã xuất PDF` | Tạo tệp PDF và kích hoạt tải xuống trình duyệt |
+| **Từ khóa lọc kỹ năng** | - Kiểu: `String`<br>- Không bắt buộc (Tuỳ chọn)<br>- Độ dài: $0 \le L \le 100$ ký tự<br>- Không phân biệt hoa/thường (*Case-insensitive*)<br>- Tự động cắt khoảng trắng thừa (*Trim whitespace*)<br>- Chống SQL Injection và XSS | - Phân vùng hợp lệ:<br>  + Kỹ năng đơn: `"ReactJS"`<br>  + Nhiều kỹ năng: `"ReactJS, Node.js"`<br>  + Chuỗi rỗng: `""` (không lọc kỹ năng) | - Phân vùng không hợp lệ:<br>  + Chèn SQLi: `' OR 1=1--`<br>  + Chèn XSS: `<script>alert(1)</script>`<br>  + Kỹ năng không tồn tại trong CSDL (Kích hoạt EX_01)<br>  + Chuỗi quá 100 ký tự | - Biên độ dài ký tự:<br>  + $L = 0$: `""` (Hiển thị tất cả)<br>  + $L = 1$: `"C"` (Hợp lệ)<br>  + $L = 2$: `"Go"` (Hợp lệ)<br>  + $L = 99$: Chuỗi 99 ký tự (Hợp lệ)<br>  + $L = 100$: Chuỗi 100 ký tự (Hợp lệ tối đa)<br>  + $L = 101$: Chuỗi 101 ký tự (Cắt ngắn hoặc báo lỗi) |
+| **Số năm kinh nghiệm lọc** | - Kiểu: `Float Range`<br>- Không bắt buộc<br>- Giá trị số thực không âm: $0.0 \le \text{Exp} \le 50.0$<br>- Hỗ trợ các mốc lọc nhanh: Tất cả, 0 năm, 0-2 năm, 2-5 năm, >5 năm | - Phân vùng hợp lệ:<br>  + `0` (Fresher/Chưa có kinh nghiệm)<br>  + `0 < Exp < 2` (Sơ cấp)<br>  + `2 <= Exp < 5` (Trung cấp)<br>  + `Exp >= 5` (Chuyên gia/Lâu năm) | - Phân vùng không hợp lệ:<br>  + Số âm: `-1.0`<br>  + Nhập ký tự chữ: `"năm năm"`<br>  + Chèn ký tự lạ: `@#$` | - Biên số năm kinh nghiệm:<br>  + $\text{Exp} = -0.1$ (Lỗi số âm)<br>  + $\text{Exp} = 0.0$ (Hợp lệ tối thiểu - Fresher)<br>  + $\text{Exp} = 0.1$ (Hợp lệ)<br>  + $\text{Exp} = 1.9$ và $2.0$ (Biên chuyển nhóm)<br>  + $\text{Exp} = 4.9$ và $5.0$ (Biên chuyển nhóm)<br>  + $\text{Exp} = 50.0$ (Hợp lệ tối đa)<br>  + $\text{Exp} = 50.1$ (Lỗi vượt 50 năm) |
+| **Trạng thái hồ sơ lọc** | - Kiểu: `Enum`<br>- Bắt buộc chọn 1 trong các giá trị:<br>  `Tất cả`, `Mới`, `Đã xem`, `Phù hợp`, `Phỏng vấn`, `Trúng tuyển`, `Từ chối` | - Phân vùng hợp lệ:<br>  + Trạng thái `"Tất cả"`<br>  + Trạng thái `"Mới"`<br>  + Trạng thái `"Phù hợp"`<br>  + Trạng thái `"Phỏng vấn"` | - Phân vùng không hợp lệ:<br>  + Giá trị ngoài enum: `"Đang chờ"`, `"Bị xóa"`<br>  + Giá trị rỗng hoặc sai kiểu dữ liệu | - Không áp dụng giá trị biên (Trường lựa chọn hữu hạn) |
+| **Số thứ tự trang phân trang** | - Kiểu: `Integer`<br>- Ràng buộc: $1 \le \text{Page} \le \text{TotalPages}$<br>- Kích thước trang cố định: 10 bản ghi/trang | - Phân vùng hợp lệ:<br>  + Trang đầu tiên: `Page = 1`<br>  + Trang ở giữa: `1 < Page < TotalPages`<br>  + Trang cuối cùng: `Page = TotalPages` | - Phân vùng không hợp lệ:<br>  + `Page = 0`<br>  + `Page < 0`: `-1`<br>  + Vượt trang cuối: `Page = TotalPages + 1`<br>  + Chuỗi ký tự: `"trang_hai"` | - Biên chỉ số trang (Giả sử TotalPages = 5):<br>  + $\text{Page} = 0$ (Lỗi/Nút Prev disabled)<br>  + $\text{Page} = 1$ (Biên dưới - Nút Prev bị khóa)<br>  + $\text{Page} = 2$ (Hợp lệ)<br>  + $\text{Page} = 4$ (Hợp lệ)<br>  + $\text{Page} = 5$ (Biên trên - Nút Next bị khóa)<br>  + $\text{Page} = 6$ (Lỗi vượt quá tổng số trang) |
+| **Mã hồ sơ ứng viên (ID)** | - Kiểu: `Integer / UUID`<br>- Bắt buộc phải tồn tại trong CSDL | - Phân vùng hợp lệ:<br>  + ID tồn tại: `CAND_001`, `105` | - Phân vùng không hợp lệ:<br>  + ID không tồn tại: `999999`<br>  + ID chứa ký tự đặc biệt: `CAND_#$` | - Không áp dụng giá trị biên |
+| **Mã Mô tả công việc (JD ID)** | - Kiểu: `Integer / UUID`<br>- Bắt buộc phải chọn trước khi bấm "Phân tích AI"<br>- Phải ở trạng thái "Active" (Đang mở tuyển) | - Phân vùng hợp lệ:<br>  + JD đang mở: `JD_FULLSTACK_01` | - Phân vùng không hợp lệ:<br>  + Chưa chọn JD (`null` - Kích hoạt lỗi EX_02)<br>  + JD đã đóng/hết hạn tuyển dụng | - Không áp dụng giá trị biên |
+| **Điểm phù hợp AI** | - Kiểu: `Percentage Number`<br>- Thang điểm phần trăm: $[0\%, 100\%]$ | - Phân vùng hợp lệ:<br>  + $0\%$ (Hoàn toàn không phù hợp)<br>  + $45\%$ (Phù hợp trung bình)<br>  + $85\%$ (Rất phù hợp)<br>  + $100\%$ (Khớp hoàn hảo) | - Phân vùng không hợp lệ:<br>  + Điểm âm: $-1\%$, $-10\%$<br>  + Vượt quá: $101\%$, $150\%$ | - Biên điểm số Matching Score:<br>  + $\text{Score} = -1\%$ (Lỗi hệ thống AI)<br>  + $\text{Score} = 0\%$ (Hợp lệ tối thiểu)<br>  + $\text{Score} = 1\%$ (Hợp lệ)<br>  + $\text{Score} = 99\%$ (Hợp lệ)<br>  + $\text{Score} = 100\%$ (Hợp lệ tối đa)<br>  + $\text{Score} = 101\%$ (Lỗi vượt ngưỡng) |
+| **Thời gian xử lý so khớp AI** | - Kiểu: `Duration (Giây)`<br>- Ngưỡng tối đa cho phép: $10.0$ giây | - Phân vùng hợp lệ:<br>  + $0.1\text{s} \le T \le 10.0\text{s}$ (Thành công) | - Phân vùng không hợp lệ:<br>  + $T > 10.0\text{s}$ (Timeout máy chủ AI) | - Biên thời gian:<br>  + $T = 9.9\text{s}$ (Hợp lệ)<br>  + $T = 10.0\text{s}$ (Hợp lệ tối đa)<br>  + $T = 10.1\text{s}$ (Ngắt kết nối, báo lỗi timeout) |
 
 ---
 
-## 7. BẢNG TỔNG HỢP CÁC CA KIỂM THỬ HỘP ĐEN CHO USE CASE 07
+## 3. GIAI ĐOẠN 2: PHÂN TÍCH QUAN HỆ CHÉO VÀ LOGIC NGHIỆP VỤ
 
-| Mã ca kiểm thử | Tên ca kiểm thử | Kỹ thuật hộp đen áp dụng | Tiền điều kiện | Các bước thực hiện | Dữ liệu thử nghiệm | Kết quả mong đợi | Mức độ ưu tiên |
+### 1. Ràng buộc phụ thuộc giữa các trường dữ liệu
+1. **Quan hệ phối hợp đa tiêu chí lọc (Logic AND):**
+   - Khi chuyên viên thiết lập đồng thời nhiều tiêu chí lọc:
+     $$\text{Kết quả} = (\text{Kỹ năng} \cap \text{Kinh nghiệm} \cap \text{Trạng thái})$$
+   - Nếu không có hồ sơ nào thỏa mãn đồng thời tất cả các điều kiện đã chọn $\rightarrow$ Kích hoạt ngoại lệ `EX_01` và hiển thị thông báo: *"Không tìm thấy ứng viên phù hợp với tiêu chí đã chọn"*.
+2. **Quan hệ phụ thuộc giữa Nút "Phân tích AI" và Trường "JD ID":**
+   - Nút "Phân tích AI" phụ thuộc trực tiếp vào việc lựa chọn `JD ID`.
+   - Nếu chuyên viên nhấn "Phân tích AI" khi `JD ID = null` (chưa chọn JD) $\rightarrow$ Hệ thống chặn gọi API, hiển thị cảnh báo `EX_02`: *"Vui lòng chọn JD (Mô tả công việc) để thực hiện so khớp"* và tự động bung mở Dropdown danh mục JD để người dùng chọn nhanh.
+3. **Quan hệ giữa Kết quả Phân tích AI và Chức năng Xuất báo cáo PDF:**
+   - Nút "In / Xuất PDF" bị làm mờ (disabled) khi hồ sơ chưa thực hiện phân tích AI hoặc đang trong quá trình phân tích nhằm tránh xuất tệp dữ liệu rỗng.
+   - Chỉ khi AI trả về kết quả đầy đủ (Matching Score, Gap Analysis, Summary) $\rightarrow$ Nút Xuất PDF mới được kích hoạt.
+4. **Quy tắc chuyển trạng thái tuyển dụng một chiều:**
+   - Khi chuyên viên mở xem chi tiết một hồ sơ lần đầu tiên $\rightarrow$ Hệ thống tự động chuyển trạng thái từ `Mới` sang `Đã xem`.
+   - Quy trình chuyển trạng thái chuẩn:
+     $$\text{Mới} \longrightarrow \text{Đã xem} \longrightarrow \text{Phù hợp} \longrightarrow \text{Phỏng vấn} \longrightarrow \begin{cases} \text{Trúng tuyển} \\ \text{Từ chối} \end{cases}$$
+   - Hệ thống nghiêm cấm chuyển trạng thái ngược từ `Trúng tuyển` về `Mới`.
+
+### 2. Bảng quyết định cho tổ hợp logic nghiệp vụ
+
+| Mã điều kiện / Hành động | Thành phần kiểm tra | $R_1$ | $R_2$ | $R_3$ | $R_4$ | $R_5$ | $R_6$ | $R_7$ | $R_8$ |
+| :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **C1** | CSDL có ít nhất 01 hồ sơ ứng viên | Có | Có | Không | Có | Có | Có | Có | Có |
+| **C2** | Có ít nhất 01 hồ sơ thỏa mãn bộ lọc | Có | Không | - | Có | Có | Có | Có | Có |
+| **C3** | Chuyên viên đã chọn JD để so khớp | Có | - | - | Không | Có | Có | Có | Có |
+| **C4** | Thời gian phản hồi so khớp AI $T \le 10.0\text{s}$ | Có | - | - | - | Không | Có | Có | Có |
+| **C5** | Hành động tiếp theo của chuyên viên | Lưu KQ | - | - | - | - | Đổi TT | Xuất PDF | Reset lọc |
+| **A1** | Hiển thị bảng danh sách ứng viên có phân trang | **X** | - | - | **X** | **X** | **X** | **X** | **X** |
+| **A2** | Báo lỗi ngoại lệ EX_01 (Không tìm thấy kết quả) | - | **X** | - | - | - | - | - | - |
+| **A3** | Hiển thị giao diện Empty State (CSDL rỗng) | - | - | **X** | - | - | - | - | - |
+| **A4** | Báo lỗi ngoại lệ EX_02 (Yêu cầu chọn JD so khớp) | - | - | - | **X** | - | - | - | - |
+| **A5** | Báo lỗi timeout AI quá 10 giây | - | - | - | - | **X** | - | - | - |
+| **A6** | Lưu kết quả phân tích AI vào CSDL | **X** | - | - | - | - | - | - | - |
+| **A7** | Cập nhật trạng thái ứng viên (VD: Phỏng vấn) | - | - | - | - | - | **X** | - | - |
+| **A8** | Tạo và tải xuống tệp báo cáo PDF | - | - | - | - | - | - | **X** | - |
+| **A9** | Xóa bộ lọc và tải lại danh sách ban đầu | - | - | - | - | - | - | - | **X** |
+
+### 3. Phân tích điều kiện tiên quyết và hậu điều kiện
+- **Điều kiện tiên quyết (Pre-conditions):**
+  - Chuyên viên tuyển dụng đã đăng nhập thành công vào hệ thống.
+  - CSDL có ít nhất 01 hồ sơ ứng viên. Nếu CSDL rỗng ($0$ hồ sơ) $\rightarrow$ Hiển thị màn hình rỗng (Empty State) với nút dẫn sang tính năng "Thu thập hồ sơ".
+  - Có ít nhất 01 bản JD đang kích hoạt. Nếu chưa có JD $\rightarrow$ Báo lỗi thiếu JD và không thể thực hiện so khớp AI.
+- **Hậu điều kiện (Post-conditions):**
+  - Kết quả phân tích AI (Matching Score, Gap Analysis, Red Flags, Summary) được lưu vĩnh viễn vào CSDL kèm mốc thời gian phân tích.
+  - Trạng thái hồ sơ được cập nhật và hiển thị đồng bộ trên Dashboard.
+
+### 4. Sơ đồ và bảng chuyển trạng thái
+
+```mermaid
+stateDiagram-v2
+    [*] --> S0_Moi : Hồ sơ mới thu thập
+    S0_Moi --> S1_DaXem : Chuyên viên mở xem chi tiết
+    S1_DaXem --> S2_DangPhanTichAI : Chọn JD và bấm "Phân tích AI"
+    S1_DaXem --> S4_PhuHop : Chuyên viên đánh giá thủ công
+    S1_DaXem --> S7_TuChoi : Chuyên viên loại hồ sơ
+    S2_DangPhanTichAI --> S3_DaPhanTich : AI phản hồi xong (Score, Gap)
+    S2_DangPhanTichAI --> S1_DaXem : AI timeout quá 10s (Báo lỗi)
+    S3_DaPhanTich --> S4_PhuHop : Chuyên viên chọn "Phù hợp"
+    S3_DaPhanTich --> S7_TuChoi : Chuyên viên chọn "Từ chối"
+    S4_PhuHop --> S5_PhongVan : Chuyển sang vòng phỏng vấn
+    S4_PhuHop --> S7_TuChoi : Loại ứng viên
+    S5_PhongVan --> S6_TrungTuyen : Phỏng vấn đạt
+    S5_PhongVan --> S7_TuChoi : Phỏng vấn không đạt
+    S6_TrungTuyen --> [*]
+    S7_TuChoi --> [*]
+```
+
+| Trạng thái hiện tại | Sự kiện kích hoạt | Điều kiện bảo vệ | Trạng thái tiếp theo | Hành động thực hiện |
+| :--- | :--- | :--- | :--- | :--- |
+| `S0_Moi` | Chuyên viên click xem hồ sơ | Click vào dòng trên danh sách | `S1_DaXem` | Mở chi tiết hồ sơ; tự động cập nhật trạng thái "Đã xem" trong CSDL |
+| `S1_DaXem` | Bấm "Phân tích AI" | Đã chọn 1 JD hợp lệ | `S2_DangPhanTichAI` | Gửi dữ liệu CV và JD lên AI; hiển thị spinner loading |
+| `S1_DaXem` | Bấm "Phân tích AI" | Chưa chọn JD (JD=null) | `S1_DaXem` | Kích hoạt ngoại lệ EX_02; mở bung dropdown JD |
+| `S2_DangPhanTichAI` | AI hoàn tất phân tích | Thời gian $T \le 10.0\text{s}$ | `S3_DaPhanTich` | Hiển thị Matching Score, Gap Analysis, Red Flags, Summary |
+| `S2_DangPhanTichAI` | Hết thời gian chờ AI | Thời gian $T > 10.0\text{s}$ | `S1_DaXem` | Ngắt kết nối, hiển thị thông báo lỗi timeout máy chủ AI |
+| `S3_DaPhanTich` | Nhấn "Lưu kết quả" | Kết quả hợp lệ | `S3_DaPhanTich` | Ghi kết quả AI vào CSDL; thông báo "Lưu kết quả thành công" |
+| `S3_DaPhanTich` | Chuyển sang "Phù hợp" | Chọn từ dropdown trạng thái | `S4_PhuHop` | Cập nhật CSDL; nhãn đổi sang màu xanh "Phù hợp" |
+| `S4_PhuHop` | Đặt lịch phỏng vấn | Điền thông tin lịch hẹn | `S5_PhongVan` | Gửi email mời phỏng vấn; cập nhật trạng thái "Phỏng vấn" |
+| `S5_PhongVan` | Đánh giá đạt | Kết quả phỏng vấn tốt | `S6_TrungTuyen` | Đổi trạng thái sang "Trúng tuyển" |
+| `S3_DaPhanTich` / `S5_PhongVan` | Đánh giá không đạt | Hồ sơ không phù hợp | `S7_TuChoi` | Đổi trạng thái sang "Từ chối" |
+| `S6_TrungTuyen` | Chọn chuyển về "Mới" | Hành vi chuyển trạng thái ngược | `S6_TrungTuyen` | Chặn chuyển trạng thái; thông báo hành động không hợp lệ |
+
+---
+
+## 4. GIAI ĐOẠN 3: PHÂN TÍCH LUỒNG SỰ KIỆN
+
+### 1. Luồng chính thành công chuẩn
+- **Mục tiêu:** Tìm kiếm, lọc hồ sơ ứng viên và sử dụng AI so khớp với JD để đưa ra quyết định tuyển dụng.
+- **Kịch bản thực hiện:**
+  1. Chuyên viên đăng nhập và chọn menu "Danh sách ứng viên".
+  2. Bảng danh sách hiển thị với 10 ứng viên/trang và thanh điều hướng phân trang.
+  3. Chuyên viên nhập từ khóa kỹ năng `"ReactJS"`, chọn kinh nghiệm `"> 2 năm"`, chọn trạng thái `"Tất cả"`.
+  4. Hệ thống lọc tức thì và hiển thị danh sách các ứng viên thỏa mãn.
+  5. Chuyên viên click vào tên ứng viên `"Nguyễn Văn An"`.
+  6. Hệ thống mở giao diện Chi tiết hồ sơ và cập nhật trạng thái sang "Đã xem".
+  7. Chuyên viên chọn bản JD `"Senior Frontend Engineer"`, nhấn nút "Phân tích AI".
+  8. Sau $3.2\text{s}$, hệ thống hiển thị kết quả phân tích: Matching Score $88\%$, Gap Analysis liệt kê thiếu chứng chỉ AWS, Summary điểm mạnh về ReactJS/Redux.
+  9. Chuyên viên nhấn "Lưu kết quả" và cập nhật trạng thái sang "Phỏng vấn".
+  10. Hệ thống lưu CSDL và thông báo: *"Cập nhật thành công"*.
+
+### 2. Các luồng thay thế và nhánh rẽ
+- **Luồng 3a (Xóa bộ lọc - Clear Filter):**
+  - Chuyên viên đang lọc theo nhiều tiêu chí $\rightarrow$ Nhấn nút "Xóa bộ lọc" $\rightarrow$ Toàn bộ ô lọc được reset về giá trị mặc định $\rightarrow$ Danh sách tải lại hiển thị toàn bộ ứng viên ban đầu.
+- **Luồng 4a (Xem nhanh - Quick View):**
+  - Chuyên viên không click vào tên mà rê chuột (hover) vào avatar của ứng viên trên bảng danh sách $\rightarrow$ Popup Quick Card hiển thị trong $0.3\text{s}$ với tóm tắt: Tên, Chức danh hiện tại, Số năm kinh nghiệm và Liên kết mở xem CV gốc.
+- **Luồng 8a (Xuất báo cáo PDF):**
+  - Sau khi xem kết quả phân tích AI, chuyên viên nhấn nút "In / Xuất PDF" $\rightarrow$ Hệ thống kết xuất file PDF chứa đầy đủ thông tin ứng viên, điểm số AI, bảng phân tích kỹ năng và tự động tải xuống máy tính.
+
+### 3. Các luồng ngoại lệ và xử lý sự cố
+- **Ngoại lệ EX_01 (Không tìm thấy kết quả phù hợp):**
+  - Chuyên viên lọc với từ khóa kỹ năng hiếm `"Golang, COBOL"` và kinh nghiệm `"> 10 năm"`.
+  - Không có ứng viên nào trong CSDL thỏa mãn $\rightarrow$ Bảng hiển thị thông báo: *"Không tìm thấy ứng viên phù hợp với tiêu chí đã chọn"*, nút "Xóa bộ lọc" hiển thị để người dùng khôi phục danh sách.
+- **Ngoại lệ EX_02 (Chưa chọn JD để phân tích):**
+  - Tại giao diện Chi tiết hồ sơ, chuyên viên bấm nút "Phân tích AI" khi ô chọn JD đang để trống.
+  - Hệ thống hiển thị thông báo lỗi: *"Vui lòng chọn JD (Mô tả công việc) để thực hiện so khớp"*, đồng thời tự động bung mở Dropdown danh sách JD để người dùng chọn nhanh.
+- **Ngoại lệ Timeout máy chủ AI:**
+  - AI đang quá tải, thời gian phân tích vượt quá $10.0$ giây.
+  - Hệ thống ngắt kết nối an toàn, báo lỗi: *"Máy chủ AI phản hồi chậm, vui lòng thử lại sau"* và không làm ảnh hưởng đến dữ liệu hồ sơ.
+
+---
+
+## 5. GIAI ĐOẠN 4: BẢNG CA KIỂM THỬ CHI TIẾT TỔNG HỢP
+
+| Test Case ID | Module / Feature | Test Type | Pre-conditions | Test Steps | Test Data | Expected Result | Priority |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :---: |
-| `TC_UC07_001` | Hiển thị mặc định trang Danh sách ứng viên | Kiểm thử Use Case / Giao diện | Đã đăng nhập, CSDL có sẵn 15 ứng viên | 1. Vào menu Danh sách ứng viên; 2. Quan sát cấu trúc bảng | N/A | Bảng hiển thị đủ 5 cột tóm tắt, phân trang 10 ứng viên/trang | P1 - Cao |
-| `TC_UC07_002` | Chuyển tiếp giữa các trang | Phân tích giá trị biên / Phân vùng | CSDL có 25 hồ sơ (tương ứng 3 trang) | 1. Tại trang 1 bấm nút Next (>); 2. Bấm nút Previous (<) | N/A | Chuyển trang chính xác 11-20, quay lại đúng 1-10 | P2 - Trung bình |
-| `TC_UC07_003` | Trạng thái của các nút phân trang tại trang đầu và trang cuối | Phân tích giá trị biên | Đang ở trang 1 hoặc trang cuối cùng | 1. Kiểm tra nút Previous ở trang 1; 2. Sang trang cuối kiểm tra nút Next | N/A | Previous bị vô hiệu hóa ở trang 1, Next bị vô hiệu hóa ở trang cuối | P3 - Thấp |
-| `TC_UC07_004` | Lọc ứng viên theo kỹ năng đơn lẻ | Phân vùng tương đương (EP_SK1) | CSDL có ứng viên có kỹ năng ReactJS | 1. Nhập "ReactJS" vào ô lọc kỹ năng; 2. Nhấn Áp dụng | Kỹ năng: ReactJS | Chỉ hiển thị các ứng viên trong hồ sơ có chứa ReactJS | P1 - Cao |
-| `TC_UC07_005` | Lọc ứng viên theo số năm kinh nghiệm | Phân vùng tương đương (EP_EX3) | CSDL có ứng viên với số năm kinh nghiệm đa dạng | 1. Chọn mức kinh nghiệm "2 - 5 năm"; 2. Nhấn Áp dụng | Khoảng: 2 - 5 năm | Chỉ hiển thị các ứng viên có kinh nghiệm từ 2 đến dưới 5 năm | P1 - Cao |
-| `TC_UC07_006` | Lọc ứng viên theo trạng thái hồ sơ | Phân vùng tương đương (EP_ST1) | CSDL có ứng viên ở nhiều trạng thái | 1. Chọn trạng thái "Mới"; 2. Nhấn Áp dụng | Trạng thái: Mới | Danh sách chỉ trả về các ứng viên đang ở trạng thái "Mới" | P1 - Cao |
-| `TC_UC07_007` | Kết hợp lọc đồng thời nhiều tiêu chí | Phân vùng tương đương lớp mạnh | CSDL có nhiều ứng viên | 1. Nhập Kỹ năng: Java; 2. Chọn Kinh nghiệm: > 3 năm; 3. Chọn Trạng thái: Phù hợp | Java + > 3 năm + Phù hợp | Trả về chính xác các ứng viên thỏa mãn đồng thời cả 3 điều kiện | P1 - Cao |
-| `TC_UC07_008` | Mở giao diện Chi tiết hồ sơ ứng viên từ danh sách | Kiểm thử chuyển trạng thái | Đang xem danh sách ứng viên | 1. Nhấp chuột vào dòng hồ sơ ứng viên | Ứng viên cụ thể | Mở màn hình/modal chi tiết với đầy đủ các mục thông tin | P1 - Cao |
-| `TC_UC07_009` | Tự động cập nhật trạng thái từ "Mới" sang "Đã xem" | Kiểm thử chuyển trạng thái | Hồ sơ đang ở trạng thái "Mới" | 1. Mở xem chi tiết hồ sơ; 2. Đóng lại và kiểm tra bảng danh sách | Hồ sơ Mới | Trạng thái tự động chuyển thành "Đã xem" | P2 - Trung bình |
-| `TC_UC07_010` | Kích hoạt phân tích AI thành công với JD đã chọn | Bảng quyết định (Rule 4) | Đang mở chi tiết hồ sơ; Hệ thống có sẵn JD Java Developer | 1. Chọn JD Java Developer; 2. Nhấn nút "Phân tích AI" | JD hợp lệ | Hiển thị thanh tiến trình, trả về Điểm phù hợp, Gap, Summary, Red Flags | P1 - Rất cao |
-| `TC_UC07_011` | Kiểm tra tính chính xác của phần phân tích khoảng cách kỹ năng | Kiểm thử chức năng AI | Đã phân tích AI thành công | 1. So sánh mục Gap Analysis với yêu cầu trong JD | JD yêu cầu Docker, CV không có | Liệt kê Docker vào danh sách kỹ năng còn thiếu | P1 - Cao |
-| `TC_UC07_012` | Kiểm tra cảnh báo rủi ro từ AI | Kiểm thử chức năng AI / Đoán lỗi | CV ứng viên có thời gian nhảy việc liên tục (mỗi nơi 2 tháng) | 1. Kích hoạt phân tích AI; 2. Quan sát mục Red Flags | CV nhảy việc | Xuất hiện cảnh báo màu đỏ: *"Thời gian làm việc tại các công ty quá ngắn"* | P2 - Trung bình |
-| `TC_UC07_013` | Nhấn nút "Lưu kết quả" phân tích AI | Kiểm thử chuyển trạng thái | Đã có kết quả so khớp AI trên màn hình | 1. Nhấn nút "Lưu kết quả" | N/A | Lưu điểm số và bảng đánh giá vào CSDL, thông báo "Đã lưu" | P1 - Cao |
-| `TC_UC07_014` | Cập nhật thủ công trạng thái ứng viên sau khi xem phân tích | Kiểm thử chuyển trạng thái | Đang ở chi tiết hồ sơ đã phân tích | 1. Nhấp chọn dropdown trạng thái; 2. Đổi sang "Phỏng vấn" | Trạng thái: Phỏng vấn | Cập nhật thành công, Dashboard ghi nhận trạng thái mới | P1 - Cao |
-| `TC_UC07_015` | [3a] Xóa bộ lọc và đặt lại danh sách ứng viên | Bảng quyết định / Luồng 3a | Đang có bộ lọc Kỹ năng: Python và Kinh nghiệm: > 5 năm | 1. Nhấn nút "Xóa bộ lọc" | N/A | Toàn bộ các ô lọc bị xóa trắng, danh sách hiển thị lại toàn bộ | P2 - Trung bình |
-| `TC_UC07_016` | [4a] Xem nhanh thông tin ứng viên bằng thao tác rê chuột | Kiểm thử giao diện / Luồng 4a | Đang xem danh sách ứng viên | 1. Rê chuột vào hình đại diện của ứng viên trong 0.5 giây | N/A | Hiển thị thẻ xem nhanh gồm: Tên, Chức danh, Link CV gốc | P2 - Trung bình |
-| `TC_UC07_017` | [4a] Nhấp vào liên kết CV gốc từ thẻ xem nhanh | Kiểm thử chức năng liên kết | Thẻ xem nhanh đang hiển thị | 1. Nhấn vào liên kết "Xem CV gốc" trên thẻ | Link CV | Mở tệp CV gốc (PDF/Ảnh) trong tab mới của trình duyệt | P2 - Trung bình |
-| `TC_UC07_018` | [8a] Xuất báo cáo cá nhân kết quả phân tích dạng PDF | Kiểm thử chức năng / Luồng 8a | Đã phân tích xong AI cho ứng viên | 1. Nhấn nút "In / Xuất PDF" | N/A | Tạo tệp PDF chuẩn bố cục, tải về máy thành công | P2 - Trung bình |
-| `TC_UC07_019` | [EX_01] Lọc không có kết quả phù hợp | Bảng quyết định (Rule 2) | CSDL không có ứng viên biết kỹ năng "Cobol" | 1. Nhập kỹ năng "Cobol"; 2. Nhấn Áp dụng | Kỹ năng: Cobol | Hiển thị thông báo: *"Không tìm thấy ứng viên phù hợp với tiêu chí đã chọn"* | P1 - Cao |
-| `TC_UC07_020` | [EX_02] Bấm nút "Phân tích AI" nhưng chưa chọn JD | Bảng quyết định (Rule 3) | Đang xem chi tiết hồ sơ; Chưa chọn JD nào | 1. Bấm nút "Phân tích AI" | Chưa chọn JD | Báo lỗi: *"Vui lòng chọn JD để thực hiện so khớp"*, mở dropdown JD | P1 - Rất cao |
-| `TC_UC07_021` | [EX_02] Chọn nhanh JD ngay sau khi bị cảnh báo thiếu JD | Kiểm thử phục hồi sau ngoại lệ | Đang hiển thị cảnh báo thiếu JD | 1. Chọn 1 JD từ danh mục vừa mở ra; 2. Bấm Phân tích | Chọn JD bổ sung | Tiếp tục phân tích AI bình thường, không cần tải lại trang | P2 - Trung bình |
-| `TC_UC07_022` | Kiểm thử biên Số năm kinh nghiệm: Cận biên dưới 1.9 năm | Phân tích giá trị biên | Lọc ứng viên có kinh nghiệm $\ge 2.0$ năm | 1. Thiết lập bộ lọc $\ge 2$ năm; 2. Kiểm tra hồ sơ 1.9 năm | Kinh nghiệm: 1.9 năm | Ứng viên 1.9 năm không xuất hiện trong kết quả lọc | P2 - Trung bình |
-| `TC_UC07_023` | Kiểm thử biên Số năm kinh nghiệm: Đúng biên chuẩn 2.0 năm | Phân tích giá trị biên | Lọc ứng viên có kinh nghiệm $\ge 2.0$ năm | 1. Thiết lập bộ lọc $\ge 2$ năm; 2. Kiểm tra hồ sơ 2.0 năm | Kinh nghiệm: 2.0 năm | Ứng viên 2.0 năm xuất hiện chính xác trong danh sách lọc | P2 - Trung bình |
-| `TC_UC07_024` | Kiểm thử biên Điểm phù hợp: Điểm biên tuyệt đối 0% | Phân tích giá trị biên (Biên dưới) | CV Kế toán viên so khớp với JD Kỹ sư AI | 1. Kích hoạt phân tích AI | CV và JD không liên quan | Trả về điểm 0%, không bị lỗi chia cho 0, hiển thị mức không phù hợp | P2 - Trung bình |
-| `TC_UC07_025` | Kiểm thử biên Điểm phù hợp: Điểm biên tuyệt đối 100% | Phân tích giá trị biên (Biên trên) | CV khớp 100% toàn bộ từ khóa và số năm kinh nghiệm của JD | 1. Kích hoạt phân tích AI | CV chuẩn chỉ theo JD | Điểm phù hợp đạt 100%, không bị tràn số quá 100% | P2 - Trung bình |
-| `TC_UC07_026` | Kiểm thử biên Phân trang: Tổng số hồ sơ vừa đúng 1 trang | Phân tích giá trị biên | CSDL có chính xác 10 hồ sơ ứng viên | 1. Vào trang danh sách ứng viên | Tổng: 10 hồ sơ | Hiển thị 1 trang duy nhất, cả hai nút Trước và Sau đều bị khóa | P3 - Thấp |
-| `TC_UC07_027` | Kiểm thử biên Phân trang: Tổng số hồ sơ vượt biên 1 bản ghi | Phân tích giá trị biên | CSDL có chính xác 11 hồ sơ ứng viên | 1. Vào trang danh sách ứng viên | Tổng: 11 hồ sơ | Trang 1 hiển thị 10 hồ sơ đầu, nút Next được kích hoạt để sang trang 2 | P2 - Trung bình |
-| `TC_UC07_028` | Kiểm tra Tiền điều kiện: CSDL hoàn toàn chưa có hồ sơ nào | Kiểm thử tiền điều kiện / Biên | CSDL rỗng (0 bản ghi) | 1. Vào menu Danh sách ứng viên | CSDL rỗng | Hiển thị hình minh họa trạng thái trống và dòng chữ: *"Chưa có hồ sơ ứng viên nào"* | P2 - Trung bình |
-| `TC_UC07_029` | Kiểm tra Tiền điều kiện: Hệ thống chưa có bất kỳ JD nào | Kiểm thử tiền điều kiện / Biên | CSDL chưa tạo bất kỳ JD nào | 1. Mở chi tiết hồ sơ; 2. Kiểm tra dropdown JD | Chưa có JD | Dropdown JD báo rỗng kèm nút dẫn tới trang "Tạo JD mới" | P2 - Trung bình |
-| `TC_UC07_030` | Lọc kinh nghiệm với số năm âm | Phân vùng tương đương không hợp lệ | Đang ở bộ lọc tìm kiếm | 1. Nhập số năm kinh nghiệm là `-3`; 2. Nhấn Áp dụng | Kinh nghiệm: -3 | Báo lỗi số năm không hợp lệ hoặc tự động sửa thành 0 | P2 - Trung bình |
-| `TC_UC07_031` | Phân tích AI bị gián đoạn mạng đột ngột | Kiểm thử độ tin cậy | Đang trong 10 giây AI xử lý thì ngắt kết nối Internet | Mạng bị ngắt | Hiển thị thông báo mất kết nối, giữ nguyên trạng thái hồ sơ | P2 - Trung bình |
-| `TC_UC07_032` | Máy chủ AI quá tải phản hồi vượt quá 10 giây | Phân tích giá trị biên / Độ tin cậy | Máy chủ AI phản hồi chậm > 10s | 1. Bấm Phân tích AI; 2. Đợi quá 10s | Timeout > 10s | Ngắt kết nối đúng ở 10s, báo lỗi timeout máy chủ AI | P2 - Trung bình |
-| `TC_UC07_033` | Nhấn nút "Phân tích AI" liên tục nhiều lần | Kiểm thử tương tranh / Đoán lỗi | Đang ở chi tiết hồ sơ đã chọn JD | 1. Nhấn liên tiếp 5 lần vào nút "Phân tích AI" | N/A | Nút bị vô hiệu hóa sau lần nhấn đầu tiên, chỉ gửi duy nhất 1 request | P2 - Trung bình |
-| `TC_UC07_034` | Chèn mã SQL Injection vào ô tìm kiếm kỹ năng | Kiểm thử an toàn bảo mật | Đang ở bộ lọc tìm kiếm | 1. Nhập `' OR '1'='1` vào ô kỹ năng; 2. Nhấn Áp dụng | Payload SQLi | Ứng dụng xử lý an toàn với Parameterized Query, không lộ lỗi CSDL | P1 - Cao |
-| `TC_UC07_035` | Xuất file PDF khi đang trong quá trình AI phân tích | Kiểm thử tương tranh / Trạng thái | Đang trong quá trình AI tính toán điểm | 1. Cố gắng bấm nút "In / Xuất PDF" | Trạng thái chưa xong | Nút Xuất PDF bị mờ/khóa cho đến khi có kết quả hoàn tất | P2 - Trung bình |
-| `TC_UC07_036` | Tìm kiếm không phân biệt chữ hoa, chữ thường | Kiểm thử chức năng tìm kiếm | CSDL có ứng viên có kỹ năng `ReactJS` | 1. Nhập `reactjs` (chữ thường); 2. Nhập `REACTJS` (chữ hoa) | Chữ hoa / chữ thường | Cả hai trường hợp đều trả về kết quả giống hệt nhau | P2 - Trung bình |
-| `TC_UC07_037` | Tìm kiếm kỹ năng có chứa khoảng trắng thừa | Kiểm thử chức năng tìm kiếm | Tìm kiếm kỹ năng | 1. Nhập `"   NodeJS   "` có dấu cách ở hai đầu | Khoảng trắng thừa | Hệ thống tự động cắt bỏ khoảng trắng (Trim) và tìm kiếm chính xác | P3 - Thấp |
-| `TC_UC07_038` | Phiên đăng nhập hết hạn khi đang thực hiện phân tích AI | Kiểm thử bảo mật / Quản lý phiên | Để hết hạn Token xác thực | 1. Nhấn nút Phân tích AI | Token hết hạn | Báo lỗi phiên hết hạn (401 Unauthorized), chuyển màn hình đăng nhập | P1 - Cao |
+| `TC_UC07_001` | Quản lý hồ sơ / Danh sách | UI | Chuyên viên đã đăng nhập, CSDL có 25 hồ sơ | 1. Chọn menu "Danh sách ứng viên"<br>2. Quan sát bảng hiển thị và phân trang | CSDL có 25 ứng viên | Hiển thị chính xác 10 ứng viên/trang; có thanh phân trang Trang 1/3; các cột thông tin đầy đủ | High |
+| `TC_UC07_002` | Quản lý hồ sơ / Phân trang | UI | Đang ở Trang 1 danh sách ứng viên | 1. Nhấn nút "Next (>)" trên thanh phân trang | Nhấn nút Next | Chuyển sang Trang 2; hiển thị các ứng viên từ 11 đến 20; nút Previous (<) được kích hoạt | High |
+| `TC_UC07_003` | Quản lý hồ sơ / Phân trang | UI | Đang ở Trang 1 danh sách ứng viên | 1. Quan sát trạng thái của nút "Previous (<)" | Trang 1 | Nút "Previous (<)" bị vô hiệu hóa (disabled); không thể click chuyển về trang số 0 | Medium |
+| `TC_UC07_004` | Quản lý hồ sơ / Phân trang | UI | Đang ở Trang cuối cùng (Trang 3/3) | 1. Quan sát trạng thái của nút "Next (>)" | Trang 3/3 | Nút "Next (>)" bị vô hiệu hóa (disabled); không thể click vượt quá tổng số trang | Medium |
+| `TC_UC07_005` | Quản lý hồ sơ / Bộ lọc đa tiêu chí | Field Validation | Đang ở trang Danh sách ứng viên | 1. Nhập từ khóa kỹ năng vào ô lọc kỹ năng | Kỹ năng: `"ReactJS"` | Danh sách lọc tức thì; chỉ hiển thị các ứng viên có kỹ năng ReactJS | High |
+| `TC_UC07_006` | Quản lý hồ sơ / Bộ lọc đa tiêu chí | Field Validation | Đang ở trang Danh sách ứng viên | 1. Nhập từ khóa bằng chữ thường | Kỹ năng: `"reactjs"` | Kết quả trả về giống như nhập `"ReactJS"` (Bộ lọc không phân biệt chữ hoa/thường) | High |
+| `TC_UC07_007` | Quản lý hồ sơ / Bộ lọc đa tiêu chí | Field Validation | Đang ở trang Danh sách ứng viên | 1. Nhập từ khóa có nhiều khoảng trắng thừa ở hai đầu | Kỹ năng: `"   NodeJS   "` | Hệ thống tự động trim khoảng trắng; lọc chính xác ứng viên có kỹ năng `"NodeJS"` | Medium |
+| `TC_UC07_008` | Quản lý hồ sơ / Bộ lọc đa tiêu chí | Field Validation | Đang ở trang Danh sách ứng viên | 1. Nhập nhiều kỹ năng phân tách bằng dấu phẩy | Kỹ năng: `"ReactJS, Node.js"` | Trả về danh sách ứng viên thành thạo đồng thời cả ReactJS và Node.js (Toán tử AND) | High |
+| `TC_UC07_009` | Quản lý hồ sơ / Bộ lọc đa tiêu chí | Security | Đang ở trang Danh sách ứng viên | 1. Nhập chuỗi tấn công SQL Injection vào ô tìm kiếm | Từ khóa: `' OR '1'='1' --` | Hệ thống xử lý an toàn qua Parameterized Query; không lỗi SQL; không lộ dữ liệu | High |
+| `TC_UC07_010` | Quản lý hồ sơ / Bộ lọc đa tiêu chí | Security | Đang ở trang Danh sách ứng viên | 1. Nhập chuỗi mã độc XSS vào ô lọc kỹ năng | Từ khóa: `<script>alert('hack')</script>` | Hệ thống lọc sạch dữ liệu; hiển thị dưới dạng chuỗi thô an toàn; không kích hoạt script | High |
+| `TC_UC07_011` | Quản lý hồ sơ / Bộ lọc đa tiêu chí | Field Validation | Đang ở trang Danh sách ứng viên | 1. Chọn mốc kinh nghiệm `Exp = 0` (Fresher) | Dropdown Exp: `"Fresher (0 năm)"` | Bảng chỉ hiển thị các ứng viên có số năm kinh nghiệm bằng 0 hoặc chưa có kinh nghiệm | High |
+| `TC_UC07_012` | Quản lý hồ sơ / Bộ lọc đa tiêu chí | Field Validation | Đang ở trang Danh sách ứng viên | 1. Chọn khoảng kinh nghiệm 0 - 2 năm | Dropdown Exp: `"Dưới 2 năm"` | Bảng chỉ hiển thị các ứng viên có $0 < \text{Exp} < 2$ năm | High |
+| `TC_UC07_013` | Quản lý hồ sơ / Bộ lọc đa tiêu chí | Field Validation | Đang ở trang Danh sách ứng viên | 1. Chọn khoảng kinh nghiệm 2 - 5 năm | Dropdown Exp: `"2 - 5 năm"` | Bảng chỉ hiển thị các ứng viên có $2 \le \text{Exp} < 5$ năm | High |
+| `TC_UC07_014` | Quản lý hồ sơ / Bộ lọc đa tiêu chí | Field Validation | Đang ở trang Danh sách ứng viên | 1. Chọn mốc kinh nghiệm trên 5 năm | Dropdown Exp: `"Trên 5 năm"` | Bảng chỉ hiển thị các ứng viên có $\text{Exp} \ge 5$ năm | High |
+| `TC_UC07_015` | Quản lý hồ sơ / Bộ lọc đa tiêu chí | Field Validation | Đang ở trang Danh sách ứng viên | 1. Chọn trạng thái hồ sơ cần lọc | Trạng thái: `"Mới"` | Bảng chỉ hiển thị các hồ sơ mới thu thập chưa được chuyên viên duyệt | High |
+| `TC_UC07_016` | Quản lý hồ sơ / Bộ lọc đa tiêu chí | Field Validation | Đang ở trang Danh sách ứng viên | 1. Chọn trạng thái hồ sơ cần lọc | Trạng thái: `"Phù hợp"` | Bảng chỉ hiển thị các hồ sơ có trạng thái "Phù hợp" | High |
+| `TC_UC07_017` | Quản lý hồ sơ / Bộ lọc đa tiêu chí | Field Validation | Đang ở trang Danh sách ứng viên | 1. Chọn trạng thái hồ sơ cần lọc | Trạng thái: `"Phỏng vấn"` | Bảng chỉ hiển thị các ứng viên đang trong vòng phỏng vấn | High |
+| `TC_UC07_018` | Quản lý hồ sơ / Bộ lọc đa tiêu chí | Business Logic | Đang ở trang Danh sách ứng viên | 1. Thiết lập đồng thời cả 3 bộ lọc: Kỹ năng, Kinh nghiệm, Trạng thái | Kỹ năng: `"ReactJS"`, Exp: `"> 2 năm"`, TT: `"Mới"` | Áp dụng logic AND; chỉ hiển thị hồ sơ thỏa mãn đồng thời cả 3 tiêu chuẩn | High |
+| `TC_UC07_019` | Quản lý hồ sơ / Bộ lọc đa tiêu chí | Business Logic | Đang áp dụng nhiều tiêu chí lọc | 1. Nhấn nút "Xóa bộ lọc" (Clear Filter) | Thao tác nhấn "Xóa bộ lọc" | Các ô lọc quay về rỗng; dropdown quay về "Tất cả"; danh sách hiển thị đầy đủ ban đầu | Medium |
+| `TC_UC07_020` | Quản lý hồ sơ / Xem nhanh | UI | Đang ở trang Danh sách ứng viên | 1. Rê chuột (hover) vào avatar của một ứng viên cụ thể | Con trỏ chuột hover lên avatar ứng viên | Popup Quick Card hiển thị sau 0.3s gồm: Họ tên, Chức danh, Số năm kinh nghiệm, Link xem CV | Medium |
+| `TC_UC07_021` | Quản lý hồ sơ / Xem nhanh | UI | Popup Quick Card đang hiển thị | 1. Di chuyển chuột ra ngoài vùng popup | Rê chuột ra ngoài | Popup Quick Card tự động biến mất mượt mà | Low |
+| `TC_UC07_022` | Quản lý hồ sơ / Chi tiết hồ sơ | UI | Đang ở trang Danh sách ứng viên | 1. Click vào tên ứng viên có trạng thái "Mới" | Click dòng ứng viên ID: `CAND_001` | Mở giao diện Chi tiết hồ sơ đầy đủ; trạng thái tự động chuyển từ "Mới" sang "Đã xem" | High |
+| `TC_UC07_023` | Phân tích hồ sơ / So khớp AI | Business Logic | Đang ở Chi tiết hồ sơ, hệ thống có sẵn 3 JD | 1. Chọn JD "Senior React Developer"<br>2. Nhấn nút "Phân tích AI"<br>3. Chờ AI xử lý | JD: `JD_REACT_01` (Active) | AI so khớp xong trong 3.5s; hiển thị Matching Score, Gap Analysis, Summary, Red Flags | High |
+| `TC_UC07_024` | Phân tích hồ sơ / So khớp AI | Field Validation | Đang ở Chi tiết hồ sơ | 1. Chưa chọn JD nào trong Dropdown<br>2. Nhấn nút "Phân tích AI" | JD: `null` (Chưa chọn) | Kích hoạt ngoại lệ EX_02: "Vui lòng chọn JD (Mô tả công việc) để thực hiện so khớp"; mở dropdown JD | High |
+| `TC_UC07_025` | Phân tích hồ sơ / So khớp AI | Field Validation | Kiểm tra kết quả chấm điểm của AI | 1. Chạy phân tích AI cho ứng viên khớp hoàn toàn JD | Hồ sơ 100% khớp kỹ năng JD | Matching Score hiển thị chính xác $100\%$; không bị vượt quá $100\%$ | High |
+| `TC_UC07_026` | Phân tích hồ sơ / So khớp AI | Field Validation | Kiểm tra kết quả chấm điểm của AI | 1. Chạy phân tích AI cho ứng viên trái ngành hoàn toàn | Hồ sơ Kế toán so với JD Developer | Matching Score hiển thị $0\%$ đến $5\%$; không bị âm điểm; Gap Analysis chỉ ra toàn bộ kỹ năng thiếu | Medium |
+| `TC_UC07_027` | Phân tích hồ sơ / So khớp AI | Integration | Giả lập máy chủ AI phản hồi quá thời gian | 1. Chọn JD và nhấn "Phân tích AI"<br>2. Máy chủ AI xử lý kéo dài quá 10.0 giây | Mock AI phản hồi sau 12.0s | Ngắt kết nối tại mốc 10.0s; báo lỗi timeout; cho phép người dùng nhấn thử lại | High |
+| `TC_UC07_028` | Phân tích hồ sơ / So khớp AI | UI | Đang ở Chi tiết hồ sơ | 1. Nhấn nút "Phân tích AI" liên tục 3 lần | Thao tác nhấn liên tiếp | Nút "Phân tích AI" bị làm mờ (disabled) kèm spinner loading; chỉ gửi 1 request duy nhất | High |
+| `TC_UC07_029` | Quản lý hồ sơ / Cập nhật trạng thái | Business Logic | Đã có kết quả phân tích AI trên giao diện | 1. Nhấn nút "Lưu kết quả" | Thao tác bấm "Lưu kết quả" | Lưu điểm số và bảng phân tích vào CSDL; hiển thị thông báo "Lưu kết quả thành công" | High |
+| `TC_UC07_030` | Quản lý hồ sơ / Cập nhật trạng thái | Business Logic | Đang ở Chi tiết hồ sơ ứng viên | 1. Chọn trạng thái mới: "Phù hợp"<br>2. Nhấn "Cập nhật trạng thái" | Trạng thái mới: `"Phù hợp"` | CSDL cập nhật trạng thái; nhãn trạng thái đổi màu xanh; danh sách ngoài Dashboard đổi theo | High |
+| `TC_UC07_031` | Quản lý hồ sơ / Cập nhật trạng thái | Business Logic | Hồ sơ đang ở trạng thái "Phù hợp" | 1. Chọn trạng thái mới: "Phỏng vấn"<br>2. Nhấn "Cập nhật" | Trạng thái mới: `"Phỏng vấn"` | Cập nhật thành công; kích hoạt tính năng mời phỏng vấn | High |
+| `TC_UC07_032` | Quản lý hồ sơ / Cập nhật trạng thái | Business Logic | Hồ sơ đang ở trạng thái "Trúng tuyển" | 1. Cố tình chọn chuyển ngược về trạng thái "Mới" | Trạng thái chọn: `"Mới"` | Hệ thống chặn chuyển trạng thái ngược; báo lỗi hành động không hợp lệ | High |
+| `TC_UC07_033` | Quản lý hồ sơ / Xuất PDF | Business Logic | Đã hoàn tất phân tích AI cho ứng viên | 1. Nhấn nút "In / Xuất PDF" | Hồ sơ đã có kết quả AI | Hệ thống tạo và tải xuống tệp PDF chuẩn; nội dung có Họ tên, Điểm số, Gap Analysis | High |
+| `TC_UC07_034` | Quản lý hồ sơ / Xuất PDF | UI | Hồ sơ chưa từng chạy phân tích AI | 1. Quan sát nút "In / Xuất PDF" | Hồ sơ chưa có kết quả AI | Nút "In / Xuất PDF" bị khóa mờ (disabled) hoặc cảnh báo yêu cầu phân tích trước | Medium |
+| `TC_UC07_035` | Quản lý hồ sơ / Xử lý ngoại lệ | Business Logic | Nhập bộ lọc không khớp với bất kỳ hồ sơ nào | 1. Nhập kỹ năng `"COBOL, Fortran"`<br>2. Nhấn Lọc | Kỹ năng không có trong CSDL | Kích hoạt ngoại lệ EX_01: "Không tìm thấy ứng viên phù hợp với tiêu chí đã chọn" | High |
+| `TC_UC07_036` | Quản lý hồ sơ / Xử lý ngoại lệ | UI | Hệ thống vừa cài đặt mới, CSDL chưa có ứng viên | 1. Chọn menu "Danh sách ứng viên" | CSDL rỗng (0 hồ sơ) | Hiển thị giao diện Empty State: "Hiện chưa có hồ sơ ứng viên nào" kèm nút "Thu thập hồ sơ" | Medium |
+| `TC_UC07_037` | Quản lý hồ sơ / Xử lý ngoại lệ | Business Logic | CSDL chưa tạo bất kỳ bản mô tả công việc (JD) nào | 1. Mở chi tiết hồ sơ<br>2. Quan sát Dropdown JD | Hệ thống có 0 JD | Dropdown JD báo: "Chưa có JD nào trong hệ thống" kèm liên kết "Tạo JD mới" | Medium |
+| `TC_UC07_038` | Quản lý hồ sơ / Bảo mật | Security | Chuyên viên cố tình sửa URL để xem hồ sơ của công ty khác | 1. Đổi ID hồ sơ trên thanh địa chỉ trình duyệt: `/candidates/99999` | ID không thuộc quyền sở hữu | Hệ thống kiểm tra quyền (Authorization); chặn truy cập; báo lỗi "403 Forbidden - Không có quyền xem hồ sơ" | High |
 
 ---
 
-## 8. ĐÁNH GIÁ ĐỘ BAO PHỦ VÀ KẾT LUẬN USE CASE 07
+## 6. ĐÁNH GIÁ ĐỘ BAO PHỦ VÀ KẾT LUẬN USE CASE 07
 
-### 1. Thống kê tỷ lệ ca kiểm thử theo kỹ thuật hộp đen
+### 1. Ma trận bao phủ các phương pháp kiểm thử hộp đen
 
-| Kỹ thuật kiểm thử hộp đen | Số ca kiểm thử | Tỷ lệ (%) | Các ca kiểm thử tiêu biểu |
-| :--- | :---: | :---: | :--- |
-| **Phân vùng tương đương (Equivalence Partitioning)** | 13 | 34.2% | `TC_UC07_004`, `TC_UC07_005`, `TC_UC07_006`, `TC_UC07_007`, `TC_UC07_019`, `TC_UC07_030`, `TC_UC07_036`, `TC_UC07_037`... |
-| **Phân tích giá trị biên (Boundary Value Analysis)** | 8 | 21.1% | `TC_UC07_002`, `TC_UC07_003`, `TC_UC07_022`, `TC_UC07_023`, `TC_UC07_024`, `TC_UC07_025`, `TC_UC07_026`, `TC_UC07_027` |
-| **Bảng quyết định (Decision Table Testing)** | 6 | 15.8% | `TC_UC07_001`, `TC_UC07_010`, `TC_UC07_015`, `TC_UC07_018`, `TC_UC07_020`, `TC_UC07_021` |
-| **Kiểm thử chuyển trạng thái (State Transition Testing)** | 6 | 15.8% | `TC_UC07_008`, `TC_UC07_009`, `TC_UC07_013`, `TC_UC07_014`, `TC_UC07_035`... |
-| **Đoán lỗi và Bảo mật (Error Guessing & Security)** | 5 | 13.1% | `TC_UC07_012`, `TC_UC07_031`, `TC_UC07_032`, `TC_UC07_033`, `TC_UC07_034`, `TC_UC07_038` |
-| **Tổng cộng:** | **38** | **100%** | |
+| Phương pháp kiểm thử | Số lượng ca kiểm thử bao phủ | Danh sách các Test Case tương ứng | Tỷ lệ bao phủ (%) |
+| :--- | :---: | :--- | :---: |
+| **Phân vùng tương đương** | 19 ca | `TC_UC07_001`, `TC_UC07_005` - `TC_UC07_008`, `TC_UC07_011` - `TC_UC07_018`, `TC_UC07_023`, `TC_UC07_024`, `TC_UC07_029`, `TC_UC07_033`, `TC_UC07_035` | 50.0% |
+| **Phân tích giá trị biên** | 9 ca | `TC_UC07_002` - `TC_UC07_004`, `TC_UC07_011`, `TC_UC07_014`, `TC_UC07_025`, `TC_UC07_026`, `TC_UC07_027`, `TC_UC07_036` | 23.7% |
+| **Bảng quyết định** | 9 ca | `TC_UC07_005`, `TC_UC07_018`, `TC_UC07_019`, `TC_UC07_023`, `TC_UC07_024`, `TC_UC07_027`, `TC_UC07_030`, `TC_UC07_033`, `TC_UC07_035` | 23.7% |
+| **Kiểm thử chuyển trạng thái** | 8 ca | `TC_UC07_022`, `TC_UC07_023`, `TC_UC07_029`, `TC_UC07_030`, `TC_UC07_031`, `TC_UC07_032`, `TC_UC07_034`, `TC_UC07_037` | 21.1% |
+| **Bảo mật và đoán lỗi** | 6 ca | `TC_UC07_007`, `TC_UC07_009`, `TC_UC07_010`, `TC_UC07_028`, `TC_UC07_032`, `TC_UC07_038` | 15.8% |
 
-### 2. Kết luận đánh giá
-Bộ kiểm thử hộp đen cho Use Case 07 đã đạt được các mục tiêu học thuật quan trọng:
-1. **Bao phủ toàn diện 100% chức năng:** Kiểm thử đầy đủ từ tính năng lọc đa tiêu chí, phân trang dữ liệu lớn, quy trình kích hoạt AI tính điểm so khớp, cho tới cập nhật trạng thái vòng đời ứng viên và xuất file PDF.
-2. **Khai thác tối đa các giá trị biên:** Kiểm soát chặt chẽ điểm số phần trăm (0%, 100%), biên kinh nghiệm (1.9 năm, 2.0 năm) và kích thước phân trang (10, 11 bản ghi).
-3. **Phát hiện sớm các lỗi nghiệp vụ và tương tranh:** Đảm bảo hệ thống không bị lỗi khi spam click phân tích AI, ngăn chặn thao tác xuất PDF khi AI chưa hoàn tất, và chống tấn công chèn mã độc qua bộ lọc.
+*(Ghi chú: Một số Test Case kết hợp nhiều kỹ thuật để tối ưu hóa độ bao phủ nghiệp vụ và rủi ro thực tế).*
+
+### 2. Kết luận đánh giá chất lượng bộ kiểm thử USE CASE 07
+- **Độ bao phủ nghiệp vụ:** Đạt **100%** các luồng sự kiện (Luồng chính, Luồng 3a Reset bộ lọc, Luồng 4a Quick View hover, Luồng 8a Xuất PDF) và đầy đủ 2 ngoại lệ quy định (`EX_01`, `EX_02`) cùng ngoại lệ Timeout AI.
+- **Độ bao phủ dữ liệu & biên:** Đã kiểm thử triệt để các biên phân trang (Trang 1, Trang giữa, Trang cuối), các mốc số năm kinh nghiệm ($0.0, 2.0, 5.0, 50.0$), biên điểm số Matching Score ($0\%, 100\%$) và biên thời gian ($10.0\text{s}$).
+- **Độ an toàn và phân quyền:** Kiểm tra kỹ lưỡng các trường hợp tấn công SQL Injection, XSS trên thanh tìm kiếm và kiểm soát truy cập trái phép qua URL (IDOR/Authorization).
