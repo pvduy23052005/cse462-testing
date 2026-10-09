@@ -176,6 +176,28 @@ $\Rightarrow V(G) = R = 6$.
 | **Path 5**              | $1 \rightarrow 3 \rightarrow 5 \rightarrow 7 \rightarrow 9 \rightarrow 10$ | Dữ liệu đầy đủ, AI phân tích thành công nhưng lưu DB thất bại: `savedAnalysis == null` | Ném lỗi (Exception 4): `"Lỗi khi lưu kết quả phân tích."`               |
 | **Path 6** (Happy Path) | $1 \rightarrow 3 \rightarrow 5 \rightarrow 7 \rightarrow 9 \rightarrow 11$ | Dữ liệu hợp lệ, phân tích thành công, lưu DB thành công, chuyển status `SCREENING`     | Trả về `savedAnalysis` mới, trạng thái ứng viên chuyển sang `SCREENING` |
 
+### 4.1. Sơ đồ cây phân nhánh các đường dẫn cơ sở (Basis Paths Tree Diagram)
+
+```mermaid
+graph TD
+    Root["Bắt đầu: execute(input)"] --> N1{"Node 1: Đã phân tích trước đó?"}
+    
+    N1 -- "Có (existingAnalysis)" --> P1["Path 1: Trả về kết quả cũ (Cache Hit)"]
+    N1 -- "Chưa có" --> N3{"Node 3: Tìm thấy Candidate?"}
+    
+    N3 -- "Không thấy (!candidate)" --> P2["Path 2: Ném lỗi 'Không tìm thấy ứng viên'"]
+    N3 -- "Tìm thấy" --> N5{"Node 5: Tìm thấy Job?"}
+    
+    N5 -- "Không thấy (!job)" --> P3["Path 3: Ném lỗi 'Không tìm thấy công việc'"]
+    N5 -- "Tìm thấy" --> N7{"Node 7: Gọi Gemini AI thành công?"}
+    
+    N7 -- "Thất bại (!result)" --> P4["Path 4: Ném lỗi 'Lỗi gọi AI phân tích'"]
+    N7 -- "Thành công" --> N9{"Node 9: Lưu DB thành công?"}
+    
+    N9 -- "Thất bại (!saved)" --> P5["Path 5: Ném lỗi 'Lỗi khi lưu kết quả'"]
+    N9 -- "Thành công" --> P6["Path 6: Cập nhật status SCREENING & Trả về kết quả (Happy Path)"]
+```
+
 ---
 
 ## 5. PHÂN TÍCH THEO CÁC ĐỘ ĐO BAO PHỦ CỦA MÔN HỌC (C1, C2, C3)
@@ -224,6 +246,39 @@ Theo lý thuyết bài giảng CSE462 (Trang 749-850), kiểm thử dòng dữ l
 | `job`              | Node 5 (Dòng 20)      | Node 7 (Dòng 25: `job.getDetailJob()`)                                                      | Node 5 (Dòng 21: `if (!job)`)             | An toàn. `p-use` bảo vệ trước khi `c-use`.                                |
 | `analysisResult`   | Node 7 (Dòng 23)      | Node 9 (Dòng 32–35: trích xuất `summary`, `matchingScore`...)                               | Node 7 (Dòng 27: `if (!analysisResult)`)  | An toàn. `p-use` bảo vệ trước khi trích xuất object.                      |
 | `savedAnalysis`    | Node 9 (Dòng 38)      | Node 11 (Dòng 45: `return savedAnalysis`)                                                   | Node 9 (Dòng 40: `if (!savedAnalysis)`)   | Hợp lệ.                                                                   |
+
+### 6.1. Sơ đồ dòng dữ liệu Def-Use của các biến chính (Data Flow Diagram)
+
+```mermaid
+flowchart LR
+    subgraph DefStep ["1. Điểm định nghĩa (def)"]
+        D1["def: candidateID, jobID (Input)"]
+        D2["def: existingAnalysis (getAnalysis)"]
+        D3["def: candidate (getById)"]
+        D4["def: job (getById)"]
+        D5["def: analysisResult (analyzeCandidateWithJob)"]
+        D6["def: savedAnalysis (create)"]
+    end
+
+    subgraph PUseStep ["2. Kiểm tra điều kiện (p-use)"]
+        P1{"p-use: if (existingAnalysis)"}
+        P2{"p-use: if (!candidate)"}
+        P3{"p-use: if (!job)"}
+        P4{"p-use: if (!analysisResult)"}
+        P5{"p-use: if (!savedAnalysis)"}
+    end
+
+    subgraph CUseStep ["3. Sử dụng xử lý (c-use)"]
+        C1["c-use: return existingAnalysis"]
+        C2["c-use: geminiService(candidate, job)"]
+        C3["c-use: AnalysisEntity.create"]
+        C4["c-use: candidate.updateStatus(SCREENING)"]
+    end
+
+    D1 --> D2 --> P1 -- "True" --> C1
+    P1 -- "False" --> D3 --> P2 -- "False" --> D4 --> P3 -- "False" --> D5
+    D5 --> P4 -- "False" --> C2 --> C3 --> D6 --> P5 -- "False" --> C4
+```
 
 ---
 

@@ -225,6 +225,40 @@ Tập 8 đường cơ sở độc lập tuyến tính bao phủ toàn bộ các 
 - **Path 8 (Đường nhánh: Tệp PDF nhưng AI không trích xuất được Email):**
   $$1 \rightarrow 3 \rightarrow 5 \rightarrow 7 \rightarrow 9 \rightarrow 10 \rightarrow 11 \rightarrow 12 \text{ (Exit EX4)}$$
 
+### 4.1. Sơ đồ cây phân nhánh các đường dẫn cơ sở (Basis Paths Tree Diagram)
+
+```mermaid
+graph TD
+    Root["Bắt đầu: execute"] --> N1{"Node 1: Có cvFile?"}
+    
+    N1 -- "False" --> P1["Path 1: Ném lỗi 'No file uploaded' (EX1)"]
+    N1 -- "True" --> N3{"Node 3: Tìm thấy Job?"}
+    
+    N3 -- "False" --> P2["Path 2: Ném lỗi 'Công việc không đúng' (EX2)"]
+    N3 -- "True" --> N5["Node 5: Chuẩn bị files"]
+    
+    N5 --> N7{"Node 7: Upload Cloud?"}
+    N7 -- "Thất bại (!urls)" --> P3["Path 3: Ném lỗi 'Upload CV thất bại' (EX3)"]
+    N7 -- "Thành công" --> N9{"Node 9: Định dạng PDF/Ảnh?"}
+    
+    N9 -- "Không (txt/other)" --> P4["Path 4: Bỏ qua OCR -> Thiếu Email -> Lỗi EX4"]
+    N9 -- "Có (PDF/Ảnh)" --> N10["Node 10: Gemini OCR"]
+    
+    N10 --> N11{"Node 11: Trích xuất Email?"}
+    N11 -- "Không có email" --> P8["Path 8: Ném lỗi 'không thể trích xuất Email' (EX4)"]
+    N11 -- "Có email" --> N13{"Node 13: Ứng viên đã có?"}
+    
+    N13 -- "Đã tồn tại" --> N14["Node 14: Cập nhật candidate"]
+    N13 -- "Chưa tồn tại" --> N15["Node 15: Tạo candidate mới"]
+    
+    N14 --> N16{"Node 16: Lưu DB thành công?"}
+    N15 --> N16
+    
+    N16 -- "Thất bại" --> P7["Path 7: Ném lỗi 'Lưu hồ sơ thất bại' (EX5)"]
+    N16 -- "Thành công (Update)" --> P6["Path 6: Thành công cập nhật hồ sơ cũ"]
+    N16 -- "Thành công (Create)" --> P5["Path 5: Thành công tạo mới hồ sơ"]
+```
+
 ---
 
 ## 5. PHÂN TÍCH BAO PHỦ ĐIỀU KIỆN
@@ -271,6 +305,39 @@ Theo lý thuyết bài giảng về kiểm thử dòng dữ liệu:
 - **Biến `fileUrls`:** Được `def` tại Node 7 (`uploadSvc.uploadCloud`); `p-use` tại Node 7 (`if (!fileUrls || length === 0)`); `c-use` tại Node 9 (`cvLink = fileUrls[0]`).
 - **Biến `email`:** Được `def` tại Node 11 (`personalData?.email`); `p-use` tại Node 11 (`if (!email)`); `c-use` tại Node 13 (`findByEmail(email)`).
 - Toàn bộ các biến đều có chu trình `def` $\rightarrow$ `p-use` kiểm tra tính hợp lệ trước khi `c-use`, không có bất thường dòng dữ liệu (như gán đè liên tiếp hoặc sử dụng biến chưa khởi tạo).
+
+### 5.5. Sơ đồ dòng dữ liệu và vòng đời biến (Data Flow Def-Use Diagram)
+
+```mermaid
+flowchart LR
+    subgraph DefSection ["1. Điểm định nghĩa (def)"]
+        D1["def: cvFile, avatarFile (Tham số vào)"]
+        D2["def: fileUrls (Node 7: uploadCloud)"]
+        D3["def: extractedData (Node 10: Gemini OCR)"]
+        D4["def: email (Node 11: personal.email)"]
+    end
+
+    subgraph PUseSection ["2. Kiểm tra điều kiện (p-use)"]
+        P1{"p-use: if (!cvFile) [Node 1]"}
+        P2{"p-use: if (avatarFile) [Node 5]"}
+        P3{"p-use: if (!fileUrls || len=0) [Node 7]"}
+        P4{"p-use: if (isPDF || isImg) [Node 9]"}
+        P5{"p-use: if (!email) [Node 11]"}
+        P6{"p-use: if (candidate) [Node 13]"}
+    end
+
+    subgraph CUseSection ["3. Sử dụng tính toán / Lưu DB (c-use)"]
+        C1["c-use: filesToUpload = [cvFile, avatar]"]
+        C2["c-use: cvLink = fileUrls[0]"]
+        C3["c-use: candidateRepo.findByEmail(email)"]
+        C4["c-use: candidate.update / create"]
+    end
+
+    D1 --> P1 --> C1
+    D1 --> P2 --> C1
+    C1 --> D2 --> P3 --> C2
+    D1 --> P4 --> D3 --> D4 --> P5 --> C3 --> P6 --> C4
+```
 
 ---
 

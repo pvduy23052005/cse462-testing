@@ -126,6 +126,18 @@ $\Rightarrow V(G) = R = 2$.
 | **Path 1** (Exception Flow) | $1 \rightarrow 2 \rightarrow 3$ | `result == null` hoặc falsy (Lưu DB thất bại)                        | Ném lỗi: `"Kiểm chứng lỗi vui lòng thử lại!"`                     |
 | **Path 2** (Happy Path)     | $1 \rightarrow 2 \rightarrow 4$ | `result != null` (Lưu DB thành công, cập nhật `isVerify` thành công) | Gọi `result.getDetail()` và trả về đối tượng `IVerificationProps` |
 
+### 4.1. Sơ đồ cây phân nhánh các đường dẫn cơ sở (Basis Paths Tree Diagram)
+
+```mermaid
+graph TD
+    Root["Bắt đầu: execute(candidateID, dataVerification)"] --> N1["Node 1: Khởi tạo Entity & Chạy Promise.all"]
+    
+    N1 --> N2{"Node 2: Kết quả tạo create (!result)?"}
+    
+    N2 -- "True (result falsy)" --> P1["Path 1: Ném lỗi 'Kiểm chứng lỗi vui lòng thử lại!'"]
+    N2 -- "False (result hợp lệ)" --> P2["Path 2: Gọi result.getDetail() & Trả về kết quả (Happy Path)"]
+```
+
 ---
 
 ## 5. PHÂN TÍCH THEO CÁC ĐỘ ĐO BAO PHỦ CỦA MÔN HỌC (C1, C2, C3)
@@ -163,6 +175,34 @@ Theo lý thuyết kiểm thử dòng dữ liệu của bài giảng (Kiểm tra 
 | `dataVerification` | Node 1 (Tham số đầu vào) | Node 1 (Dòng 8: spread `...dataVerification`)                         | Không                            | Hợp lệ. Được gán vào constructor `VerificationEntity.create`.                              |
 | `verification`     | Node 1 (Dòng 7)          | Node 1 (Dòng 13: `create(verification)`)                              | Không                            | Định nghĩa xong được sử dụng ngay (`def` $\rightarrow$ `c-use`).                           |
 | `result`           | Node 1 (Dòng 12)         | Node 4 (Dòng 19: `result.getDetail()`)                                | Node 2 (Dòng 17: `if (!result)`) | An toàn. `p-use` bảo vệ chống lỗi null reference trước khi gọi phương thức `.getDetail()`. |
+
+### 6.1. Sơ đồ dòng dữ liệu Def-Use của các biến chính (Data Flow Diagram)
+
+```mermaid
+flowchart LR
+    subgraph DefArea ["1. Định nghĩa (def)"]
+        D1["def: candidateID, dataVerification (Input)"]
+        D2["def: verification (Entity.create)"]
+        D3["def: result (Promise.all)"]
+    end
+
+    subgraph PUseArea ["2. Điều kiện rẽ nhánh (p-use)"]
+        P1{"p-use: if (!result) [Node 2]"}
+    end
+
+    subgraph CUseArea ["3. Sử dụng tính toán / Lưu DB (c-use)"]
+        C1["c-use: VerificationEntity.create(...)"]
+        C2["c-use: candidateRepo.create(verification)"]
+        C3["c-use: candidateRepo.updateIsVerify(candidateID, true)"]
+        C4["c-use: return result.getDetail() [Node 4]"]
+    end
+
+    D1 --> C1 --> D2 --> C2
+    D1 --> C3
+    C2 & C3 --> D3 --> P1
+    P1 -- "False" --> C4
+    P1 -- "True" --> ExitErr["throw Error [Node 3]"]
+```
 
 ---
 
