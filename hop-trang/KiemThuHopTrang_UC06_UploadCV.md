@@ -245,6 +245,25 @@ Xét 2 biểu thức điều kiện phức hợp (Compound Boolean Expressions) 
 
 ---
 
+## 5.3. PHÂN TÍCH THEO CÁC ĐỘ ĐO BAO PHỦ CỦA MÔN HỌC (C1, C2, C3)
+
+Theo tài liệu slide môn học *CSE462 - Các kỹ thuật kiểm thử phần mềm*, ĐH Thủy Lợi:
+- **Độ đo C1 (Statement Coverage):** Đạt **100% (18/18 Nodes)** khi tất cả các khối lệnh từ Node 1 đến Node 18 đều được thực thi ít nhất một lần qua các ca kiểm thử `TC_WB_01` đến `TC_WB_10`.
+- **Độ đo C2 (Branch / Decision Coverage):** Đạt **100% (14/14 Nhánh rẽ)** khi cả 7 điểm quyết định (Node 1, 3, 5, 7, 9, 11, 13, 16) đều được duyệt qua cả hai nhánh Đúng (True) và Sai (False).
+- **Độ đo C3 (Condition Coverage):** Đạt **100%** khi tất cả các điều kiện con trong các biểu thức phức hợp (`!fileUrls`, `fileUrls.length === 0`, `isPDF`, `isImage`) đều được gán cả hai giá trị Chân/Giả qua các ca kiểm thử `TC_WB_03`, `TC_WB_04`, `TC_WB_05`, `TC_WB_06`, `TC_WB_07`, `TC_WB_08`.
+
+---
+
+## 5.4. PHÂN TÍCH KIỂM THỬ DÒNG DỮ LIỆU (DATA FLOW TESTING: DEF-USE)
+
+Theo lý thuyết bài giảng về kiểm thử dòng dữ liệu:
+- **Biến `cvFile`:** Được `def` tại tham số đầu vào; `p-use` tại Node 1 (`if (!cvFile)`), Node 9 (`mimetype`); `c-use` tại Node 5 (`filesToUpload = [cvFile]`) và Node 10 (`cvFile.buffer`).
+- **Biến `fileUrls`:** Được `def` tại Node 7 (`uploadSvc.uploadCloud`); `p-use` tại Node 7 (`if (!fileUrls || length === 0)`); `c-use` tại Node 9 (`cvLink = fileUrls[0]`).
+- **Biến `email`:** Được `def` tại Node 11 (`personalData?.email`); `p-use` tại Node 11 (`if (!email)`); `c-use` tại Node 13 (`findByEmail(email)`).
+- Toàn bộ các biến đều có chu trình `def` $\rightarrow$ `p-use` kiểm tra tính hợp lệ trước khi `c-use`, không có bất thường dòng dữ liệu (như gán đè liên tiếp hoặc sử dụng biến chưa khởi tạo).
+
+---
+
 ## 6. BẢNG CA KIỂM THỬ HỘP TRẮNG CHI TIẾT (WHITE-BOX TEST CASES SPECIFICATION)
 
 | Test Case ID | Mục tiêu kiểm thử / Đường phủ | Kỹ thuật kiểm thử | Tiền điều kiện (Mock Repositories & Services) | Dữ liệu đầu vào (Input Parameters) | Kết quả mong đợi (Expected Output) | Trạng thái bao phủ |

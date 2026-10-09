@@ -1,21 +1,23 @@
-# BÁO CÁO THIẾT KẾ KIỂM THỬ HỘP TRẮNG (WHITE-BOX TESTING)
+# BÁO CÁO KIỂM THỬ HỘP TRẮNG (WHITE-BOX TESTING)
 ## USE CASE 08: XÁC THỰC THÔNG TIN ỨNG VIÊN (VerifyCandidateUseCase)
 
 ---
 
-### THÔNG TIN CHUNG
-- **Môn học:** Kiểm thử và Đảm bảo Chất lượng Phần mềm (CSE462)
+### THÔNG TIN CHUNG VỀ BÀI TẬP VÀ ĐỐI TƯỢNG KIỂM THỬ
+- **Học phần:** Kiểm thử và Đảm bảo chất lượng phần mềm (CSE462)
 - **Học kỳ:** Học kỳ 7 – Năm học 2025–2026
 - **Giảng viên hướng dẫn:** TS. Nguyễn Thị Phương Dung
 - **Sinh viên thực hiện:** Phùng Văn Duy
 - **Mã số sinh viên (MSSV):** 2351170589
 - **Nhóm thực hiện:** Nhóm 09
 - **Đề tài:** Hệ thống Quản lý Tuyển dụng – Trợ lý Tuyển dụng & Sàng lọc Hồ sơ Tự động
-- **Đối tượng kiểm thử:** Lớp `VerifyCandidateUseCase` – Phương thức `execute(candidateID: string, dataVerification: IVerifyCandidateInputDTO)`
+- **Mã Use Case:** `UC_08` | **Tên Use Case:** Xác thực thông tin ứng viên
+- **Đối tượng kiểm thử (Target Under Test):** Lớp `VerifyCandidateUseCase` – Phương thức `execute(candidateID: string, dataVerification: IVerifyCandidateInputDTO)`
+- **Tài liệu lý thuyết tham chiếu:** Slide bài giảng *CSE462 - Các kỹ thuật kiểm thử phần mềm*, ĐH Thủy Lợi (Nội dung: Kiểm thử dòng điều khiển Control Flow Testing, Đồ thị CFG, Độ đo bao phủ C1, C2, C3, Độ phức tạp Cyclomatic $V(G)$ theo McCabe, Kiểm thử dòng dữ liệu Data Flow Testing Def-Use).
 
 ---
 
-## 1. MÃ NGUỒN ĐÁNH SỐ DÒNG (SOURCE CODE UNDER TEST)
+## 1. MÃ NGUỒN ĐÁNH SỐ DÒNG (NUMBERED SOURCE CODE)
 
 ```typescript
 1:  export class VerifyCandidateUseCase {
@@ -47,12 +49,12 @@
 
 ### 2.1. Phân chia các khối lệnh cơ bản (Basic Blocks / Nodes)
 
-| Đỉnh (Node) | Dòng mã nguồn | Nội dung thao tác & Câu lệnh | Loại đỉnh |
+| Đỉnh (Node) | Dòng mã nguồn | Nội dung câu lệnh & Thao tác | Loại đỉnh |
 | :--- | :--- | :--- | :--- |
-| **Node 1** | Dòng 7–15 | - Khởi tạo thực thể kiểm chứng: `VerificationEntity.create(...)`<br>- Gọi đồng thời qua `Promise.all`: `create(verification)` và `updateIsVerify(candidateID, true)`<br>- Trích xuất phần tử đầu tiên: `const [result] = ...` | Process (Xử lý tuần tự) |
-| **Node 2** | Dòng 17 | Kiểm tra điều kiện kết quả tạo kiểm chứng: `if (!result)` | Decision (Vị từ rẽ nhánh) |
-| **Node 3** | Dòng 17 | Ném ngoại lệ lỗi: `throw new Error("Kiểm chứng lỗi vui lòng thử lại!")` | Exit (Exception / Lỗi) |
-| **Node 4** | Dòng 19 | Trích xuất thông tin chi tiết và trả về: `return result.getDetail()` | Exit (Normal / Thành công) |
+| **Node 1** | Dòng 7–15 | - Khởi tạo thực thể kiểm chứng: `VerificationEntity.create(...)`<br>- Gọi đồng thời qua `Promise.all`: `create(verification)` và `updateIsVerify(candidateID, true)`<br>- Trích xuất phần tử kết quả: `const [result] = ...` | Process (Xử lý tuần tự) |
+| **Node 2** | Dòng 17 | Kiểm tra điều kiện kết quả tạo kiểm chứng: `if (!result)` | Decision (Điểm quyết định) |
+| **Node 3** | Dòng 17 | Ném ngoại lệ lỗi: `throw new Error("Kiểm chứng lỗi vui lòng thử lại!")` | Exit (Ngoại lệ) |
+| **Node 4** | Dòng 19 | Trích xuất thông tin chi tiết và trả về: `return result.getDetail()` | Exit (Thoát bình thường) |
 
 ---
 
@@ -72,9 +74,9 @@ flowchart TD
 
 ## 3. TÍNH ĐỘ PHỨC TẠP CYCLOMATIC (CYCLOMATIC COMPLEXITY)
 
-Độ phức tạp Cyclomatic $V(G)$ được tính toán độc lập theo 3 phương pháp chuẩn Thomas J. McCabe:
+Độ phức tạp Cyclomatic $V(G)$ phản ánh số lượng đường dẫn độc lập tuyến tính trong đồ thị dòng điều khiển theo 3 phương pháp McCabe:
 
-### Phương pháp 1: Dựa trên số cung (Edges) và số đỉnh (Nodes)
+### Phương pháp 1: Dựa trên số cung ($E$) và số đỉnh ($N$)
 Công thức:
 $$V(G) = E - N + 2P$$
 Trong đó:
@@ -87,12 +89,12 @@ $$V(G) = 4 - 4 + 2(1) = 2$$
 
 ---
 
-### Phương pháp 2: Dựa trên số nút quyết định vị từ (Predicate Nodes)
+### Phương pháp 2: Dựa trên số điểm quyết định vị từ ($P_n$)
 Công thức:
 $$V(G) = P_n + 1$$
 Trong đó:
-- $P_n$ là số nút vị từ đưa ra quyết định rẽ nhánh nhị phân.
-- Trong mã nguồn chỉ có duy nhất 1 điểm rẽ nhánh tại **Node 2**: `if (!result)`.
+- $P_n$ là số nút vị từ rẽ nhánh nhị phân True/False.
+- Chỉ có 1 vị từ tại **Node 2**: `if (!result)`.
 - Vậy $P_n = 1$.
 
 Tính toán:
@@ -100,66 +102,109 @@ $$V(G) = 1 + 1 = 2$$
 
 ---
 
-### Phương pháp 3: Dựa trên số miền khép kín (Enclosed Regions)
+### Phương pháp 3: Dựa trên số miền khép kín ($R$)
 Công thức:
 $$V(G) = R$$
-Trong đó $R$ là tổng số miền phẳng khép kín cộng với miền vô hạn bên ngoài:
-- 1 miền rẽ nhánh tạo bởi 2 nhánh kết thúc True/False ($R_1$).
-- 1 miền vô hạn bao quanh đồ thị ($R_2$).
+Trong đó $R$ là tổng số miền phẳng khép kín ($R_1$ giữa 2 nhánh rẽ) cộng 1 miền vô hạn bao quanh bên ngoài ($R_2$).  
+$\Rightarrow V(G) = R = 2$.
 
-Tổng số miền $R = 2 \implies V(G) = 2$.
-
-> **Kết luận:** Cả 3 phương pháp đều cho kết quả: **Độ phức tạp Cyclomatic $V(G) = 2$**.  
-> Do đó, tập đường dẫn cơ sở (Basis Paths) gồm tối thiểu **2 đường dẫn độc lập**.
+> **Kết luận:** Độ phức tạp Cyclomatic là **$V(G) = 2$**. Cần tối thiểu **2 đường dẫn cơ sở (Basis Paths)** để bao phủ toàn bộ luồng điều khiển.
 
 ---
 
-## 4. TẬP ĐƯỜNG DẪN CƠ SỞ (BASIS PATHS)
+## 4. TẬP ĐƯỜNG DẪN CƠ SỞ (INDEPENDENT BASIS PATHS)
 
-| Đường dẫn (Path) | Chuỗi Node thực thi | Điều kiện kích hoạt luồng | Kết quả đầu ra mong đợi |
+| Đường dẫn (Basis Path) | Chuỗi Node thực thi | Điều kiện kích hoạt luồng | Kết quả đầu ra mong đợi |
 | :--- | :--- | :--- | :--- |
-| **Path 1** (Exception Flow) | Node 1 $\rightarrow$ Node 2 $\rightarrow$ Node 3 | `result == null` hoặc `undefined` (Tạo bản ghi kiểm chứng thất bại tại CSDL) | Ném lỗi: `"Kiểm chứng lỗi vui lòng thử lại!"` |
-| **Path 2** (Happy Path) | Node 1 $\rightarrow$ Node 2 $\rightarrow$ Node 4 | `result != null` (Tạo bản ghi kiểm chứng thành công và cập nhật cờ `isVerify` thành công) | Trả về đối tượng `IVerificationProps` chi tiết (`result.getDetail()`) |
+| **Path 1** (Exception Flow) | $1 \rightarrow 2 \rightarrow 3$ | `result == null` hoặc falsy (Lưu DB thất bại) | Ném lỗi: `"Kiểm chứng lỗi vui lòng thử lại!"` |
+| **Path 2** (Happy Path) | $1 \rightarrow 2 \rightarrow 4$ | `result != null` (Lưu DB thành công, cập nhật `isVerify` thành công) | Gọi `result.getDetail()` và trả về đối tượng `IVerificationProps` |
 
 ---
 
-## 5. MỞ RỘNG KIỂM THỬ NGOẠI LỆ BẤT ĐỒNG BỘ (ASYNCHRONOUS PROMISE REJECTION)
+## 5. PHÂN TÍCH THEO CÁC ĐỘ ĐO BAO PHỦ CỦA MÔN HỌC (C1, C2, C3)
 
-Ngoài 2 đường dẫn cơ sở chuẩn, hàm `execute` sử dụng `Promise.all([create, updateIsVerify])`. Trong môi trường thực thi thực tế của JavaScript/TypeScript, nếu một trong hai tác vụ bất đồng bộ bị từ chối (`rejected`), `Promise.all` sẽ ném trực tiếp lỗi ra ngoài. Do đó, cần bổ sung 2 ca kiểm thử biên bất đồng bộ để đảm bảo khả năng bao phủ toàn diện 100% rủi ro:
-1. `candidateRepo.create` bị Reject (Lỗi kết nối CSDL khi ghi log kiểm chứng).
-2. `candidateRepo.updateIsVerify` bị Reject (Lỗi khi cập nhật trạng thái ứng viên).
+Theo tài liệu slide giảng dạy *CSE462 - Các kỹ thuật kiểm thử phần mềm*:
 
----
+### 5.1. Độ đo C1 (Statement Coverage - Bao phủ câu lệnh)
+- **Định nghĩa:** Mỗi câu lệnh/khối lệnh (Node) được thực hiện ít nhất một lần.
+- **Yêu cầu:** Thực thi 4 Node (Node 1, 2, 3, 4).
+- **Tập ca kiểm thử:** `TC_WB_01` (Node 1, 2, 3) và `TC_WB_02` (Node 1, 2, 4).
+- **Mức độ đạt được:** **100% C1 (4/4 Nodes)**.
 
-## 6. BẢNG CA KIỂM THỬ HỘP TRẮNG CHI TIẾT (TEST CASES SPECIFICATION)
+### 5.2. Độ đo C2 (Branch / Decision Coverage - Bao phủ nhánh quyết định)
+- **Định nghĩa:** Tất cả các nhánh rẽ Đúng (True) và Sai (False) của các điểm quyết định đều được thực thi ít nhất một lần.
+- **Bao phủ:**
+  - Node 2 nhánh Đúng (`!result = True`): `TC_WB_01` rẽ sang Node 3.
+  - Node 2 nhánh Sai (`!result = False`): `TC_WB_02` rẽ sang Node 4.
+- **Mức độ đạt được:** **100% C2 (2/2 nhánh True/False)**.
 
-| Test Case ID | Mục tiêu kiểm thử | Đường dẫn bao phủ | Tiền điều kiện & Dữ liệu đầu vào (Test Data) | Giả lập hệ thống (Mock Setup) | Kết quả mong đợi (Expected Output) | Mức độ ưu tiên |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **TC_WB_01** | Bắt lỗi khi việc lưu bản ghi kiểm chứng thất bại (`result` là falsy) | **Path 1**<br>(1 $\rightarrow$ 2 $\rightarrow$ 3) | - `candidateID`: `"CAN_01"`<br>- `dataVerification`: `{ status: "VERIFIED", notes: "Bằng cấp hợp lệ", verifiedBy: "HR_ADMIN" }` | - `candidateRepo.create` $\rightarrow$ Trả về `null`<br>- `candidateRepo.updateIsVerify` $\rightarrow$ Trả về `true` | - Ném ngoại lệ lỗi:<br>`"Kiểm chứng lỗi vui lòng thử lại!"`<br>- Không gọi đến `result.getDetail()` | High |
-| **TC_WB_02** | Luồng thành công hoàn chỉnh: Tạo kiểm chứng và cập nhật trạng thái đã xác thực | **Path 2**<br>(1 $\rightarrow$ 2 $\rightarrow$ 4) | - `candidateID`: `"CAN_01"`<br>- `dataVerification`: `{ status: "VERIFIED", notes: "Hồ sơ đạt chuẩn", verifiedBy: "HR_ADMIN" }` | - `mockVerificationResult` có phương thức `.getDetail()` trả về `{ id: "VER_01", candidateId: "CAN_01", status: "VERIFIED" }`<br>- `candidateRepo.create` $\rightarrow$ Trả về `mockVerificationResult`<br>- `candidateRepo.updateIsVerify` $\rightarrow$ Trả về `true` | - Trả về đúng object từ `result.getDetail()`<br>- Cả hai hàm `create` và `updateIsVerify("CAN_01", true)` đều được gọi đúng tham số | High |
-| **TC_WB_03** | Kiểm tra lỗi bất đồng bộ khi hàm `create` bị sập CSDL (Promise Reject) | Bất đồng bộ<br>(Promise.all) | - `candidateID`: `"CAN_01"`<br>- `dataVerification`: `{ status: "VERIFIED", notes: "Lỗi DB", verifiedBy: "HR_ADMIN" }` | - `candidateRepo.create` $\rightarrow$ Reject lỗi: `new Error("Database connection error")`<br>- `candidateRepo.updateIsVerify` $\rightarrow$ Resolved | - Ném ngoại lệ lỗi:<br>`"Database connection error"` | Medium |
-| **TC_WB_04** | Kiểm tra lỗi bất đồng bộ khi cập nhật cờ `isVerify` thất bại (Promise Reject) | Bất đồng bộ<br>(Promise.all) | - `candidateID`: `"CAN_01"`<br>- `dataVerification`: `{ status: "VERIFIED", notes: "Lỗi update", verifiedBy: "HR_ADMIN" }` | - `candidateRepo.create` $\rightarrow$ Resolved `mockVerificationResult`<br>- `candidateRepo.updateIsVerify` $\rightarrow$ Reject lỗi: `new Error("Update status failed")` | - Ném ngoại lệ lỗi:<br>`"Update status failed"` | Medium |
-
----
-
-## 7. MA TRẬN ĐỘ BAO PHỦ KIỂM THỬ (TEST COVERAGE MATRIX)
-
-| Tiêu chuẩn bao phủ | Đối tượng trong mã nguồn | Các ca kiểm thử bao phủ | Tỷ lệ bao phủ đạt được |
-| :--- | :--- | :--- | :--- |
-| **Statement Coverage (Bao phủ dòng lệnh)** | 4/4 Basic Blocks (100% dòng lệnh) | Bao phủ hoàn toàn bởi `TC_WB_01` và `TC_WB_02` | **100%** |
-| **Branch Coverage (Bao phủ nhánh quyết định)** | 1 cặp nhánh True / False (Node 2) | - Nhánh True: `TC_WB_01`<br>- Nhánh False: `TC_WB_02` | **100% (2/2 nhánh)** |
-| **Basis Path Coverage (Bao phủ đường cơ sở)** | 2 Đường dẫn độc lập ($V(G) = 2$) | Ánh xạ 1-1 với `TC_WB_01` và `TC_WB_02` | **100% (2/2 Paths)** |
-| **Async Robustness Coverage (Ngoại lệ bất đồng bộ)** | 2 Promises chạy song song | `TC_WB_03`, `TC_WB_04` | **100%** |
+### 5.3. Độ đo C3 (Condition Coverage - Bao phủ điều kiện con)
+- Biểu thức tại Node 2 là điều kiện đơn nhị phân (`!result`). Đạt 100% C2 đồng nghĩa đạt **100% C3**.
 
 ---
 
-## 8. MÃ NGUỒN KIỂM THỬ TỰ ĐỘNG MINH HỌA (JEST UNIT TEST SUITE)
+## 6. PHÂN TÍCH KIỂM THỬ DÒNG DỮ LIỆU (DATA FLOW TESTING: DEF-USE)
+
+Theo lý thuyết kiểm thử dòng dữ liệu của bài giảng (Kiểm tra chu kỳ sống của các biến def, c-use, p-use):
+
+| Tên biến | Điểm định nghĩa (def) | Điểm sử dụng tính toán (c-use) | Điểm sử dụng điều kiện (p-use) | Đánh giá tính toàn vẹn dữ liệu |
+| :--- | :--- | :--- | :--- | :--- |
+| `candidateID` | Node 1 (Tham số đầu vào) | Node 1 (Dòng 9: gán cho thực thể), Node 1 (Dòng 14: `updateIsVerify`) | Không | Biến tham số được sử dụng đầy đủ cả 2 tác vụ, không có biến thừa (Loại 3). |
+| `dataVerification` | Node 1 (Tham số đầu vào) | Node 1 (Dòng 8: spread `...dataVerification`) | Không | Hợp lệ. Được gán vào constructor `VerificationEntity.create`. |
+| `verification` | Node 1 (Dòng 7) | Node 1 (Dòng 13: `create(verification)`) | Không | Định nghĩa xong được sử dụng ngay (`def` $\rightarrow$ `c-use`). |
+| `result` | Node 1 (Dòng 12) | Node 4 (Dòng 19: `result.getDetail()`) | Node 2 (Dòng 17: `if (!result)`) | An toàn. `p-use` bảo vệ chống lỗi null reference trước khi gọi phương thức `.getDetail()`. |
+
+---
+
+## 7. MỞ RỘNG KIỂM THỬ NGOẠI LỆ BẤT ĐỒNG BỘ (PROMISE REJECTION)
+
+Trong môi trường thực thi thực tế của TypeScript/JavaScript, hàm sử dụng `Promise.all([create, updateIsVerify])`. Để đảm bảo kiểm thử toàn diện theo tiêu chuẩn kiểm thử tích hợp đơn vị (Unit & Component Testing):
+- **TC_WB_03:** Kiểm tra lỗi bất đồng bộ khi `create` bị Promise Reject (Lỗi kết nối CSDL).
+- **TC_WB_04:** Kiểm tra lỗi bất đồng bộ khi `updateIsVerify` bị Promise Reject (Lỗi cập nhật CSDL).
+
+---
+
+## 8. BẢNG CA KIỂM THỬ HỘP TRẮNG CHI TIẾT (WHITE-BOX TEST CASES SPECIFICATION)
+
+| Test Case ID | Mục tiêu kiểm thử / Đường phủ | Kỹ thuật kiểm thử | Tiền điều kiện & Mock Setup | Dữ liệu đầu vào (Input Parameters) | Kết quả mong đợi (Expected Output) | Trạng thái bao phủ | Mức độ ưu tiên |
+| :--- | :--- | :--- | :--- | :--- | :--- | :---: | :---: |
+| **TC_WB_01** | Bắt lỗi khi tạo bản ghi kiểm chứng trả về falsy/null (`Path 1`) | C1, C2, Basis Path 1 | `candidateRepo.create` trả về `null`<br>`candidateRepo.updateIsVerify` trả về `true` | `candidateID = "CAN_01"`<br>`dataVerification = { status: "VERIFIED", notes: "Hồ sơ hợp lệ" }` | Ném lỗi (Exception):<br>`"Kiểm chứng lỗi vui lòng thử lại!"`<br>Không gọi `result.getDetail()` | Node 1, 2 (True), 3 | High |
+| **TC_WB_02** | Xác thực thành công: Lưu kiểm chứng và cập nhật trạng thái ứng viên (`Path 2`) | C1, C2, Basis Path 2 | `mockResult.getDetail` trả về object chi tiết<br>`candidateRepo.create` trả về `mockResult`<br>`candidateRepo.updateIsVerify` trả về `true` | `candidateID = "CAN_01"`<br>`dataVerification = { status: "VERIFIED", notes: "Đạt chuẩn" }` | - Trả về object từ `result.getDetail()`<br>- Cả `create` và `updateIsVerify` đều được gọi đúng tham số | Node 1, 2 (False), 4 | High |
+| **TC_WB_03** | Ngoại lệ bất đồng bộ: Thao tác tạo kiểm chứng bị sập kết nối CSDL | Async Robustness | `candidateRepo.create` bị Reject với `Error("DB Error")`<br>`candidateRepo.updateIsVerify` Resolved | `candidateID = "CAN_01"`<br>`dataVerification = { ... }` | Ném ngoại lệ lỗi:<br>`"DB Error"` | Promise.all Reject | Medium |
+| **TC_WB_04** | Ngoại lệ bất đồng bộ: Thao tác cập nhật trạng thái bị sập kết nối CSDL | Async Robustness | `candidateRepo.create` Resolved `mockResult`<br>`candidateRepo.updateIsVerify` bị Reject với `Error("Update failed")` | `candidateID = "CAN_01"`<br>`dataVerification = { ... }` | Ném ngoại lệ lỗi:<br>`"Update failed"` | Promise.all Reject | Medium |
+
+---
+
+## 9. MA TRẬN ĐO LƯỜNG ĐỘ BAO PHỦ KIỂM THỬ (TEST COVERAGE MATRIX)
+
+### 9.1. Ma trận đối chiếu đường đi và ca kiểm thử (Traceability Matrix)
+
+| Đường thực thi (Basis Path) | Nút bao phủ (Nodes Covered) | Ca kiểm thử tương ứng | Trạng thái bao phủ |
+| :--- | :--- | :---: | :---: |
+| **Path 1** | $1 \rightarrow 2 \rightarrow 3$ | `TC_WB_01` | **Covered (100%)** |
+| **Path 2** (Happy Path) | $1 \rightarrow 2 \rightarrow 4$ | `TC_WB_02` | **Covered (100%)** |
+| **Async Exceptions** | Bất đồng bộ `Promise.all` | `TC_WB_03`, `TC_WB_04` | **Covered (100%)** |
+
+### 9.2. Tổng kết tỷ lệ bao phủ theo tiêu chuẩn môn học
+
+$$\text{Độ bao phủ câu lệnh (C1)} = \frac{4 \text{ Nodes}}{4 \text{ Nodes}} = 100\%$$
+
+$$\text{Độ bao phủ nhánh (C2)} = \frac{2 \text{ Nhánh (True/False)}}{2 \text{ Nhánh}} = 100\%$$
+
+$$\text{Độ bao phủ điều kiện (C3)} = 100\%$$
+
+$$\text{Độ bao phủ đường cơ sở (Basis Path)} = \frac{2 \text{ Paths}}{2 \text{ Paths}} = 100\%$$
+
+---
+
+## 10. MÃ NGUỒN KIỂM THỬ TỰ ĐỘNG MINH HỌA (JEST / UNIT TEST)
+
+Dưới đây là mã nguồn kiểm thử đơn vị tự động viết bằng Jest/TypeScript:
 
 ```typescript
 import { VerifyCandidateUseCase } from './verify-candidate.use-case';
-import { VerificationEntity } from '../../../domain/verifycation';
 
-describe('VerifyCandidateUseCase - White-Box Testing Suite (UC_08)', () => {
+describe('VerifyCandidateUseCase - White-Box Unit Testing (UC_08)', () => {
   let useCase: VerifyCandidateUseCase;
   let mockCandidateRepo: any;
 
@@ -171,7 +216,7 @@ describe('VerifyCandidateUseCase - White-Box Testing Suite (UC_08)', () => {
     useCase = new VerifyCandidateUseCase(mockCandidateRepo);
   });
 
-  // TC_WB_01: Path 1 (Node 1 -> 2 -> 3)
+  // TC_WB_01: Basis Path 1 (Node 1 -> 2 -> 3)
   it('TC_WB_01: Path 1 - Nên ném lỗi khi kết quả tạo kiểm chứng là null hoặc falsy', async () => {
     mockCandidateRepo.create.mockResolvedValue(null);
     mockCandidateRepo.updateIsVerify.mockResolvedValue(true);
@@ -190,7 +235,7 @@ describe('VerifyCandidateUseCase - White-Box Testing Suite (UC_08)', () => {
     expect(mockCandidateRepo.updateIsVerify).toHaveBeenCalledWith('CAN_01', true);
   });
 
-  // TC_WB_02: Path 2 (Node 1 -> 2 -> 4) - Happy Path
+  // TC_WB_02: Basis Path 2 (Node 1 -> 2 -> 4) - Happy Path
   it('TC_WB_02: Path 2 - Nên tạo kiểm chứng thành công và trả về thông tin chi tiết', async () => {
     const mockDetail = {
       id: 'VER_01',

@@ -1,21 +1,23 @@
-# BÁO CÁO THIẾT KẾ KIỂM THỬ HỘP TRẮNG (WHITE-BOX TESTING)
+# BÁO CÁO KIỂM THỬ HỘP TRẮNG (WHITE-BOX TESTING)
 ## USE CASE 07: PHÂN TÍCH VÀ ĐÁNH GIÁ ỨNG VIÊN BẰNG AI (AnalysisUseCase)
 
 ---
 
-### THÔNG TIN CHUNG
-- **Môn học:** Kiểm thử và Đảm bảo Chất lượng Phần mềm (CSE462)
+### THÔNG TIN CHUNG VỀ BÀI TẬP VÀ ĐỐI TƯỢNG KIỂM THỬ
+- **Học phần:** Kiểm thử và Đảm bảo chất lượng phần mềm (CSE462)
 - **Học kỳ:** Học kỳ 7 – Năm học 2025–2026
 - **Giảng viên hướng dẫn:** TS. Nguyễn Thị Phương Dung
 - **Sinh viên thực hiện:** Phùng Văn Duy
 - **Mã số sinh viên (MSSV):** 2351170589
 - **Nhóm thực hiện:** Nhóm 09
 - **Đề tài:** Hệ thống Quản lý Tuyển dụng – Trợ lý Tuyển dụng & Sàng lọc Hồ sơ Tự động
-- **Đối tượng kiểm thử:** Lớp `AnalysisUseCase` – Phương thức `execute(input: AnalysisInputDto)`
+- **Mã Use Case:** `UC_07` | **Tên Use Case:** Phân tích ứng viên với AI
+- **Đối tượng kiểm thử (Target Under Test):** Lớp `AnalysisUseCase` – Phương thức `execute(input: AnalysisInputDto)`
+- **Tài liệu lý thuyết tham chiếu:** Slide bài giảng *CSE462 - Các kỹ thuật kiểm thử phần mềm*, ĐH Thủy Lợi (Nội dung: Kiểm thử dòng điều khiển Control Flow Testing, Đồ thị CFG, Độ đo bao phủ C1, C2, C3, Độ phức tạp Cyclomatic $V(G)$ theo McCabe, Kiểm thử dòng dữ liệu Data Flow Testing Def-Use).
 
 ---
 
-## 1. MÃ NGUỒN ĐÁNH SỐ DÒNG (SOURCE CODE UNDER TEST)
+## 1. MÃ NGUỒN ĐÁNH SỐ DÒNG (NUMBERED SOURCE CODE)
 
 ```typescript
 1:  export class AnalysisUseCase {
@@ -73,19 +75,19 @@
 
 ### 2.1. Phân chia các khối lệnh cơ bản (Basic Blocks / Nodes)
 
-| Đỉnh (Node) | Dòng mã nguồn | Nội dung thao tác & Câu lệnh | Loại đỉnh |
+| Đỉnh (Node) | Dòng mã nguồn | Nội dung câu lệnh & Thao tác | Loại đỉnh |
 | :--- | :--- | :--- | :--- |
-| **Node 1** | Dòng 10–13 | Lấy `candidateID`, `jobID`, kiểm tra kết quả phân tích cũ: `getAnalysisByCandidateIdAndJobId()`, điều kiện `if (existingAnalysis)` | Decision (Vị từ) |
-| **Node 2** | Dòng 14 | `return existingAnalysis as AnalysisOutputDto;` (Đã phân tích trước đó) | Exit (Normal 1) |
-| **Node 3** | Dòng 17–18 | Truy vấn ứng viên: `candidateRepo.getById(candidateID)`, điều kiện `if (!candidate)` | Decision (Vị từ) |
-| **Node 4** | Dòng 18 | `throw new Error('Không tìm thấy thông tin ứng viên.')` | Exit (Exception 1) |
-| **Node 5** | Dòng 20–21 | Truy vấn công việc: `jobRepo.getById(jobID)`, điều kiện `if (!job)` | Decision (Vị từ) |
-| **Node 6** | Dòng 21 | `throw new Error('Không tìm thấy thông tin công việc (Job).')` | Exit (Exception 2) |
-| **Node 7** | Dòng 23–27 | Gọi AI phân tích: `geminiService.analyzeCandidateWithJob(...)`, điều kiện `if (!analysisResult)` | Decision (Vị từ) |
-| **Node 8** | Dòng 27 | `throw new Error('Lỗi khi gọi AI phân tích dữ liệu.')` | Exit (Exception 3) |
-| **Node 9** | Dòng 29–40 | Khởi tạo thực thể `AnalysisEntity.create()`, lưu vào DB: `aiAnalyzeRepo.create(analysis)`, điều kiện `if (!savedAnalysis)` | Decision (Vị từ) |
-| **Node 10** | Dòng 40 | `throw new Error('Lỗi khi lưu kết quả phân tích.')` | Exit (Exception 4) |
-| **Node 11** | Dòng 42–45 | Cập nhật trạng thái ứng viên `SCREENING`: `candidate.updateStatus()`, `candidateRepo.update(candidate)`, trả về `return savedAnalysis as AnalysisOutputDto;` | Exit (Normal 2) |
+| **Node 1** | Dòng 10–13 | Lấy `candidateID`, `jobID`, kiểm tra kết quả phân tích cũ: `getAnalysisByCandidateIdAndJobId()`, điều kiện `if (existingAnalysis)` | Decision (Điểm quyết định) |
+| **Node 2** | Dòng 14 | `return existingAnalysis as AnalysisOutputDto;` (Tái sử dụng kết quả có sẵn) | Exit (Thoát bình thường 1) |
+| **Node 3** | Dòng 17–18 | Truy vấn ứng viên: `candidateRepo.getById(candidateID)`, kiểm tra điều kiện `if (!candidate)` | Decision (Điểm quyết định) |
+| **Node 4** | Dòng 18 | `throw new Error('Không tìm thấy thông tin ứng viên.')` | Exit (Ngoại lệ 1) |
+| **Node 5** | Dòng 20–21 | Truy vấn công việc: `jobRepo.getById(jobID)`, kiểm tra điều kiện `if (!job)` | Decision (Điểm quyết định) |
+| **Node 6** | Dòng 21 | `throw new Error('Không tìm thấy thông tin công việc (Job).')` | Exit (Ngoại lệ 2) |
+| **Node 7** | Dòng 23–27 | Gọi AI phân tích: `geminiService.analyzeCandidateWithJob(...)`, kiểm tra điều kiện `if (!analysisResult)` | Decision (Điểm quyết định) |
+| **Node 8** | Dòng 27 | `throw new Error('Lỗi khi gọi AI phân tích dữ liệu.')` | Exit (Ngoại lệ 3) |
+| **Node 9** | Dòng 29–40 | Khởi tạo thực thể `AnalysisEntity.create()`, lưu vào DB: `aiAnalyzeRepo.create(analysis)`, kiểm tra điều kiện `if (!savedAnalysis)` | Decision (Điểm quyết định) |
+| **Node 10** | Dòng 40 | `throw new Error('Lỗi khi lưu kết quả phân tích.')` | Exit (Ngoại lệ 4) |
+| **Node 11** | Dòng 42–45 | Cập nhật trạng thái `CandidateStatus.SCREENING`: `candidate.updateStatus()`, `candidateRepo.update()`, trả về `return savedAnalysis as AnalysisOutputDto;` | Exit (Thoát bình thường 2) |
 
 ---
 
@@ -115,22 +117,22 @@ flowchart TD
 
 ## 3. TÍNH ĐỘ PHỨC TẠP CYCLOMATIC (CYCLOMATIC COMPLEXITY)
 
-Độ phức tạp Cyclomatic $V(G)$ phản ánh số lượng đường dẫn độc lập tuyến tính trong chương trình. Ta tính toán theo 3 phương pháp độc lập theo tiêu chuẩn Thomas J. McCabe:
+Theo lý thuyết bài giảng Thomas J. McCabe, độ phức tạp Cyclomatic $V(G)$ phản ánh số lượng đường dẫn độc lập tuyến tính trong đồ thị dòng điều khiển:
 
-### Phương pháp 1: Dựa trên số cung (Edges) và số đỉnh (Nodes)
+### Phương pháp 1: Dựa trên số cung ($E$) và số đỉnh ($N$)
 Công thức:
 $$V(G) = E - N + 2P$$
 Trong đó:
-- Số đỉnh (Nodes) $N = 11$ (Node 1 đến Node 11)
-- Số cung (Edges) $E = 15$ (Gồm 1 cung vào Node 1, 5 nhánh True/False rẽ từ 5 node quyết định, 1 cung chuyển tiếp từ Start đến Node 1)
-- Số thành phần liên thông (Connected Components) $P = 1$
+- Số đỉnh (Nodes) $N = 11$
+- Số cung (Edges) $E = 15$
+- Số thành phần liên thông $P = 1$
 
 Tính toán:
 $$V(G) = 15 - 11 + 2(1) = 6$$
 
 ---
 
-### Phương pháp 2: Dựa trên số nút quyết định vị từ (Predicate Nodes)
+### Phương pháp 2: Dựa trên số điểm quyết định vị từ ($P_n$)
 Công thức:
 $$V(G) = P_n + 1$$
 Trong đó $P_n$ là số nút vị từ (chứa điều kiện rẽ nhánh nhị phân True/False):
@@ -146,66 +148,122 @@ $$V(G) = 5 + 1 = 6$$
 
 ---
 
-### Phương pháp 3: Dựa trên số miền khép kín (Enclosed Regions)
+### Phương pháp 3: Dựa trên số miền khép kín ($R$)
 Công thức:
 $$V(G) = R$$
-Trong đó $R$ là tổng số miền đóng (vùng khép kín tạo bởi các chu trình phẳng) cộng với 1 miền vô hạn bên ngoài:
-- Đồ thị có 5 nhánh rẽ thoát ra các điểm kết thúc độc lập tạo thành 5 miền mặt phẳng cục bộ $R_1, R_2, R_3, R_4, R_5$.
-- Miền hở bao quanh đồ thị là $R_6$.
+Trong đó $R$ là tổng số miền phẳng khép kín (5 miền rẽ nhánh cục bộ $R_1, R_2, R_3, R_4, R_5$) cộng 1 miền vô hạn bao quanh ngoài ($R_6$).  
+$\Rightarrow V(G) = R = 6$.
 
-Tổng số miền $R = 6 \implies V(G) = 6$.
-
-> **Kết luận:** Cả 3 phương pháp đều cho kết quả nhất quán: **Độ phức tạp Cyclomatic $V(G) = 6$**.  
-> Do đó, tập đường dẫn cơ sở (Basis Paths) cần xây dựng tối thiểu là **6 đường dẫn độc lập**.
+> **Kết luận:** Độ phức tạp Cyclomatic của hàm `execute` là **$V(G) = 6$**. Do đó, cần tối thiểu **6 đường dẫn cơ sở (Basis Paths)** độc lập tuyến tính để bao phủ đồ thị.
 
 ---
 
-## 4. TẬP ĐƯỜNG DẪN CƠ SỞ (BASIS PATHS)
+## 4. TẬP ĐƯỜNG DẪN CƠ SỞ (INDEPENDENT BASIS PATHS)
 
-| Đường dẫn (Path) | Chuỗi các Node thực thi | Điều kiện kích hoạt luồng | Kết quả đầu ra mong đợi |
+| Đường dẫn (Basis Path) | Chuỗi các Node thực thi | Điều kiện kích hoạt luồng | Kết quả đầu ra mong đợi |
 | :--- | :--- | :--- | :--- |
-| **Path 1** | Node 1 $\rightarrow$ Node 2 | `existingAnalysis != null` (Tìm thấy kết quả đã phân tích từ trước) | Trả về trực tiếp bản ghi phân tích cũ (`existingAnalysis`), không gọi lại AI |
-| **Path 2** | Node 1 $\rightarrow$ Node 3 $\rightarrow$ Node 4 | `existingAnalysis == null` VÀ `candidate == null` (Không tìm thấy ứng viên trong DB) | Ném ngoại lệ lỗi: `"Không tìm thấy thông tin ứng viên."` |
-| **Path 3** | Node 1 $\rightarrow$ Node 3 $\rightarrow$ Node 5 $\rightarrow$ Node 6 | `existingAnalysis == null`, `candidate != null` VÀ `job == null` (Không tìm thấy Job) | Ném ngoại lệ lỗi: `"Không tìm thấy thông tin công việc (Job)."` |
-| **Path 4** | Node 1 $\rightarrow$ Node 3 $\rightarrow$ Node 5 $\rightarrow$ Node 7 $\rightarrow$ Node 8 | `existingAnalysis == null`, `candidate != null`, `job != null` VÀ `analysisResult == null` (Gemini AI gặp lỗi hoặc sập kết nối) | Ném ngoại lệ lỗi: `"Lỗi khi gọi AI phân tích dữ liệu."` |
-| **Path 5** | Node 1 $\rightarrow$ Node 3 $\rightarrow$ Node 5 $\rightarrow$ Node 7 $\rightarrow$ Node 9 $\rightarrow$ Node 10 | Đầy đủ dữ liệu, AI trả về kết quả nhưng lưu DB thất bại: `savedAnalysis == null` | Ném ngoại lệ lỗi: `"Lỗi khi lưu kết quả phân tích."` |
-| **Path 6** (Happy Path) | Node 1 $\rightarrow$ Node 3 $\rightarrow$ Node 5 $\rightarrow$ Node 7 $\rightarrow$ Node 9 $\rightarrow$ Node 11 | Chưa có kết quả cũ, tìm thấy candidate, tìm thấy job, AI phân tích thành công, lưu DB thành công, cập nhật trạng thái `SCREENING` | Trả về đối tượng `savedAnalysis` mới, trạng thái ứng viên chuyển sang `SCREENING` |
+| **Path 1** | $1 \rightarrow 2$ | `existingAnalysis != null` (Đã có bản ghi phân tích từ trước) | Trả về ngay `existingAnalysis` (Cache hit), không gọi lại AI |
+| **Path 2** | $1 \rightarrow 3 \rightarrow 4$ | `existingAnalysis == null` VÀ `candidate == null` | Ném lỗi (Exception 1): `"Không tìm thấy thông tin ứng viên."` |
+| **Path 3** | $1 \rightarrow 3 \rightarrow 5 \rightarrow 6$ | `existingAnalysis == null`, `candidate != null` VÀ `job == null` | Ném lỗi (Exception 2): `"Không tìm thấy thông tin công việc (Job)."` |
+| **Path 4** | $1 \rightarrow 3 \rightarrow 5 \rightarrow 7 \rightarrow 8$ | Có candidate, có job, nhưng gọi AI thất bại: `analysisResult == null` | Ném lỗi (Exception 3): `"Lỗi khi gọi AI phân tích dữ liệu."` |
+| **Path 5** | $1 \rightarrow 3 \rightarrow 5 \rightarrow 7 \rightarrow 9 \rightarrow 10$ | Dữ liệu đầy đủ, AI phân tích thành công nhưng lưu DB thất bại: `savedAnalysis == null` | Ném lỗi (Exception 4): `"Lỗi khi lưu kết quả phân tích."` |
+| **Path 6** (Happy Path) | $1 \rightarrow 3 \rightarrow 5 \rightarrow 7 \rightarrow 9 \rightarrow 11$ | Dữ liệu hợp lệ, phân tích thành công, lưu DB thành công, chuyển status `SCREENING` | Trả về `savedAnalysis` mới, trạng thái ứng viên chuyển sang `SCREENING` |
 
 ---
 
-## 5. BẢNG CA KIỂM THỬ HỘP TRẮNG CHI TIẾT (TEST CASES SPECIFICATION)
+## 5. PHÂN TÍCH THEO CÁC ĐỘ ĐO BAO PHỦ CỦA MÔN HỌC (C1, C2, C3)
 
-| Test Case ID | Mục tiêu kiểm thử | Đường dẫn bao phủ (Basis Path) | Tiền điều kiện & Dữ liệu đầu vào (Test Data) | Giả lập hệ thống (Mocking/Stubs Setup) | Kết quả mong đợi (Expected Output) | Mức độ ưu tiên |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **TC_WB_01** | Kiểm tra cơ chế Cache/Tái sử dụng: Trả về kết quả phân tích có sẵn | **Path 1**<br>(1 $\rightarrow$ 2) | - `input`: `{ candidateID: "CAN_01", jobID: "JOB_01" }` | - `aiAnalyzeRepo.getAnalysisByCandidateIdAndJobId("CAN_01", "JOB_01")` $\rightarrow$ Trả về `mockExistingAnalysis`<br>- Không gọi các repo và AI còn lại | - Hàm trả về `mockExistingAnalysis`<br>- `geminiService.analyzeCandidateWithJob` không được gọi | High |
-| **TC_WB_02** | Bắt lỗi ứng viên không tồn tại trong CSDL | **Path 2**<br>(1 $\rightarrow$ 3 $\rightarrow$ 4) | - `input`: `{ candidateID: "CAN_INVALID", jobID: "JOB_01" }` | - `aiAnalyzeRepo.getAnalysisByCandidateIdAndJobId` $\rightarrow$ `null`<br>- `candidateRepo.getById("CAN_INVALID")` $\rightarrow$ `null` | - Ném lỗi (Exception):<br>`"Không tìm thấy thông tin ứng viên."`<br>- Tiến trình dừng ngay tại Node 4 | High |
-| **TC_WB_03** | Bắt lỗi vị trí công việc (Job) không tồn tại | **Path 3**<br>(1 $\rightarrow$ 3 $\rightarrow$ 5 $\rightarrow$ 6) | - `input`: `{ candidateID: "CAN_01", jobID: "JOB_INVALID" }` | - `aiAnalyzeRepo.getAnalysisByCandidateIdAndJobId` $\rightarrow$ `null`<br>- `candidateRepo.getById("CAN_01")` $\rightarrow$ `mockCandidate`<br>- `jobRepo.getById("JOB_INVALID")` $\rightarrow$ `null` | - Ném lỗi (Exception):<br>`"Không tìm thấy thông tin công việc (Job)."`<br>- Dừng ngay tại Node 6 | High |
-| **TC_WB_04** | Bắt lỗi khi dịch vụ Gemini AI gặp sự cố (trả về null/undefined) | **Path 4**<br>(1 $\rightarrow$ 3 $\rightarrow$ 5 $\rightarrow$ 7 $\rightarrow$ 8) | - `input`: `{ candidateID: "CAN_01", jobID: "JOB_01" }` | - `existingAnalysis` $\rightarrow$ `null`<br>- `candidateRepo.getById` $\rightarrow$ `mockCandidate`<br>- `jobRepo.getById` $\rightarrow$ `mockJob`<br>- `geminiService.analyzeCandidateWithJob` $\rightarrow$ `null` (hoặc timeout/error) | - Ném lỗi (Exception):<br>`"Lỗi khi gọi AI phân tích dữ liệu."`<br>- Không thực hiện tạo entity mới | High |
-| **TC_WB_05** | Bắt lỗi khi không lưu được kết quả phân tích vào DB | **Path 5**<br>(1 $\rightarrow$ 3 $\rightarrow$ 5 $\rightarrow$ 7 $\rightarrow$ 9 $\rightarrow$ 10) | - `input`: `{ candidateID: "CAN_01", jobID: "JOB_01" }` | - AI phân tích thành công: trả về `{ summary: "Tốt", matchingScore: 85, redFlags: [], suggestedQuestions: [] }`<br>- `aiAnalyzeRepo.create(analysis)` $\rightarrow$ `null` (Lỗi DB kết nối) | - Ném lỗi (Exception):<br>`"Lỗi khi lưu kết quả phân tích."`<br>- Trạng thái ứng viên KHÔNG bị cập nhật | Medium |
-| **TC_WB_06** | Luồng thành công hoàn chỉnh (Happy Path): Phân tích mới, lưu DB và chuyển status `SCREENING` | **Path 6**<br>(1 $\rightarrow$ 3 $\rightarrow$ 5 $\rightarrow$ 7 $\rightarrow$ 9 $\rightarrow$ 11) | - `input`: `{ candidateID: "CAN_01", jobID: "JOB_01" }` | - `existingAnalysis` $\rightarrow$ `null`<br>- `candidateRepo.getById` $\rightarrow$ `mockCandidate`<br>- `jobRepo.getById` $\rightarrow$ `mockJob`<br>- `geminiService.analyzeCandidateWithJob` $\rightarrow$ `{ summary: "Hồ sơ phù hợp...", matchingScore: 90, redFlags: [], suggestedQuestions: ["Hỏi về NestJS"] }`<br>- `aiAnalyzeRepo.create` $\rightarrow$ `mockSavedAnalysis`<br>- `candidateRepo.update` $\rightarrow$ `mockCandidateUpdated` | - Trả về `mockSavedAnalysis`<br>- Gọi `candidate.updateStatus(CandidateStatus.SCREENING)`<br>- Gọi `candidateRepo.update(candidate)` thành công | High |
+Theo tài liệu slide giảng dạy *CSE462 - Các kỹ thuật kiểm thử phần mềm*, các độ đo kiểm thử dòng điều khiển được chuẩn hóa như sau:
+
+### 5.1. Độ đo C1 (Statement Coverage - Bao phủ câu lệnh)
+- **Định nghĩa:** Mỗi câu lệnh/khối lệnh (Node) được thực hiện ít nhất một lần sau khi chạy bộ kiểm thử.
+- **Yêu cầu:** Thực thi toàn bộ 11 Node từ Node 1 đến Node 11.
+- **Tập ca kiểm thử đáp ứng C1:** Cần thực thi tập hợp các ca kiểm thử `TC_WB_01` (qua Node 1, 2), `TC_WB_02` (qua Node 3, 4), `TC_WB_03` (qua Node 5, 6), `TC_WB_04` (qua Node 7, 8), `TC_WB_05` (qua Node 9, 10), và `TC_WB_06` (qua Node 9, 11).
+- **Mức độ đạt được:** **100% C1 (11/11 Nodes)**.
+
+### 5.2. Độ đo C2 (Branch / Decision Coverage - Bao phủ nhánh quyết định)
+- **Định nghĩa:** Tất cả các điểm quyết định trong đồ thị đều được thực hiện ít nhất một lần cho cả hai nhánh Đúng (True) và Sai (False).
+- **Phân tích các điểm quyết định:**
+
+| Điểm quyết định | Biểu thức điều kiện kiểm tra | Nhánh Đúng (True) | Nhánh Sai (False) | Ca kiểm thử bao phủ nhánh Đúng | Ca kiểm thử bao phủ nhánh Sai |
+| :---: | :--- | :---: | :---: | :---: | :---: |
+| **Node 1** | `existingAnalysis != null` | Rẽ Node 2 | Rẽ Node 3 | `TC_WB_01` | `TC_WB_02`, `TC_WB_03`, `TC_WB_04`, `TC_WB_05`, `TC_WB_06` |
+| **Node 3** | `!candidate` | Rẽ Node 4 | Rẽ Node 5 | `TC_WB_02` | `TC_WB_03`, `TC_WB_04`, `TC_WB_05`, `TC_WB_06` |
+| **Node 5** | `!job` | Rẽ Node 6 | Rẽ Node 7 | `TC_WB_03` | `TC_WB_04`, `TC_WB_05`, `TC_WB_06` |
+| **Node 7** | `!analysisResult` | Rẽ Node 8 | Rẽ Node 9 | `TC_WB_04` | `TC_WB_05`, `TC_WB_06` |
+| **Node 9** | `!savedAnalysis` | Rẽ Node 10 | Rẽ Node 11 | `TC_WB_05` | `TC_WB_06` |
+
+- **Mức độ đạt được:** **100% C2 (10/10 nhánh True/False)**.
+
+### 5.3. Độ đo C3 (Condition Coverage - Bao phủ điều kiện con)
+- **Định nghĩa:** Các điều kiện con thuộc các điều kiện phức tạp tại điểm quyết định đều được đánh giá ít nhất một lần cả True và False.
+- **Đánh giá trong mã nguồn UC_07:** Tất cả 5 điểm quyết định (Node 1, 3, 5, 7, 9) đều là các biểu thức logic đơn nhị phân (Simple Boolean Expressions), không chứa toán tử phức hợp `&&` hay `||`. Do đó, khi đạt 100% C2 thì tự động thỏa mãn **100% C3**.
 
 ---
 
-## 6. MA TRẬN ĐỘ BAO PHỦ KIỂM THỬ (TEST COVERAGE MATRIX)
+## 6. PHÂN TÍCH KIỂM THỬ DÒNG DỮ LIỆU (DATA FLOW TESTING: DEF-USE)
 
-| Thành phần kiểm thử | Số lượng trong Code | Ca kiểm thử bao phủ (Test Cases) | Tỷ lệ bao phủ đạt được |
-| :--- | :--- | :--- | :--- |
-| **Statement Coverage (Bao phủ dòng lệnh)** | 11/11 Basic Blocks (100% dòng lệnh logic) | Bao phủ bởi tập hợp 6 Test Cases `TC_WB_01` $\rightarrow$ `TC_WB_06` | **100%** |
-| **Branch Coverage (Bao phủ nhánh quyết định)** | 5 cặp nhánh True / False (10 nhánh) | - Node 1: True (TC_WB_01), False (TC_WB_02..06)<br>- Node 3: True (TC_WB_02), False (TC_WB_03..06)<br>- Node 5: True (TC_WB_03), False (TC_WB_04..06)<br>- Node 7: True (TC_WB_04), False (TC_WB_05..06)<br>- Node 9: True (TC_WB_05), False (TC_WB_06) | **100% (10/10 nhánh)** |
-| **Basis Path Coverage (Bao phủ đường cơ sở)** | 6 Đường dẫn độc lập ($V(G) = 6$) | 6 ca kiểm thử ánh xạ 1-1 với 6 Basis Paths | **100% (6/6 Paths)** |
+Theo lý thuyết bài giảng CSE462 (Trang 749-850), kiểm thử dòng dữ liệu tập trung kiểm tra chu kỳ sống của các biến từ điểm gán giá trị (**def**) đến điểm sử dụng tính toán (**c-use**) và điểm sử dụng trong điều kiện rẽ nhánh (**p-use**):
+
+| Tên biến | Điểm định nghĩa (def) | Điểm sử dụng tính toán (c-use) | Điểm sử dụng điều kiện (p-use) | Kiểm tra bất thường (Data Flow Anomalies) |
+| :--- | :--- | :--- | :--- | :--- |
+| `candidateID` | Node 1 (Dòng 10) | Node 1 (Dòng 12: `getAnalysis...`), Node 3 (Dòng 17: `getById`), Node 9 (Dòng 31: `create`) | Không | Không có bất thường. Được gán từ tham số đầu vào và sử dụng hợp lệ. |
+| `jobID` | Node 1 (Dòng 10) | Node 1 (Dòng 12: `getAnalysis...`), Node 5 (Dòng 20: `getById`), Node 9 (Dòng 30: `create`) | Không | Không có bất thường. Được gán và sử dụng đầy đủ. |
+| `existingAnalysis` | Node 1 (Dòng 12) | Node 2 (Dòng 14: `return`) | Node 1 (Dòng 13: `if (existingAnalysis)`) | Hợp lệ. Có `p-use` kiểm tra ngay sau `def`, nếu có thì `c-use` để return. |
+| `candidate` | Node 3 (Dòng 17) | Node 7 (Dòng 24: `candidate.getDetailProfile()`), Node 11 (Dòng 42, 43: `updateStatus`) | Node 3 (Dòng 18: `if (!candidate)`) | An toàn. `p-use` bảo vệ chống lỗi null pointer trước khi `c-use`. |
+| `job` | Node 5 (Dòng 20) | Node 7 (Dòng 25: `job.getDetailJob()`) | Node 5 (Dòng 21: `if (!job)`) | An toàn. `p-use` bảo vệ trước khi `c-use`. |
+| `analysisResult` | Node 7 (Dòng 23) | Node 9 (Dòng 32–35: trích xuất `summary`, `matchingScore`...) | Node 7 (Dòng 27: `if (!analysisResult)`) | An toàn. `p-use` bảo vệ trước khi trích xuất object. |
+| `savedAnalysis` | Node 9 (Dòng 38) | Node 11 (Dòng 45: `return savedAnalysis`) | Node 9 (Dòng 40: `if (!savedAnalysis)`) | Hợp lệ. |
 
 ---
 
-## 7. MÃ NGUỒN KIỂM THỬ TỰ ĐỘNG MINH HỌA (JEST UNIT TEST SUITE)
+## 7. BẢNG CA KIỂM THỬ HỘP TRẮNG CHI TIẾT (WHITE-BOX TEST CASES SPECIFICATION)
 
-Dưới đây là bộ Unit Test tự động viết bằng Jest/TypeScript thực thi chính xác 6 ca kiểm thử trên:
+| Test Case ID | Mục tiêu kiểm thử / Đường phủ | Kỹ thuật kiểm thử | Tiền điều kiện (Mock Repositories & Services) | Dữ liệu đầu vào (Input Parameters) | Kết quả mong đợi (Expected Output) | Trạng thái bao phủ | Mức độ ưu tiên |
+| :--- | :--- | :--- | :--- | :--- | :--- | :---: | :---: |
+| **TC_WB_01** | Kiểm tra cơ chế Cache: Trả về kết quả phân tích có sẵn (`Path 1`) | C1, C2, Basis Path 1 | `aiAnalyzeRepo.getAnalysisByCandidateIdAndJobId` trả về `mockExistingAnalysis`<br>Các mock khác không được gọi | `candidateID = "CAN_01"`<br>`jobID = "JOB_01"` | - Trả về `mockExistingAnalysis`<br>- Không gọi `candidateRepo.getById`<br>- Không gọi `geminiService` | Node 1, 2 | High |
+| **TC_WB_02** | Bắt lỗi khi không tìm thấy ứng viên trong CSDL (`Path 2`) | C1, C2, Basis Path 2 | `existingAnalysis` trả về `null`<br>`candidateRepo.getById("CAN_INVALID")` trả về `null` | `candidateID = "CAN_INVALID"`<br>`jobID = "JOB_01"` | - Ném ngoại lệ lỗi:<br>`"Không tìm thấy thông tin ứng viên."`<br>- Dừng ngay tại Node 4 | Node 1, 3, 4 | High |
+| **TC_WB_03** | Bắt lỗi khi không tìm thấy thông tin công việc (`Path 3`) | C1, C2, Basis Path 3 | `existingAnalysis` trả về `null`<br>`candidateRepo.getById` trả về `mockCandidate`<br>`jobRepo.getById("JOB_INVALID")` trả về `null` | `candidateID = "CAN_01"`<br>`jobID = "JOB_INVALID"` | - Ném ngoại lệ lỗi:<br>`"Không tìm thấy thông tin công việc (Job)."`<br>- Dừng ngay tại Node 6 | Node 1, 3, 5, 6 | High |
+| **TC_WB_04** | Bắt lỗi khi dịch vụ Gemini AI sập kết nối hoặc trả về null (`Path 4`) | C1, C2, Basis Path 4 | `candidateRepo.getById` hợp lệ<br>`jobRepo.getById` hợp lệ<br>`geminiService.analyzeCandidateWithJob` trả về `null` | `candidateID = "CAN_01"`<br>`jobID = "JOB_01"` | - Ném ngoại lệ lỗi:<br>`"Lỗi khi gọi AI phân tích dữ liệu."`<br>- Không gọi `aiAnalyzeRepo.create` | Node 1, 3, 5, 7, 8 | High |
+| **TC_WB_05** | Bắt lỗi khi lưu kết quả phân tích vào CSDL thất bại (`Path 5`) | C1, C2, Basis Path 5 | AI phân tích thành công trả về object điểm số<br>`aiAnalyzeRepo.create` trả về `null` (Lỗi DB) | `candidateID = "CAN_01"`<br>`jobID = "JOB_01"` | - Ném ngoại lệ lỗi:<br>`"Lỗi khi lưu kết quả phân tích."`<br>- Không cập nhật status candidate | Node 1, 3, 5, 7, 9, 10 | Medium |
+| **TC_WB_06** | Luồng thành công hoàn chỉnh (Happy Path): Phân tích mới, lưu DB và cập nhật status (`Path 6`) | C1, C2, Basis Path 6 | Toàn bộ dữ liệu hợp lệ<br>AI trả về `{ summary: "...", matchingScore: 92, ... }`<br>`aiAnalyzeRepo.create` trả về `mockSavedAnalysis`<br>`candidateRepo.update` thành công | `candidateID = "CAN_01"`<br>`jobID = "JOB_01"` | - Trả về `mockSavedAnalysis`<br>- Gọi `candidate.updateStatus(SCREENING)`<br>- Gọi `candidateRepo.update` | Node 1, 3, 5, 7, 9, 11 | High |
+
+---
+
+## 8. MA TRẬN ĐO LƯỜNG ĐỘ BAO PHỦ KIỂM THỬ (TEST COVERAGE MATRIX)
+
+### 8.1. Ma trận đối chiếu đường đi và ca kiểm thử (Traceability Matrix)
+
+| Đường thực thi (Basis Path) | Nút bao phủ (Nodes Covered) | Ca kiểm thử tương ứng | Trạng thái bao phủ |
+| :--- | :--- | :---: | :---: |
+| **Path 1** | $1 \rightarrow 2$ | `TC_WB_01` | **Covered (100%)** |
+| **Path 2** | $1 \rightarrow 3 \rightarrow 4$ | `TC_WB_02` | **Covered (100%)** |
+| **Path 3** | $1 \rightarrow 3 \rightarrow 5 \rightarrow 6$ | `TC_WB_03` | **Covered (100%)** |
+| **Path 4** | $1 \rightarrow 3 \rightarrow 5 \rightarrow 7 \rightarrow 8$ | `TC_WB_04` | **Covered (100%)** |
+| **Path 5** | $1 \rightarrow 3 \rightarrow 5 \rightarrow 7 \rightarrow 9 \rightarrow 10$ | `TC_WB_05` | **Covered (100%)** |
+| **Path 6** (Happy Path) | $1 \rightarrow 3 \rightarrow 5 \rightarrow 7 \rightarrow 9 \rightarrow 11$ | `TC_WB_06` | **Covered (100%)** |
+
+### 8.2. Tổng kết tỷ lệ bao phủ theo tiêu chuẩn môn học
+
+$$\text{Độ bao phủ câu lệnh (C1)} = \frac{11 \text{ Nodes}}{11 \text{ Nodes}} = 100\%$$
+
+$$\text{Độ bao phủ nhánh (C2)} = \frac{10 \text{ Nhánh (True/False)}}{10 \text{ Nhánh}} = 100\%$$
+
+$$\text{Độ bao phủ điều kiện (C3)} = 100\%$$
+
+$$\text{Độ bao phủ đường cơ sở (Basis Path)} = \frac{6 \text{ Paths}}{6 \text{ Paths}} = 100\%$$
+
+---
+
+## 9. MÃ NGUỒN KIỂM THỬ TỰ ĐỘNG MINH HỌA (JEST / UNIT TEST)
+
+Dưới đây là tệp mã nguồn kiểm thử đơn vị mẫu sử dụng framework **Jest** mô phỏng đầy đủ các ca kiểm thử hộp trắng ở trên:
 
 ```typescript
 import { AnalysisUseCase } from './analysis.use-case';
 import { CandidateStatus } from '../../../domain/candidate';
-import { AnalysisEntity } from '../../../domain/analysis';
 
-describe('AnalysisUseCase - White-Box Testing Suite (UC_07)', () => {
+describe('AnalysisUseCase - White-Box Unit Testing (UC_07)', () => {
   let useCase: AnalysisUseCase;
   let mockCandidateRepo: any;
   let mockJobRepo: any;
@@ -236,7 +294,7 @@ describe('AnalysisUseCase - White-Box Testing Suite (UC_07)', () => {
     );
   });
 
-  // TC_WB_01: Path 1 (Node 1 -> 2)
+  // TC_WB_01: Basis Path 1 (Node 1 -> 2)
   it('TC_WB_01: Path 1 - Nên trả về phân tích có sẵn nếu đã tồn tại', async () => {
     const existing = { id: 'ANALYSIS_01', matchingScore: 85 };
     mockAiAnalyzeRepo.getAnalysisByCandidateIdAndJobId.mockResolvedValue(existing);
@@ -248,7 +306,7 @@ describe('AnalysisUseCase - White-Box Testing Suite (UC_07)', () => {
     expect(mockGeminiService.analyzeCandidateWithJob).not.toHaveBeenCalled();
   });
 
-  // TC_WB_02: Path 2 (Node 1 -> 3 -> 4)
+  // TC_WB_02: Basis Path 2 (Node 1 -> 3 -> 4)
   it('TC_WB_02: Path 2 - Nên ném lỗi khi không tìm thấy thông tin ứng viên', async () => {
     mockAiAnalyzeRepo.getAnalysisByCandidateIdAndJobId.mockResolvedValue(null);
     mockCandidateRepo.getById.mockResolvedValue(null);
@@ -258,7 +316,7 @@ describe('AnalysisUseCase - White-Box Testing Suite (UC_07)', () => {
     ).rejects.toThrow('Không tìm thấy thông tin ứng viên.');
   });
 
-  // TC_WB_03: Path 3 (Node 1 -> 3 -> 5 -> 6)
+  // TC_WB_03: Basis Path 3 (Node 1 -> 3 -> 5 -> 6)
   it('TC_WB_03: Path 3 - Nên ném lỗi khi không tìm thấy công việc (Job)', async () => {
     mockAiAnalyzeRepo.getAnalysisByCandidateIdAndJobId.mockResolvedValue(null);
     mockCandidateRepo.getById.mockResolvedValue({ id: 'CAN_01' });
@@ -269,7 +327,7 @@ describe('AnalysisUseCase - White-Box Testing Suite (UC_07)', () => {
     ).rejects.toThrow('Không tìm thấy thông tin công việc (Job).');
   });
 
-  // TC_WB_04: Path 4 (Node 1 -> 3 -> 5 -> 7 -> 8)
+  // TC_WB_04: Basis Path 4 (Node 1 -> 3 -> 5 -> 7 -> 8)
   it('TC_WB_04: Path 4 - Nên ném lỗi khi gọi AI phân tích thất bại', async () => {
     const mockCandidate = { getDetailProfile: jest.fn().mockReturnValue({}) };
     const mockJob = { getDetailJob: jest.fn().mockReturnValue({}) };
@@ -284,7 +342,7 @@ describe('AnalysisUseCase - White-Box Testing Suite (UC_07)', () => {
     ).rejects.toThrow('Lỗi khi gọi AI phân tích dữ liệu.');
   });
 
-  // TC_WB_05: Path 5 (Node 1 -> 3 -> 5 -> 7 -> 9 -> 10)
+  // TC_WB_05: Basis Path 5 (Node 1 -> 3 -> 5 -> 7 -> 9 -> 10)
   it('TC_WB_05: Path 5 - Nên ném lỗi khi lưu kết quả phân tích thất bại', async () => {
     const mockCandidate = { getDetailProfile: jest.fn().mockReturnValue({}) };
     const mockJob = { getDetailJob: jest.fn().mockReturnValue({}) };
@@ -305,7 +363,7 @@ describe('AnalysisUseCase - White-Box Testing Suite (UC_07)', () => {
     ).rejects.toThrow('Lỗi khi lưu kết quả phân tích.');
   });
 
-  // TC_WB_06: Path 6 (Node 1 -> 3 -> 5 -> 7 -> 9 -> 11) - Happy Path
+  // TC_WB_06: Basis Path 6 (Node 1 -> 3 -> 5 -> 7 -> 9 -> 11) - Happy Path
   it('TC_WB_06: Path 6 - Phân tích thành công, cập nhật trạng thái ứng viên sang SCREENING', async () => {
     const mockCandidate = {
       getDetailProfile: jest.fn().mockReturnValue({ id: 'CAN_01' }),
