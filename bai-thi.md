@@ -276,84 +276,154 @@ graph TD
 
 ---
 
-## 5. PHÂN TÍCH THEO CÁC ĐỘ ĐO BAO PHỦ CỦA MÔN HỌC (C1, C2, C3)
+## 5. SINH CÁC ĐƯỜNG ĐI VÀ CÁC CA KIỂM THỬ VỚI ĐỘ ĐO C1, C2, C3
 
-Theo quy định học phần *CSE462 - Các kỹ thuật kiểm thử phần mềm*, ĐH Thủy Lợi:
-
-### 5.1. Độ đo C1 (Độ đo kiểm thử cấp 1 - Statement Coverage)
-- **Định nghĩa:** Mỗi câu lệnh (khối lệnh) trong chương trình phải được thực thi ít nhất một lần khi chạy toàn bộ bộ kiểm thử.
-- **Áp dụng cho hàm `concat`:**
-  - Tổng số đỉnh cần bao phủ: **11 Nodes** (Node 1 đến Node 11).
-  - Yêu cầu: Tất cả các dòng mã từ khởi tạo (dòng 2–3), điều kiện vòng lặp (dòng 4, 15, 20), thân if-else (dòng 6–7, 10–11, 13) và thân hai vòng lặp vét (dòng 16–18, 21–23) đều phải được thực thi.
-  - **Mức độ đạt được:** **100% (11/11 Nodes)** thông qua các ca kiểm thử từ `TC_01` đến `TC_06`.
+Theo tài liệu bài giảng *CSE462 - Các kỹ thuật kiểm thử phần mềm*, ĐH Thủy Lợi, dưới đây là quá trình phân tích và sinh tập đường đi, ca kiểm thử tối thiểu nhằm đạt 100% độ bao phủ cho từng độ đo kiểm thử hộp trắng:
 
 ---
 
-### 5.2. Độ đo C2 (Độ đo kiểm thử cấp 2 - Branch / Decision Coverage)
-- **Định nghĩa:** Các điểm quyết định trong đồ thị dòng điều khiển của đơn vị kiểm thử đều được thực hiện ít nhất một lần cả hai nhánh Đúng (True) và Sai (False).
-- **Áp dụng cho hàm `concat`:**
-  - Có 4 điểm quyết định nhị phân, tương ứng với **8 nhánh rẽ**:
-    1. **Node 2 (`while (i < n && j < m)`):**
-       - Nhánh True: Duyệt qua thân vòng lặp 1 (`TC_04, TC_05, TC_06`).
-       - Nhánh False: Thoát khỏi vòng lặp 1 sang Node 7 (`TC_01, TC_02, TC_03, TC_04, TC_05`).
-    2. **Node 3 (`if (a[i] <= b[j])`):**
-       - Nhánh True: Thực thi Node 4 khi $a[i] \le b[j]$ (`TC_04, TC_05, TC_06`).
-       - Nhánh False: Thực thi Node 5 khi $a[i] > b[j]$ (`TC_04`).
-    3. **Node 7 (`while (i < n)`):**
-       - Nhánh True: Thực thi Node 8 khi mảng $a$ còn phần tử (`TC_02, TC_04`).
-       - Nhánh False: Thoát khỏi vòng lặp 2 sang Node 9 (`TC_01, TC_03, TC_05, TC_06`).
-    4. **Node 9 (`while (j < m)`):**
-       - Nhánh True: Thực thi Node 10 khi mảng $b$ còn phần tử (`TC_03, TC_05`).
-       - Nhánh False: Thoát khỏi vòng lặp 3 sang Node 11 (`TC_01, TC_02, TC_04, TC_06`).
-  - **Mức độ đạt được:** **100% (8/8 nhánh True/False)**.
+### 5.1. Sinh các đường đi và các ca kiểm thử với độ đo C1 (Statement Coverage)
+
+#### A. Tiêu chuẩn độ đo C1:
+- **Định nghĩa:** Mỗi câu lệnh (khối lệnh cơ bản / đỉnh trong CFG) phải được thực thi ít nhất một lần sau khi chạy toàn bộ các ca kiểm thử.
+- **Yêu cầu đối với hàm `concat`:** Cần đi qua toàn bộ **11 đỉnh** ($N_1, N_2, N_3, N_4, N_5, N_6, N_7, N_8, N_9, N_{10}, N_{11}$).
+- **Xác định số ca kiểm thử tối thiểu:**
+  - Để đi qua $N_4$ (nhánh True của if) và $N_5$ (nhánh False của if), vòng lặp 1 cần chạy qua cả hai tình huống $a[i] \le b[j]$ và $a[i] > b[j]$.
+  - Để đi qua $N_8$ (thân while 2), cần tình huống mảng $a$ còn phần tử ($i < n$).
+  - Để đi qua $N_{10}$ (thân while 3), cần tình huống mảng $b$ còn phần tử ($j < m$).
+  $\Rightarrow$ **Tối thiểu cần 2 ca kiểm thử** (`Tc1_C1` và `Tc2_C1`) để bao phủ toàn bộ 11 đỉnh.
+
+#### B. Bảng các đỉnh cần bao phủ:
+| Đỉnh (Node) | Nội dung thực thi | Ca kiểm thử kích hoạt |
+| :---: | :--- | :---: |
+| **Node 1** | Khởi tạo `i = 0, j = 0, k = 0` | `Tc1_C1, Tc2_C1` |
+| **Node 2** | Kiểm tra `while (i < n && j < m)` | `Tc1_C1, Tc2_C1` |
+| **Node 3** | Điều kiện `if (a[i] <= b[j])` | `Tc1_C1` |
+| **Node 4** | Gán `c[k] = a[i]; i++` | `Tc1_C1` |
+| **Node 5** | Gán `c[k] = b[j]; j++` | `Tc1_C1` |
+| **Node 6** | Tăng `k++` | `Tc1_C1` |
+| **Node 7** | Kiểm tra `while (i < n)` | `Tc1_C1, Tc2_C1` |
+| **Node 8** | Gán `c[k] = a[i]; i++; k++` | `Tc1_C1` |
+| **Node 9** | Kiểm tra `while (j < m)` | `Tc1_C1, Tc2_C1` |
+| **Node 10** | Gán `c[k] = b[j]; j++; k++` | `Tc2_C1` |
+| **Node 11** | Thoát hàm (Exit) | `Tc1_C1, Tc2_C1` |
+
+#### C. Bảng sinh đường đi và ca kiểm thử cho độ đo C1:
+| TT | Đường đi thực thi (Chuỗi đỉnh qua) | Đầu vào (Input) | Đầu ra mong đợi (Expected Output) | Đỉnh bao phủ |
+| :---: | :--- | :--- | :--- | :---: |
+| **`Tc1_C1`** | $1 \rightarrow 2 \rightarrow 3 \rightarrow 4 \rightarrow 6 \rightarrow 2 \rightarrow 3 \rightarrow 5 \rightarrow 6 \rightarrow 2 \rightarrow 7 \rightarrow 8 \rightarrow 7 \rightarrow 9 \rightarrow 11$ | $a = [1, 4], n = 2$<br>$b = [2], m = 1$ | $c = [1, 2, 4]$<br>$k = 3$ | $1, 2, 3, 4, 5, 6, 7, 8, 9, 11$ |
+| **`Tc2_C1`** | $1 \rightarrow 2 \rightarrow 7 \rightarrow 9 \rightarrow 10 \rightarrow 9 \rightarrow 11$ | $a = [], n = 0$<br>$b = [5], m = 1$ | $c = [5]$<br>$k = 1$ | $1, 2, 7, 9, 10, 11$ |
+
+$\Rightarrow$ **Độ bao phủ C1 đạt được:** $\frac{11}{11} \text{ Nodes} = \mathbf{100\%}$.
 
 ---
 
-### 5.3. Độ đo C3 (Độ đo kiểm thử cấp 3 - Multiple Condition / Condition Coverage)
-- **Định nghĩa:** Các điều kiện con thuộc các điều kiện phức tạp tương ứng với các điểm quyết định trong đồ thị dòng điều khiển đều được thực hiện ít nhất một lần cả hai nhánh Đúng và Sai.
+### 5.2. Sinh các đường đi và các ca kiểm thử với độ đo C2 (Branch / Decision Coverage)
 
-#### Phân tích biểu thức phức hợp tại Node 2: `(i < n && j < m)`
-Đặt hai điều kiện con:
-- $C_{2a} = (i < n)$
-- $C_{2b} = (j < m)$
+#### A. Tiêu chuẩn độ đo C2:
+- **Định nghĩa:** Các điểm quyết định trong đồ thị dòng điều khiển của đơn vị kiểm thử đều phải được thực hiện ít nhất một lần cả hai nhánh Đúng (True) và Sai (False).
+- **Yêu cầu đối với hàm `concat`:** Có 4 điểm quyết định nhị phân, gồm tổng cộng **8 nhánh rẽ**:
+  1. Node 2: Nhánh True ($2 \rightarrow 3$), Nhánh False ($2 \rightarrow 7$).
+  2. Node 3: Nhánh True ($3 \rightarrow 4$), Nhánh False ($3 \rightarrow 5$).
+  3. Node 7: Nhánh True ($7 \rightarrow 8$), Nhánh False ($7 \rightarrow 9$).
+  4. Node 9: Nhánh True ($9 \rightarrow 10$), Nhánh False ($9 \rightarrow 11$).
+- **Số ca kiểm thử tối thiểu:** **3 ca kiểm thử** (`Tc1_C2`, `Tc2_C2`, `Tc3_C2`).
 
-Bảng phân tích tổ hợp giá trị chân lý và hiện tượng ngắt mạch (Short-circuit):
+#### B. Bảng các trường hợp cần kiểm thử để đạt 100% độ bao phủ C2:
+| Điểm quyết định | Điều kiện tương ứng | Nhánh Đúng (True) | Nhánh Sai (False) |
+| :---: | :--- | :---: | :---: |
+| **Node 2** | `while (i < n && j < m)` | `Tc1_C2, Tc2_C2` | `Tc1_C2, Tc2_C2, Tc3_C2` |
+| **Node 3** | `if (a[i] <= b[j])` | `Tc1_C2` | `Tc2_C2` |
+| **Node 7** | `while (i < n)` | `Tc1_C2` | `Tc2_C2, Tc3_C2` |
+| **Node 9** | `while (j < m)` | `Tc2_C2` | `Tc1_C2, Tc3_C2` |
 
-| Tổ hợp điều kiện | $C_{2a}$ (`i < n`) | $C_{2b}$ (`j < m`) | Kết quả biểu thức `&&` | Nhánh rẽ / Hành vi thực thi | Ca kiểm thử kích hoạt |
+#### C. Bảng sinh đường đi và ca kiểm thử cho độ đo C2:
+| TT | Đường đi thực thi chi tiết | Đầu vào (Input) | Đầu ra mong đợi | Nhánh bao phủ |
+| :---: | :--- | :--- | :--- | :--- |
+| **`Tc1_C2`** | $1 \rightarrow 2 \xrightarrow{T} 3 \xrightarrow{T} 4 \rightarrow 6 \rightarrow 2 \xrightarrow{F} 7 \xrightarrow{T} 8 \rightarrow 7 \xrightarrow{F} 9 \xrightarrow{F} 11$ | $a = [1, 5], n = 2$<br>$b = [3], m = 1$ | $c = [1, 3, 5]$<br>$k = 3$ | Node 2 (True, False)<br>Node 3 (True)<br>Node 7 (True, False)<br>Node 9 (False) |
+| **`Tc2_C2`** | $1 \rightarrow 2 \xrightarrow{T} 3 \xrightarrow{F} 5 \rightarrow 6 \rightarrow 2 \xrightarrow{F} 7 \xrightarrow{F} 9 \xrightarrow{T} 10 \rightarrow 9 \xrightarrow{F} 11$ | $a = [4], n = 1$<br>$b = [2, 6], m = 2$ | $c = [2, 4, 6]$<br>$k = 3$ | Node 2 (True, False)<br>Node 3 (False)<br>Node 7 (False)<br>Node 9 (True, False) |
+| **`Tc3_C2`** | $1 \rightarrow 2 \xrightarrow{F} 7 \xrightarrow{F} 9 \xrightarrow{F} 11$ | $a = [], n = 0$<br>$b = [], m = 0$ | $c = []$<br>$k = 0$ | Node 2 (False ngay đầu)<br>Node 7 (False)<br>Node 9 (False) |
+
+$\Rightarrow$ **Độ bao phủ C2 đạt được:** $\frac{8}{8} \text{ Nhánh} = \mathbf{100\%}$.
+
+---
+
+### 5.3. Sinh các đường đi và các ca kiểm thử với độ đo C3 (Multiple Condition / Condition Coverage)
+
+#### A. Tiêu chuẩn độ đo C3:
+- **Định nghĩa:** Các điều kiện con thuộc các điều kiện phức tạp tương ứng với các điểm quyết định trong đồ thị dòng điều khiển đều phải được thực hiện ít nhất một lần cả hai nhánh Đúng (True) và Sai (False).
+- **Phân tích điểm quyết định phức hợp:**
+  Tại **Node 2** có biểu thức logic phức hợp `(i < n && j < m)` gồm 2 điều kiện con:
+  - $C_{2a} = (i < n)$
+  - $C_{2b} = (j < m)$
+  Cơ chế ngắt mạch (**Short-circuit evaluation**) của toán tử `&&`: Nếu $C_{2a}$ nhận giá trị **False**, biểu thức kết luận ngay **False** mà không đánh giá $C_{2b}$.
+- **Các điểm quyết định đơn lẻ:**
+  - Node 3: $C_3 = (a[i] \le b[j])$
+  - Node 7: $C_7 = (i < n)$
+  - Node 9: $C_9 = (j < m)$
+
+#### B. Bảng phân tích tổ hợp giá trị chân lý tại Node 2 `(i < n && j < m)`:
+| Tổ hợp | $C_{2a}$ (`i < n`) | $C_{2b}$ (`j < m`) | Kết quả `&&` | Nhánh rẽ / Hành vi | Ca kiểm thử tương ứng |
 | :---: | :---: | :---: | :---: | :--- | :---: |
-| **Cond 1** | **True** | **True** | **True** | Vào thân vòng lặp 1 (Node 3) | `TC_04, TC_05, TC_06` |
-| **Cond 2** | **True** | **False** | **False** | Thoát while 1 sang while 2 (Node 7) | `TC_02, TC_04` |
-| **Cond 3** | **False** | *(Ngắt mạch)* | **False** | Thoát while 1 sang while 2 (Node 7) | `TC_01, TC_03, TC_05` |
-| **Cond 4** | **False** | **False** | **False** | Cả hai mảng rỗng ban đầu ($n=0, m=0$) | `TC_01` |
+| **Cond 1** | **True** | **True** | **True** | Lặp tiếp, vào Node 3 | `Tc1_C3, Tc2_C3` |
+| **Cond 2** | **True** | **False** | **False** | Thoát while 1 sang Node 7 | `Tc1_C3, Tc3_C3` |
+| **Cond 3** | **False** | *(Ngắt mạch)* | **False** | Thoát while 1 sang Node 7 | `Tc2_C3, Tc4_C3` |
+| **Cond 4** | **False** | **False** | **False** | Cả hai mảng rỗng ban đầu | `Tc5_C3` |
 
-Các điều kiện con tại các điểm quyết định đơn lẻ khác:
-- Tại Node 3: `a[i] <= b[j]` nhận True (`TC_04, TC_05, TC_06`) và False (`TC_04`).
-- Tại Node 7: `i < n` nhận True (`TC_02, TC_04`) và False (`TC_01, TC_03, TC_05`).
-- Tại Node 9: `j < m` nhận True (`TC_03, TC_05`) và False (`TC_01, TC_02, TC_04`).
+#### C. Bảng các trường hợp cần kiểm thử để đạt 100% độ bao phủ C3:
+| Điểm quyết định | Điều kiện con tương ứng | Đúng (True) | Sai (False) |
+| :---: | :--- | :---: | :---: |
+| **Node 2** | $C_{2a}: i < n$ | `Tc1_C3, Tc2_C3, Tc3_C3` | `Tc2_C3, Tc4_C3, Tc5_C3` |
+| **Node 2** | $C_{2b}: j < m$ | `Tc1_C3, Tc2_C3, Tc4_C3` | `Tc1_C3, Tc3_C3, Tc5_C3` |
+| **Node 3** | $C_3: a[i] \le b[j]$ | `Tc1_C3` | `Tc2_C3` |
+| **Node 7** | $C_7: i < n$ | `Tc1_C3, Tc3_C3` | `Tc2_C3, Tc4_C3, Tc5_C3` |
+| **Node 9** | $C_9: j < m$ | `Tc2_C3, Tc4_C3` | `Tc1_C3, Tc3_C3, Tc5_C3` |
 
-$\Rightarrow$ **Mức độ đạt được:** **100% bao phủ điều kiện C3**.
+#### D. Bảng sinh đường đi và ca kiểm thử cho độ đo C3:
+| TT | Đường đi qua các điều kiện con | Đầu vào (Input) | Đầu ra mong đợi | Điều kiện con được kiểm tra |
+| :---: | :--- | :--- | :--- | :--- |
+| **`Tc1_C3`** | $1 \rightarrow 2(T, T) \rightarrow 3(T) \rightarrow 4 \rightarrow 6 \rightarrow 2(T, F) \rightarrow 7(T) \rightarrow 8 \rightarrow 7(F) \rightarrow 9(F) \rightarrow 11$ | $a = [1, 5], n = 2$<br>$b = [3], m = 1$ | $c = [1, 3, 5]$<br>$k = 3$ | $C_{2a}(T, T), C_{2b}(T, F)$<br>$C_3(T), C_7(T, F), C_9(F)$ |
+| **`Tc2_C3`** | $1 \rightarrow 2(T, T) \rightarrow 3(F) \rightarrow 5 \rightarrow 6 \rightarrow 2(F, \_) \rightarrow 7(F) \rightarrow 9(T) \rightarrow 10 \rightarrow 9(F) \rightarrow 11$ | $a = [4], n = 1$<br>$b = [2, 6], m = 2$ | $c = [2, 4, 6]$<br>$k = 3$ | $C_{2a}(T, F), C_{2b}(T)$<br>$C_3(F), C_7(F), C_9(T, F)$ |
+| **`Tc3_C3`** | $1 \rightarrow 2(T, F) \rightarrow 7(T) \rightarrow 8 \rightarrow 7(F) \rightarrow 9(F) \rightarrow 11$ | $a = [2], n = 1$<br>$b = [], m = 0$ | $c = [2]$<br>$k = 1$ | $C_{2a}(T), C_{2b}(F)$ ngay từ đầu<br>$C_7(T, F), C_9(F)$ |
+| **`Tc4_C3`** | $1 \rightarrow 2(F, \_) \rightarrow 7(F) \rightarrow 9(T) \rightarrow 10 \rightarrow 9(F) \rightarrow 11$ | $a = [], n = 0$<br>$b = [3], m = 1$ | $c = [3]$<br>$k = 1$ | $C_{2a}(F)$ ngắt mạch $C_{2b}$ ngay đầu<br>$C_7(F), C_9(T, F)$ |
+| **`Tc5_C3`** | $1 \rightarrow 2(F, F) \rightarrow 7(F) \rightarrow 9(F) \rightarrow 11$ | $a = [], n = 0$<br>$b = [], m = 0$ | $c = []$<br>$k = 0$ | $C_{2a}(F), C_{2b}(F)$ cả 2 mảng rỗng<br>$C_7(F), C_9(F)$ |
+
+$\Rightarrow$ **Độ bao phủ C3 đạt được:** **100% bao phủ điều kiện con**.
 
 ---
 
-### 5.4. Phân tích Kiểm thử vòng lặp (Loop Testing)
+### 5.4. So sánh và Mối quan hệ bao hàm giữa các độ đo ($C_3 \rightarrow C_2 \rightarrow C_1$)
+
+Theo lý thuyết Slide *CSE462*:
+- **Mối quan hệ bao hàm (Subsumption Hierarchy):**
+  $$C_3 \implies C_2 \implies C_1$$
+  - Nếu một bộ ca kiểm thử thỏa mãn **độ đo C3** (bao phủ điều kiện con), nó sẽ tự động thỏa mãn **độ đo C2** (bao phủ nhánh rẽ).
+  - Nếu một bộ ca kiểm thử thỏa mãn **độ đo C2** (bao phủ nhánh rẽ), nó sẽ tự động thỏa mãn **độ đo C1** (bao phủ câu lệnh).
+- **Phân biệt C2 và C3 trên biểu thức logic:**
+  - Với $C_2$, chỉ cần kiểm tra toàn bộ biểu thức `(i < n && j < m)` ra True và False (ví dụ chỉ cần 1 ca True và 1 ca False).
+  - Với $C_3$, phải xét riêng từng biến cố dẫn đến False: False do hết mảng $a$ ($i \ge n$) hay False do hết mảng $b$ ($j \ge m$) và kiểm tra hiệu ứng ngắt mạch.
+
+---
+
+### 5.5. Phân tích Kiểm thử vòng lặp (Loop Testing)
 
 Theo lý thuyết bài giảng slide CSE462 về kiểm thử vòng lặp `while`, chương trình chứa 3 vòng lặp kế tiếp nhau (liền kề). Ta áp dụng chiến lược kiểm thử biên vòng lặp:
 1. **Vòng lặp 1 (`while (i < n && j < m)`):**
-   - 0 lần lặp: $n = 0$ hoặc $m = 0$ (`TC_01, TC_02, TC_03`).
-   - 1 lần lặp: $n = 1, m = 1$ (`TC_06`).
-   - 2 hoặc nhiều lần lặp: $n = 2, m = 2$ (`TC_04` lặp 3 lần).
+   - 0 lần lặp: $n = 0$ hoặc $m = 0$ (`Tc3_C3, Tc4_C3, Tc5_C3`).
+   - 1 lần lặp: $n = 1, m = 1$ (khi $a=[2], b=[2]$).
+   - 2 hoặc nhiều lần lặp: $n = 2, m = 1$ hoặc $n = 2, m = 2$ (`Tc1_C2` lặp 2 lần).
 2. **Vòng lặp 2 (`while (i < n)`):**
-   - 0 lần lặp: $i = n$ khi thoát while 1 (`TC_01, TC_03, TC_05`).
-   - 1 lần lặp: $n - i = 1$ (`TC_04`).
-   - Nhiều lần lặp ($k = 2$): $n = 2, i = 0$ (`TC_02`).
+   - 0 lần lặp: $i = n$ khi thoát while 1 (`Tc2_C2, Tc4_C3, Tc5_C3`).
+   - 1 lần lặp: $n - i = 1$ (`Tc1_C2, Tc3_C3`).
+   - Nhiều lần lặp ($k = 2$): $n = 2, i = 0$ (khi $a=[1, 3], b=[]$).
 3. **Vòng lặp 3 (`while (j < m)`):**
-   - 0 lần lặp: $j = m$ khi thoát while 2 (`TC_01, TC_02, TC_04`).
-   - 1 lần lặp: $m - j = 1$ (`TC_05`).
-   - Nhiều lần lặp ($k = 2$): $m = 2, j = 0$ (`TC_03`).
+   - 0 lần lặp: $j = m$ khi thoát while 2 (`Tc1_C2, Tc3_C3, Tc5_C3`).
+   - 1 lần lặp: $m - j = 1$ (`Tc2_C2, Tc4_C3`).
+   - Nhiều lần lặp ($k = 2$): $m = 2, j = 0$ (khi $a=[], b=[2, 4]$).
 
 ---
 
-### 5.5. Phân tích Kiểm thử dòng dữ liệu (Data Flow Testing: Def-Use)
+### 5.6. Phân tích Kiểm thử dòng dữ liệu (Data Flow Testing: Def-Use)
 
 - **Biến `i`:**
   - `def`: Node 1 (`i = 0`), Node 4 (`i++`), Node 8 (`i++`).
