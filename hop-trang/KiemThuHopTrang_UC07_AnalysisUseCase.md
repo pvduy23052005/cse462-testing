@@ -95,23 +95,23 @@
 Ở cấp độ độ đo C1 (phủ câu lệnh) và C2 (phủ nhánh quyết định), đồ thị biểu diễn 11 khối lệnh cơ bản và các nhánh rẽ nhị phân Đúng (True) / Sai (False):
 
 ```mermaid
-flowchart TD
-    Start(["Bắt đầu: execute(input)"]) --> N1["Node 1: if (existingAnalysis)"]
+flowchart LR
+    Start(["Bắt đầu: execute"]) --> N1{"Node 1: if (existingAnalysis)"}
 
-    N1 -- True --> N2["Node 2: return existingAnalysis"]
-    N1 -- False --> N3["Node 3: candidate = getById, if (!candidate)"]
+    N1 -- "True" --> N2["Node 2: return existingAnalysis"]
+    N1 -- "False" --> N3{"Node 3: if (!candidate)"}
 
-    N3 -- True --> N4["Node 4: throw 'Không tìm thấy thông tin ứng viên.'"]
-    N3 -- False --> N5["Node 5: job = getById, if (!job)"]
+    N3 -- "True" --> N4["Node 4: throw 'Không tìm thấy ứng viên'"]
+    N3 -- "False" --> N5{"Node 5: if (!job)"}
 
-    N5 -- True --> N6["Node 6: throw 'Không tìm thấy thông tin công việc (Job).'"]
-    N5 -- False --> N7["Node 7: analysisResult = analyzeCandidateWithJob, if (!analysisResult)"]
+    N5 -- "True" --> N6["Node 6: throw 'Không tìm thấy Job'"]
+    N5 -- "False" --> N7{"Node 7: if (!analysisResult)"}
 
-    N7 -- True --> N8["Node 8: throw 'Lỗi khi gọi AI phân tích dữ liệu.'"]
-    N7 -- False --> N9["Node 9: savedAnalysis = create, if (!savedAnalysis)"]
+    N7 -- "True" --> N8["Node 8: throw 'Lỗi gọi AI'"]
+    N7 -- "False" --> N9{"Node 9: if (!savedAnalysis)"}
 
-    N9 -- True --> N10["Node 10: throw 'Lỗi khi lưu kết quả phân tích.'"]
-    N9 -- False --> N11["Node 11: updateStatus(SCREENING) & return savedAnalysis"]
+    N9 -- "True" --> N10["Node 10: throw 'Lỗi lưu kết quả'"]
+    N9 -- "False" --> N11["Node 11: updateStatus & return"]
 ```
 
 ### 3.2. Đồ thị dòng điều khiển ứng với độ đo C3 (Condition CFG)
@@ -119,23 +119,23 @@ flowchart TD
 Trong `AnalysisUseCase`, các biểu thức điều kiện đều là biểu thức logic đơn nhị phân (Simple Booleans: `existingAnalysis != null`, `candidate == null`, `job == null`, `analysisResult == null`, `savedAnalysis == null`). Do đó đồ thị dòng điều khiển ứng với độ đo C3 biểu diễn giá trị chân lý trực tiếp của từng biến điều kiện:
 
 ```mermaid
-flowchart TD
-    Start(["Bắt đầu: execute(input)"]) --> N1{"Node 1: existingAnalysis != null?"}
+flowchart LR
+    Start(["Bắt đầu: execute"]) --> N1{"Node 1: existingAnalysis != null?"}
 
-    N1 -- "True" --> N2["Node 2: return existingAnalysis (Cache Hit)"]
+    N1 -- "True" --> N2["Node 2: return Cache Hit"]
     N1 -- "False" --> N3{"Node 3: candidate == null?"}
 
-    N3 -- "True" --> N4["Node 4: throw 'Không tìm thấy thông tin ứng viên.'"]
+    N3 -- "True" --> N4["Node 4: throw 'Không có ứng viên'"]
     N3 -- "False" --> N5{"Node 5: job == null?"}
 
-    N5 -- "True" --> N6["Node 6: throw 'Không tìm thấy thông tin công việc (Job).'"]
+    N5 -- "True" --> N6["Node 6: throw 'Không có Job'"]
     N5 -- "False" --> N7{"Node 7: analysisResult == null?"}
 
-    N7 -- "True" --> N8["Node 8: throw 'Lỗi khi gọi AI phân tích dữ liệu.'"]
+    N7 -- "True" --> N8["Node 8: throw 'Lỗi AI'"]
     N7 -- "False" --> N9{"Node 9: savedAnalysis == null?"}
 
-    N9 -- "True" --> N10["Node 10: throw 'Lỗi khi lưu kết quả phân tích.'"]
-    N9 -- "False" --> N11["Node 11: updateStatus(SCREENING) & return savedAnalysis"]
+    N9 -- "True" --> N10["Node 10: throw 'Lỗi lưu DB'"]
+    N9 -- "False" --> N11["Node 11: update SCREENING & return"]
 ```
 
 ---

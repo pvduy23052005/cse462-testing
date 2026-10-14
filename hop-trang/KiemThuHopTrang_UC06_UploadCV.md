@@ -118,36 +118,36 @@
 Ở cấp độ độ đo C1 (phủ câu lệnh) và C2 (phủ nhánh quyết định), mỗi khối lệnh điều kiện phức hợp được biểu diễn dưới dạng 1 điểm quyết định đơn vị rẽ 2 nhánh Đúng (True) và Sai (False):
 
 ```mermaid
-flowchart TD
-    Start(["Bắt đầu: execute"]) --> N1["Node 1: if (!cvFile)"]
-    N1 -- True --> N2["Node 2: throw 'No file uploaded'"]
-    N1 -- False --> N3["Node 3: getById(jobID), if (!job)"]
+flowchart LR
+    Start(["Bắt đầu: execute"]) --> N1{"Node 1: !cvFile?"}
+    N1 -- "True" --> N2["Node 2: throw 'No file uploaded'"]
+    N1 -- "False" --> N3{"Node 3: !job?"}
 
-    N3 -- True --> N4["Node 4: throw 'Công việc không đúng'"]
-    N3 -- False --> N5["Node 5: files = [cvFile], if (avatarFile)"]
+    N3 -- "True" --> N4["Node 4: throw 'Công việc không đúng'"]
+    N3 -- "False" --> N5{"Node 5: avatarFile?"}
 
-    N5 -- True --> N6["Node 6: files.push(avatarFile)"]
-    N5 -- False --> N7["Node 7: uploadCloud, if (!fileUrls || len === 0)"]
+    N5 -- "True" --> N6["Node 6: files.push(avatarFile)"]
+    N5 -- "False" --> N7{"Node 7: !fileUrls || len==0?"}
     N6 --> N7
 
-    N7 -- True --> N8["Node 8: throw 'Upload CV thất bại'"]
-    N7 -- False --> N9["Node 9: cvLink, avatarLink, if isPDF || isImage"]
+    N7 -- "True" --> N8["Node 8: throw 'Upload CV thất bại'"]
+    N7 -- "False" --> N9{"Node 9: isPDF || isImage?"}
 
-    N9 -- True --> N10["Node 10: extractCV Gemini"]
-    N9 -- False --> N11["Node 11: get email, if (!email)"]
+    N9 -- "True" --> N10["Node 10: extractCV Gemini"]
+    N9 -- "False" --> N11{"Node 11: !email?"}
     N10 --> N11
 
-    N11 -- True --> N12["Node 12: throw 'không thể trích xuất Email'"]
-    N11 -- False --> N13["Node 13: findByEmail, if (candidate)"]
+    N11 -- "True" --> N12["Node 12: throw 'Không có email'"]
+    N11 -- "False" --> N13{"Node 13: candidate tồn tại?"}
 
-    N13 -- True --> N14["Node 14: update candidate"]
-    N13 -- False --> N15["Node 15: create candidate"]
+    N13 -- "True" --> N14["Node 14: update candidate"]
+    N13 -- "False" --> N15["Node 15: create candidate"]
 
-    N14 --> N16["Node 16: if (!newCandidate)"]
+    N14 --> N16{"Node 16: !newCandidate?"}
     N15 --> N16
 
-    N16 -- True --> N17["Node 17: throw 'Lưu hồ sơ thất bại'"]
-    N16 -- False --> N18["Node 18: return candidate profile"]
+    N16 -- "True" --> N17["Node 17: throw 'Lưu hồ sơ thất bại'"]
+    N16 -- "False" --> N18["Node 18: return candidate profile"]
 ```
 
 ### 3.2. Đồ thị dòng điều khiển ứng với độ đo C3 (Condition / Multiple Condition CFG)
@@ -157,7 +157,7 @@ Theo lý thuyết độ đo C3, các điều kiện phức hợp chứa toán t�
 - Tại **Node 9** (`cvFile.mimetype === 'application/pdf' || cvFile.mimetype.startsWith('image/')`): phân rã thành **Node 9a** (`isPDF`) và **Node 9b** (`isImage`).
 
 ```mermaid
-flowchart TD
+flowchart LR
     Start(["Bắt đầu: execute"]) --> N1{"Node 1: !cvFile?"}
     N1 -- "True" --> N2["Node 2: throw 'No file uploaded'"]
     N1 -- "False" --> N3{"Node 3: !job?"}
@@ -170,7 +170,7 @@ flowchart TD
     N6 --> N7a
 
     N7a -- "True" --> N8["Node 8: throw 'Upload CV thất bại'"]
-    N7a -- "False" --> N7b{"Node 7b: fileUrls.len == 0?"}
+    N7a -- "False" --> N7b{"Node 7b: len == 0?"}
     N7b -- "True" --> N8
     N7b -- "False" --> N9a{"Node 9a: isPDF?"}
 
@@ -180,7 +180,7 @@ flowchart TD
     N9b -- "False" --> N11{"Node 11: !email?"}
     N10 --> N11
 
-    N11 -- "True" --> N12["Node 12: throw 'không thể trích xuất Email'"]
+    N11 -- "True" --> N12["Node 12: throw 'Không có email'"]
     N11 -- "False" --> N13{"Node 13: candidate tồn tại?"}
 
     N13 -- "True" --> N14["Node 14: update candidate"]

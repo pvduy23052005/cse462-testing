@@ -62,13 +62,13 @@
 Ở cấp độ độ đo C1 (phủ câu lệnh) và C2 (phủ nhánh quyết định), đồ thị biểu diễn 4 khối lệnh cơ bản và nhánh rẽ nhị phân Đúng (True) / Sai (False):
 
 ```mermaid
-flowchart TD
-    Start(["Bắt đầu: execute(candidateID, dataVerification)"]) --> N1["Node 1: VerificationEntity.create & Promise.all(create, updateIsVerify)"]
+flowchart LR
+    Start(["Bắt đầu: execute"]) --> N1["Node 1: Entity.create & Promise.all"]
 
-    N1 --> N2["Node 2: if (!result)"]
+    N1 --> N2{"Node 2: if (!result)"}
 
-    N2 -- True --> N3["Node 3: throw 'Kiểm chứng lỗi vui lòng thử lại!'"]
-    N2 -- False --> N4["Node 4: return result.getDetail()"]
+    N2 -- "True" --> N3["Node 3: throw 'Kiểm chứng lỗi'"]
+    N2 -- "False" --> N4["Node 4: return result.getDetail()"]
 ```
 
 ### 3.2. Đồ thị dòng điều khiển ứng với độ đo C3 (Condition CFG)
@@ -76,12 +76,12 @@ flowchart TD
 Tại điểm quyết định Node 2, điều kiện kiểm tra là một biểu thức logic đơn thuần (`result == null` hoặc `result != null`):
 
 ```mermaid
-flowchart TD
-    Start(["Bắt đầu: execute(candidateID, dataVerification)"]) --> N1["Node 1: Khởi tạo Entity & Chạy Promise.all"]
+flowchart LR
+    Start(["Bắt đầu: execute"]) --> N1["Node 1: Entity.create & Promise.all"]
 
     N1 --> N2{"Node 2: result == null?"}
 
-    N2 -- "True (Lỗi lưu DB)" --> N3["Node 3: throw 'Kiểm chứng lỗi vui lòng thử lại!'"]
+    N2 -- "True (Lỗi lưu)" --> N3["Node 3: throw 'Kiểm chứng lỗi'"]
     N2 -- "False (Hợp lệ)" --> N4["Node 4: return result.getDetail()"]
 ```
 
