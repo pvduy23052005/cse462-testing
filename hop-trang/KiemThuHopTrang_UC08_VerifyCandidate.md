@@ -60,7 +60,9 @@
 
 ---
 
-### 2.2. Đồ thị dòng điều khiển
+### 2.2. Đồ thị dòng điều khiển ứng với độ đo C1 và C2 (Statement & Decision CFG)
+
+Ở cấp độ độ đo C1 (phủ câu lệnh) và C2 (phủ nhánh quyết định), đồ thị biểu diễn 4 khối lệnh:
 
 ```mermaid
 flowchart TD
@@ -70,6 +72,20 @@ flowchart TD
 
     N2 -- True --> N3["Node 3: throw 'Kiểm chứng lỗi vui lòng thử lại!'"]
     N2 -- False --> N4["Node 4: return result.getDetail()"]
+```
+
+### 2.3. Đồ thị dòng điều khiển ứng với độ đo C3 (Condition CFG)
+
+Ở cấp độ độ đo C3, điểm quyết định Node 2 kiểm tra giá trị của biến điều kiện đơn nhị phân `result == null` hoặc `result != null`:
+
+```mermaid
+flowchart TD
+    Start(["Bắt đầu: execute(candidateID, dataVerification)"]) --> N1["Node 1: Khởi tạo Entity & Chạy Promise.all"]
+
+    N1 --> N2{"Node 2: result == null?"}
+
+    N2 -- "True (Lỗi lưu)" --> N3["Node 3: throw 'Kiểm chứng lỗi vui lòng thử lại!'"]
+    N2 -- "False (Hợp lệ)" --> N4["Node 4: return result.getDetail()"]
 ```
 
 ---
@@ -140,28 +156,68 @@ graph TD
 
 ---
 
-## 5. PHÂN TÍCH THEO CÁC ĐỘ ĐO BAO PHỦ CỦA MÔN HỌC (C1, C2, C3)
+## 5. SINH ĐƯỜNG ĐI VÀ CÁC CA KIỂM THỬ THEO ĐỘ ĐO C1, C2, C3
 
-Theo tài liệu slide giảng dạy _CSE462 - Các kỹ thuật kiểm thử phần mềm_:
+Theo tài liệu slide giảng dạy *CSE462 - Các kỹ thuật kiểm thử phần mềm*:
 
-### 5.1. Độ đo C1 (Statement Coverage - Bao phủ câu lệnh)
+### A. Sinh đường đi và ca kiểm thử ứng với độ đo C1 (Phủ câu lệnh)
+Mục tiêu độ đo C1: Tất cả 4 Node (Node 1, 2, 3, 4) được thực thi ít nhất một lần với số ca kiểm thử tối thiểu.
 
-- **Định nghĩa:** Mỗi câu lệnh/khối lệnh (Node) được thực hiện ít nhất một lần.
-- **Yêu cầu:** Thực thi 4 Node (Node 1, 2, 3, 4).
-- **Tập ca kiểm thử:** `TC_WB_01` (Node 1, 2, 3) và `TC_WB_02` (Node 1, 2, 4).
-- **Mức độ đạt được:** **100% C1 (4/4 Nodes)**.
+| TT | Đường đi theo Node | Dữ liệu đầu vào (Input) | Đầu ra mong đợi | Đầu ra thực tế | Ghi chú |
+| :---: | :--- | :--- | :--- | :---: | :--- |
+| **C1_01** | $1 \rightarrow 2 \rightarrow 3$ | `candidateID = "CAN_01"`, `candidateRepo.create` trả về `null` | Ném lỗi: `"Kiểm chứng lỗi vui lòng thử lại!"` | Đạt | Phủ Node 1, 2, 3 |
+| **C1_02** | $1 \rightarrow 2 \rightarrow 4$ | `candidateID = "CAN_01"`, `candidateRepo.create` trả về entity | Trả về thông tin chi tiết qua `result.getDetail()` | Đạt | Phủ Node 1, 2, 4 |
 
-### 5.2. Độ đo C2 (Branch / Decision Coverage - Bao phủ nhánh quyết định)
+$\Rightarrow$ **Kết quả:** 2 ca kiểm thử phủ 100% các khối lệnh (4/4 Node) ứng với độ đo C1.
 
-- **Định nghĩa:** Tất cả các nhánh rẽ Đúng (True) và Sai (False) của các điểm quyết định đều được thực thi ít nhất một lần.
-- **Bao phủ:**
-  - Node 2 nhánh Đúng (`!result = True`): `TC_WB_01` rẽ sang Node 3.
-  - Node 2 nhánh Sai (`!result = False`): `TC_WB_02` rẽ sang Node 4.
-- **Mức độ đạt được:** **100% C2 (2/2 nhánh True/False)**.
+---
 
-### 5.3. Độ đo C3 (Condition Coverage - Bao phủ điều kiện con)
+### B. Sinh đường đi và ca kiểm thử ứng với độ đo C2 (Phủ nhánh quyết định)
+Mục tiêu độ đo C2: Mỗi điểm quyết định trong đồ thị đều được duyệt qua cả hai nhánh Đúng (True) và Sai (False).
 
-- Biểu thức tại Node 2 là điều kiện đơn nhị phân (`!result`). Đạt 100% C2 đồng nghĩa đạt **100% C3**.
+#### Bảng ma trận điều kiện rẽ nhánh C2:
+| Điểm quyết định | Biểu thức điều kiện tương ứng | Nhánh Đúng (True) | Nhánh Sai (False) | Ca kiểm thử Đúng | Ca kiểm thử Sai |
+| :---: | :--- | :---: | :---: | :---: | :---: |
+| **Node 2** | `!result` | Sang Node 3 | Sang Node 4 | C1_01 | C1_02 |
+
+$\Rightarrow$ Cả 2 nhánh rẽ (Đúng và Sai) tại Node 2 đều được thực thi 100% bởi 2 ca kiểm thử `C1_01` và `C1_02`.
+
+---
+
+### C. Sinh đường đi và ca kiểm thử ứng với độ đo C3 (Phủ điều kiện)
+Do biểu thức điều kiện tại Node 2 là biểu thức đơn nhị phân (`!result`), bảng kiểm thử C3 tương ứng:
+
+| TT | Biểu thức điều kiện kiểm tra | Giá trị Chân/Giả | Ca kiểm thử tương ứng | Nhánh thực thi |
+| :---: | :--- | :---: | :---: | :---: |
+| **TC_C3_01** | `result == null` | **True** | C1_01 | Node 2 $\rightarrow$ Node 3 |
+| **TC_C3_02** | `result == null` | **False** | C1_02 | Node 2 $\rightarrow$ Node 4 |
+
+---
+
+## 5.4. KIỂM THỬ VÒNG LẶP (LOOP TESTING) CHO USE CASE 08
+
+Theo giáo trình kiểm thử phần mềm CSE462, đối với các đơn vị chương trình xử lý tập hợp danh sách dữ liệu, kiểm thử vòng lặp được triển khai theo **7 trường hợp chuẩn**:
+1. Vòng lặp 0 lần
+2. Vòng lặp 1 lần
+3. Vòng lặp 2 lần
+4. Vòng lặp $k$ lần ($2 < k < n - 1$)
+5. Vòng lặp $n - 1$ lần
+6. Vòng lặp $n$ lần (Tối đa)
+7. Vòng lặp $n + 1$ lần (Vượt giới hạn)
+
+### Áp dụng vào UC_08:
+Trong `VerifyCandidateUseCase`, đối tượng `dataVerification` chứa danh sách các tiêu chí kiểm chứng ứng viên (chứng chỉ, bằng cấp, kinh nghiệm, thông tin liên hệ). Một hồ sơ ứng viên có danh sách kiểm chứng tối đa $n = 6$ tiêu chí.
+
+#### Bảng ca kiểm thử vòng lặp duyệt danh sách tiêu chí kiểm chứng (`checkpoints`, $n = 6$):
+| TT | Trường hợp kiểm thử vòng lặp | Số tiêu chí ($m$) | Dữ liệu đầu vào kiểm thử cụ thể | Kết quả mong đợi |
+| :---: | :--- | :---: | :--- | :--- |
+| **LOOP_01** | Vòng lặp 0 lần (Không có tiêu chí) | $m = 0$ | Gửi `checkpoints = []` rỗng | Hệ thống ném lỗi yêu cầu chọn ít nhất 1 tiêu chí |
+| **LOOP_02** | Vòng lặp 1 lần (1 tiêu chí) | $m = 1$ | 1 tiêu chí: "Xác thực bằng Đại học" | Lưu bản ghi xác thực 1 tiêu chí thành công |
+| **LOOP_03** | Vòng lặp 2 lần (2 tiêu chí) | $m = 2$ | 2 tiêu chí: "Bằng Đại học" + "Chứng chỉ TOEIC" | Lưu bản ghi xác thực 2 tiêu chí thành công |
+| **LOOP_04** | Vòng lặp $k$ lần ($2 < k < n-1$) | $m = 3$ | 3 tiêu chí: Bằng cấp + Chứng chỉ + Kinh nghiệm làm việc | Lưu bản ghi xác thực 3 tiêu chí ổn định |
+| **LOOP_05** | Vòng lặp $n - 1$ lần | $m = 5$ | 5 tiêu chí xác thực toàn diện | Lưu bản ghi xác thực 5 tiêu chí ổn định |
+| **LOOP_06** | Vòng lặp $n$ lần (Tối đa cấu hình) | $m = 6$ | Đúng 6 tiêu chí kiểm chứng tối đa | Lưu đủ 6 tiêu chí vào CSDL |
+| **LOOP_07** | Vòng lặp $n + 1$ lần (Vượt giới hạn) | $m = 7$ | Gửi 7 tiêu chí kiểm chứng | Ném lỗi hoặc từ chối do vượt quá danh mục kiểm chuẩn |
 
 ---
 

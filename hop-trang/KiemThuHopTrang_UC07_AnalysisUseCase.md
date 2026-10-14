@@ -93,7 +93,9 @@
 
 ---
 
-### 2.2. Đồ thị dòng điều khiển
+### 2.2. Đồ thị dòng điều khiển ứng với độ đo C1 và C2 (Statement & Decision CFG)
+
+Ở cấp độ độ đo C1 (phủ câu lệnh) và C2 (phủ nhánh quyết định), đồ thị biểu diễn 11 khối lệnh cơ bản và các nhánh rẽ nhị phân:
 
 ```mermaid
 flowchart TD
@@ -113,6 +115,30 @@ flowchart TD
 
     N9 -- True --> N10["Node 10: throw 'Lỗi khi lưu kết quả phân tích.'"]
     N9 -- False --> N11["Node 11: updateStatus(SCREENING) & return savedAnalysis"]
+```
+
+### 2.3. Đồ thị dòng điều khiển ứng với độ đo C3 (Condition CFG)
+
+Đối với UC_07, các biểu thức điều kiện đều là biểu thức logic đơn thuần (Simple Booleans: `existingAnalysis != null`, `candidate == null`, `job == null`, `analysisResult == null`, `savedAnalysis == null`). Do đó đồ thị dòng điều khiển ứng với độ đo C3 đẳng cấu với đồ thị C2, trong đó mỗi điểm quyết định kiểm tra chính xác giá trị True/False của biến kiểm tra điều kiện tương ứng.
+
+```mermaid
+flowchart TD
+    Start(["Bắt đầu: execute(input)"]) --> N1{"Node 1: existingAnalysis != null?"}
+
+    N1 -- "True" --> N2["Node 2: return existingAnalysis (Cache Hit)"]
+    N1 -- "False" --> N3{"Node 3: candidate == null?"}
+
+    N3 -- "True" --> N4["Node 4: throw 'Không tìm thấy thông tin ứng viên.'"]
+    N3 -- "False" --> N5{"Node 5: job == null?"}
+
+    N5 -- "True" --> N6["Node 6: throw 'Không tìm thấy thông tin công việc (Job).'"]
+    N5 -- "False" --> N7{"Node 7: analysisResult == null?"}
+
+    N7 -- "True" --> N8["Node 8: throw 'Lỗi khi gọi AI phân tích dữ liệu.'"]
+    N7 -- "False" --> N9{"Node 9: savedAnalysis == null?"}
+
+    N9 -- "True" --> N10["Node 10: throw 'Lỗi khi lưu kết quả phân tích.'"]
+    N9 -- "False" --> N11["Node 11: updateStatus(SCREENING) & return savedAnalysis"]
 ```
 
 ---
@@ -200,36 +226,86 @@ graph TD
 
 ---
 
-## 5. PHÂN TÍCH THEO CÁC ĐỘ ĐO BAO PHỦ CỦA MÔN HỌC (C1, C2, C3)
+## 5. SINH ĐƯỜNG ĐI VÀ CÁC CA KIỂM THỬ THEO ĐỘ ĐO C1, C2, C3
 
-Theo tài liệu slide giảng dạy _CSE462 - Các kỹ thuật kiểm thử phần mềm_, các độ đo kiểm thử dòng điều khiển được chuẩn hóa như sau:
+Theo tài liệu slide giảng dạy *CSE462 - Các kỹ thuật kiểm thử phần mềm*:
 
-### 5.1. Độ đo C1 (Statement Coverage - Bao phủ câu lệnh)
+### A. Sinh đường đi và ca kiểm thử ứng với độ đo C1 (Phủ câu lệnh)
+Mục tiêu độ đo C1: Tất cả các câu lệnh/khối lệnh (Node 1 đến Node 11) được thực thi ít nhất một lần với số lượng ca kiểm thử tối thiểu.
 
-- **Định nghĩa:** Mỗi câu lệnh/khối lệnh (Node) được thực hiện ít nhất một lần sau khi chạy bộ kiểm thử.
-- **Yêu cầu:** Thực thi toàn bộ 11 Node từ Node 1 đến Node 11.
-- **Tập ca kiểm thử đáp ứng C1:** Cần thực thi tập hợp các ca kiểm thử `TC_WB_01` (qua Node 1, 2), `TC_WB_02` (qua Node 3, 4), `TC_WB_03` (qua Node 5, 6), `TC_WB_04` (qua Node 7, 8), `TC_WB_05` (qua Node 9, 10), và `TC_WB_06` (qua Node 9, 11).
-- **Mức độ đạt được:** **100% C1 (11/11 Nodes)**.
+| TT | Đường đi theo Node | Dữ liệu đầu vào (Input) | Đầu ra mong đợi | Đầu ra thực tế | Ghi chú |
+| :---: | :--- | :--- | :--- | :---: | :--- |
+| **C1_01** | $1 \rightarrow 2$ | `candidateID = "CAN_01"`, `jobID = "JOB_01"`, đã có bản ghi cũ | Trả về `existingAnalysis` (Cache Hit) | Đạt | Phủ Node 1, 2 |
+| **C1_02** | $1 \rightarrow 3 \rightarrow 4$ | `candidateID = "CAN_INVALID"`, `jobID = "JOB_01"`, chưa có bản ghi cũ | Ném lỗi: `"Không tìm thấy thông tin ứng viên."` | Đạt | Phủ Node 3, 4 |
+| **C1_03** | $1 \rightarrow 3 \rightarrow 5 \rightarrow 6$ | `candidateID = "CAN_01"`, `jobID = "JOB_INVALID"` | Ném lỗi: `"Không tìm thấy thông tin công việc (Job)."` | Đạt | Phủ Node 5, 6 |
+| **C1_04** | $1 \rightarrow 3 \rightarrow 5 \rightarrow 7 \rightarrow 8$ | Candidate & Job hợp lệ, Gemini AI trả về `null` | Ném lỗi: `"Lỗi khi gọi AI phân tích dữ liệu."` | Đạt | Phủ Node 7, 8 |
+| **C1_05** | $1 \rightarrow 3 \rightarrow 5 \rightarrow 7 \rightarrow 9 \rightarrow 10$ | Dữ liệu hợp lệ, AI trả về kết quả nhưng lưu DB trả về `null` | Ném lỗi: `"Lỗi khi lưu kết quả phân tích."` | Đạt | Phủ Node 9, 10 |
+| **C1_06** | $1 \rightarrow 3 \rightarrow 5 \rightarrow 7 \rightarrow 9 \rightarrow 11$ | Dữ liệu hợp lệ, AI phân tích thành công, lưu DB thành công | Cập nhật status `SCREENING`, trả về `savedAnalysis` | Đạt | Phủ Node 11 (Happy Path) |
 
-### 5.2. Độ đo C2 (Branch / Decision Coverage - Bao phủ nhánh quyết định)
+$\Rightarrow$ **Kết quả:** 6 ca kiểm thử phủ 100% các câu lệnh (11/11 Node) ứng với độ đo C1.
 
-- **Định nghĩa:** Tất cả các điểm quyết định trong đồ thị đều được thực hiện ít nhất một lần cho cả hai nhánh Đúng (True) và Sai (False).
-- **Phân tích các điểm quyết định:**
+---
 
-| Điểm quyết định | Biểu thức điều kiện kiểm tra | Nhánh Đúng (True) | Nhánh Sai (False) | Ca kiểm thử bao phủ nhánh Đúng |               Ca kiểm thử bao phủ nhánh Sai                |
-| :-------------: | :--------------------------- | :---------------: | :---------------: | :----------------------------: | :--------------------------------------------------------: |
-|   **Node 1**    | `existingAnalysis != null`   |     Rẽ Node 2     |     Rẽ Node 3     |           `TC_WB_01`           | `TC_WB_02`, `TC_WB_03`, `TC_WB_04`, `TC_WB_05`, `TC_WB_06` |
-|   **Node 3**    | `!candidate`                 |     Rẽ Node 4     |     Rẽ Node 5     |           `TC_WB_02`           |       `TC_WB_03`, `TC_WB_04`, `TC_WB_05`, `TC_WB_06`       |
-|   **Node 5**    | `!job`                       |     Rẽ Node 6     |     Rẽ Node 7     |           `TC_WB_03`           |             `TC_WB_04`, `TC_WB_05`, `TC_WB_06`             |
-|   **Node 7**    | `!analysisResult`            |     Rẽ Node 8     |     Rẽ Node 9     |           `TC_WB_04`           |                   `TC_WB_05`, `TC_WB_06`                   |
-|   **Node 9**    | `!savedAnalysis`             |    Rẽ Node 10     |    Rẽ Node 11     |           `TC_WB_05`           |                         `TC_WB_06`                         |
+### B. Sinh đường đi và ca kiểm thử ứng với độ đo C2 (Phủ nhánh quyết định)
+Mục tiêu độ đo C2: Mỗi điểm quyết định trong đồ thị đều được duyệt qua cả hai nhánh Đúng (True) và Sai (False).
 
-- **Mức độ đạt được:** **100% C2 (10/10 nhánh True/False)**.
+#### Bảng ma trận điều kiện rẽ nhánh C2:
+| Điểm quyết định | Biểu thức điều kiện tương ứng | Nhánh Đúng (True) | Nhánh Sai (False) | Ca kiểm thử Đúng | Ca kiểm thử Sai |
+| :---: | :--- | :---: | :---: | :---: | :---: |
+| **Node 1** | `existingAnalysis != null` | Sang Node 2 | Sang Node 3 | C1_01 | C1_02 |
+| **Node 3** | `!candidate` | Sang Node 4 | Sang Node 5 | C1_02 | C1_03 |
+| **Node 5** | `!job` | Sang Node 6 | Sang Node 7 | C1_03 | C1_04 |
+| **Node 7** | `!analysisResult` | Sang Node 8 | Sang Node 9 | C1_04 | C1_05 |
+| **Node 9** | `!savedAnalysis` | Sang Node 10 | Sang Node 11 | C1_05 | C1_06 |
 
-### 5.3. Độ đo C3 (Condition Coverage - Bao phủ điều kiện con)
+$\Rightarrow$ Tất cả 5 cặp nhánh rẽ (10 nhánh) đều được thực thi đầy đủ 100% thông qua 6 ca kiểm thử `C1_01` $\rightarrow$ `C1_06`.
 
-- **Định nghĩa:** Các điều kiện con thuộc các điều kiện phức tạp tại điểm quyết định đều được đánh giá ít nhất một lần cả True và False.
-- **Đánh giá trong mã nguồn UC_07:** Tất cả 5 điểm quyết định (Node 1, 3, 5, 7, 9) đều là các biểu thức logic đơn nhị phân (Simple Boolean Expressions), không chứa toán tử phức hợp `&&` hay `||`. Do đó, khi đạt 100% C2 thì tự động thỏa mãn **100% C3**.
+---
+
+### C. Sinh đường đi và ca kiểm thử ứng với độ đo C3 (Phủ điều kiện)
+Trong `AnalysisUseCase`, cả 5 điểm quyết định đều là biểu thức logic đơn nhị phân (Simple Condition). Do đó, bảng kiểm thử C3 tương ứng với tập hợp các giá trị chân lý cho từng biến điều kiện:
+
+| TT | Biểu thức điều kiện kiểm tra | Giá trị Chân/Giả | Ca kiểm thử tương ứng | Nhánh thực thi |
+| :---: | :--- | :---: | :---: | :---: |
+| **TC_C3_01** | `existingAnalysis != null` | **True** | C1_01 | Node 1 $\rightarrow$ Node 2 |
+| **TC_C3_02** | `existingAnalysis != null` | **False** | C1_02 | Node 1 $\rightarrow$ Node 3 |
+| **TC_C3_03** | `candidate == null` | **True** | C1_02 | Node 3 $\rightarrow$ Node 4 |
+| **TC_C3_04** | `candidate == null` | **False** | C1_03 | Node 3 $\rightarrow$ Node 5 |
+| **TC_C3_05** | `job == null` | **True** | C1_03 | Node 5 $\rightarrow$ Node 6 |
+| **TC_C3_06** | `job == null` | **False** | C1_04 | Node 5 $\rightarrow$ Node 7 |
+| **TC_C3_07** | `analysisResult == null` | **True** | C1_04 | Node 7 $\rightarrow$ Node 8 |
+| **TC_C3_08** | `analysisResult == null` | **False** | C1_05 | Node 7 $\rightarrow$ Node 9 |
+| **TC_C3_09** | `savedAnalysis == null` | **True** | C1_05 | Node 9 $\rightarrow$ Node 10 |
+| **TC_C3_10** | `savedAnalysis == null` | **False** | C1_06 | Node 9 $\rightarrow$ Node 11 |
+
+---
+
+## 5.4. KIỂM THỬ VÒNG LẶP (LOOP TESTING) CHO USE CASE 07
+
+Theo giáo trình kiểm thử phần mềm CSE462, việc kiểm thử vòng lặp được áp dụng cho các cấu trúc xử lý danh sách tuần tự để kiểm tra tính ổn định của hệ thống trước các kích thước dữ liệu khác nhau theo **7 trường hợp chuẩn**:
+1. Vòng lặp 0 lần
+2. Vòng lặp 1 lần
+3. Vòng lặp 2 lần
+4. Vòng lặp $k$ lần ($2 < k < n - 1$)
+5. Vòng lặp $n - 1$ lần
+6. Vòng lặp $n$ lần (Tối đa)
+7. Vòng lặp $n + 1$ lần (Vượt giới hạn)
+
+### Áp dụng vào UC_07:
+Trong `AnalysisUseCase`, kết quả từ AI phân tích trả về hai mảng dữ liệu quan trọng được khởi tạo và lưu trữ vào thực thể:
+- Mảng cờ cảnh báo rủi ro `redFlags: string[]` (Quy định tối đa $n = 10$ cảnh báo).
+- Mảng câu hỏi phỏng vấn đề xuất `suggestedQuestions: string[]` (Quy định tối đa $n = 10$ câu hỏi).
+
+#### Bảng ca kiểm thử vòng lặp duyệt danh sách câu hỏi phỏng vấn (`suggestedQuestions`, $n = 10$):
+| TT | Trường hợp kiểm thử vòng lặp | Số lần lặp ($m$) | Dữ liệu đầu vào kiểm thử cụ thể | Kết quả mong đợi |
+| :---: | :--- | :---: | :--- | :--- |
+| **LOOP_01** | Vòng lặp 0 lần (Không có câu hỏi) | $m = 0$ | AI trả về `suggestedQuestions = []` | Lưu entity thành công với mảng rỗng, không phát sinh lỗi |
+| **LOOP_02** | Vòng lặp 1 lần (1 câu hỏi) | $m = 1$ | `suggestedQuestions = ["Hỏi về NestJS"]` | Lưu 1 câu hỏi vào CSDL thành công |
+| **LOOP_03** | Vòng lặp 2 lần (2 câu hỏi) | $m = 2$ | `suggestedQuestions = ["Hỏi về NestJS", "Kinh nghiệm Docker"]` | Lưu 2 câu hỏi vào CSDL thành công |
+| **LOOP_04** | Vòng lặp $k$ lần ($2 < k < n-1$) | $m = 5$ | Mảng gồm 5 câu hỏi phỏng vấn tiêu chuẩn | Xử lý mảng 5 phần tử ổn định |
+| **LOOP_05** | Vòng lặp $n - 1$ lần | $m = 9$ | Mảng gồm 9 câu hỏi phỏng vấn | Xử lý mảng 9 phần tử ổn định |
+| **LOOP_06** | Vòng lặp $n$ lần (Tối đa cấu hình) | $m = 10$ | Mảng gồm đúng 10 câu hỏi phỏng vấn | Lưu đủ 10 câu hỏi vào CSDL |
+| **LOOP_07** | Vòng lặp $n + 1$ lần (Vượt giới hạn) | $m = 11$ | AI trả về 11 câu hỏi phỏng vấn | Hệ thống tự động cắt tỉa (slice) lấy 10 câu hoặc cảnh báo |
 
 ---
 

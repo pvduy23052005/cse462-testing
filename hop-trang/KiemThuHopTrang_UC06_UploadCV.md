@@ -118,7 +118,9 @@
 
 ---
 
-### 2.2. Đồ thị dòng điều khiển
+### 2.2. Đồ thị dòng điều khiển ứng với độ đo C1 và C2 (Statement & Decision CFG)
+
+Ở cấp độ độ đo C1 (phủ câu lệnh) và C2 (phủ nhánh quyết định), mỗi khối lệnh điều kiện phức hợp được biểu diễn dưới dạng 1 điểm quyết định đơn vị rẽ 2 nhánh Đúng (True) và Sai (False):
 
 ```mermaid
 flowchart TD
@@ -151,6 +153,49 @@ flowchart TD
 
     N16 -- True --> N17["Node 17: throw 'Lưu hồ sơ thất bại'"]
     N16 -- False --> N18["Node 18: return candidate profile"]
+```
+
+### 2.3. Đồ thị dòng điều khiển ứng với độ đo C3 (Condition / Multiple Condition CFG)
+
+Theo lý thuyết độ đo C3, các điều kiện phức hợp chứa toán tử logic (`||`, `&&`) phải được phân rã thành các nút quyết định con tương ứng để kiểm tra từng điều kiện thành phần. 
+- Tại **Node 7** (`!fileUrls || fileUrls.length === 0`): phân rã thành **Node 7a** (`!fileUrls`) và **Node 7b** (`fileUrls.length === 0`).
+- Tại **Node 9** (`cvFile.mimetype === 'application/pdf' || cvFile.mimetype.startsWith('image/')`): phân rã thành **Node 9a** (`isPDF`) và **Node 9b** (`isImage`).
+
+```mermaid
+flowchart TD
+    Start(["Bắt đầu: execute"]) --> N1{"Node 1: !cvFile?"}
+    N1 -- "True" --> N2["Node 2: throw 'No file uploaded'"]
+    N1 -- "False" --> N3{"Node 3: !job?"}
+
+    N3 -- "True" --> N4["Node 4: throw 'Công việc không đúng'"]
+    N3 -- "False" --> N5{"Node 5: avatarFile?"}
+
+    N5 -- "True" --> N6["Node 6: files.push(avatarFile)"]
+    N5 -- "False" --> N7a{"Node 7a: !fileUrls?"}
+    N6 --> N7a
+
+    N7a -- "True" --> N8["Node 8: throw 'Upload CV thất bại'"]
+    N7a -- "False" --> N7b{"Node 7b: fileUrls.len == 0?"}
+    N7b -- "True" --> N8
+    N7b -- "False" --> N9a{"Node 9a: isPDF?"}
+
+    N9a -- "True" --> N10["Node 10: extractCV Gemini"]
+    N9a -- "False" --> N9b{"Node 9b: isImage?"}
+    N9b -- "True" --> N10
+    N9b -- "False" --> N11{"Node 11: !email?"}
+    N10 --> N11
+
+    N11 -- "True" --> N12["Node 12: throw 'không thể trích xuất Email'"]
+    N11 -- "False" --> N13{"Node 13: candidate tồn tại?"}
+
+    N13 -- "True" --> N14["Node 14: update candidate"]
+    N13 -- "False" --> N15["Node 15: create candidate"]
+
+    N14 --> N16{"Node 16: !newCandidate?"}
+    N15 --> N16
+
+    N16 -- "True" --> N17["Node 17: throw 'Lưu hồ sơ thất bại'"]
+    N16 -- "False" --> N18["Node 18: return candidate profile"]
 ```
 
 ---
@@ -287,13 +332,99 @@ Xét 2 biểu thức điều kiện phức hợp (Compound Boolean Expressions) 
 
 ---
 
-## 5.3. PHÂN TÍCH THEO CÁC ĐỘ ĐO BAO PHỦ CỦA MÔN HỌC (C1, C2, C3)
+## 5.3. SINH ĐƯỜNG ĐI VÀ CÁC CA KIỂM THỬ THEO ĐỘ ĐO C1, C2, C3
 
-Theo tài liệu slide môn học _CSE462 - Các kỹ thuật kiểm thử phần mềm_, ĐH Thủy Lợi:
+Theo tài liệu slide môn học *CSE462 - Các kỹ thuật kiểm thử phần mềm*, ĐH Thủy Lợi:
 
-- **Độ đo C1 (Statement Coverage):** Đạt **100% (18/18 Nodes)** khi tất cả các khối lệnh từ Node 1 đến Node 18 đều được thực thi ít nhất một lần qua các ca kiểm thử `TC_WB_01` đến `TC_WB_10`.
-- **Độ đo C2 (Branch / Decision Coverage):** Đạt **100% (14/14 Nhánh rẽ)** khi cả 7 điểm quyết định (Node 1, 3, 5, 7, 9, 11, 13, 16) đều được duyệt qua cả hai nhánh Đúng (True) và Sai (False).
-- **Độ đo C3 (Condition Coverage):** Đạt **100%** khi tất cả các điều kiện con trong các biểu thức phức hợp (`!fileUrls`, `fileUrls.length === 0`, `isPDF`, `isImage`) đều được gán cả hai giá trị Chân/Giả qua các ca kiểm thử `TC_WB_03`, `TC_WB_04`, `TC_WB_05`, `TC_WB_06`, `TC_WB_07`, `TC_WB_08`.
+### A. Sinh đường đi và ca kiểm thử ứng với độ đo C1 (Phủ câu lệnh)
+Mục tiêu độ đo C1: Tất cả các câu lệnh/khối lệnh (Node 1 đến Node 18) được thực thi ít nhất một lần với số lượng ca kiểm thử tối thiểu.
+
+| TT | Đường đi theo Node | Dữ liệu đầu vào (Input) | Đầu ra mong đợi | Đầu ra thực tế | Ghi chú |
+| :---: | :--- | :--- | :--- | :---: | :--- |
+| **C1_01** | $1 \rightarrow 2$ | `cvFile = null`, `jobID = "job_1"` | Ném lỗi: `"No file uploaded"` | Đạt | Phủ Node 1, 2 |
+| **C1_02** | $1 \rightarrow 3 \rightarrow 4$ | `cvFile = valid`, `jobID = "invalid"` | Ném lỗi: `"Công việc không đúng"` | Đạt | Phủ Node 3, 4 |
+| **C1_03** | $1 \rightarrow 3 \rightarrow 5 \rightarrow 7 \rightarrow 8$ | `cvFile = valid`, `jobID = "job_1"`, `uploadCloud` trả về `[]` | Ném lỗi: `"Upload CV thất bại"` | Đạt | Phủ Node 5, 7, 8 |
+| **C1_04** | $1 \rightarrow 3 \rightarrow 5 \rightarrow 7 \rightarrow 9 \rightarrow 11 \rightarrow 12$ | `cvFile.mimetype = "text/plain"`, `jobID = "job_1"`, `uploadCloud` ok | Ném lỗi: `"không thể trích xuất được Email..."` | Đạt | Phủ Node 9, 11, 12 |
+| **C1_05** | $1 \rightarrow 3 \rightarrow 5 \rightarrow 6 \rightarrow 7 \rightarrow 9 \rightarrow 10 \rightarrow 11 \rightarrow 13 \rightarrow 15 \rightarrow 16 \rightarrow 18$ | `cvFile = PDF`, `avatarFile = PNG`, chưa có candidate trong DB | Trả về thông tin ứng viên mới tạo | Đạt | Phủ Node 6, 10, 13, 15, 16, 18 |
+| **C1_06** | $1 \rightarrow 3 \rightarrow 5 \rightarrow 7 \rightarrow 9 \rightarrow 10 \rightarrow 11 \rightarrow 13 \rightarrow 14 \rightarrow 16 \rightarrow 18$ | `cvFile = JPG`, không avatar, candidate đã tồn tại trong DB | Trả về thông tin ứng viên đã cập nhật | Đạt | Phủ Node 14 |
+| **C1_07** | $1 \rightarrow 3 \rightarrow 5 \rightarrow 7 \rightarrow 9 \rightarrow 10 \rightarrow 11 \rightarrow 13 \rightarrow 15 \rightarrow 16 \rightarrow 17$ | `cvFile = PDF`, tạo mới ứng viên nhưng `candidateRepo.create` trả về `null` | Ném lỗi: `"Lưu hồ sơ ứng viên thất bại!"` | Đạt | Phủ Node 17 |
+
+$\Rightarrow$ **Kết quả:** 7 ca kiểm thử phủ 100% các câu lệnh (18/18 Node) ứng với độ đo C1.
+
+---
+
+### B. Sinh đường đi và ca kiểm thử ứng với độ đo C2 (Phủ nhánh quyết định)
+Mục tiêu độ đo C2: Mỗi điểm quyết định trong đồ thị đều được duyệt qua cả hai nhánh Đúng (True) và Sai (False).
+
+#### Bảng ma trận điều kiện rẽ nhánh C2:
+| Điểm quyết định | Biểu thức điều kiện tương ứng | Nhánh Đúng (True) | Nhánh Sai (False) | Ca kiểm thử Đúng | Ca kiểm thử Sai |
+| :---: | :--- | :---: | :---: | :---: | :---: |
+| **Node 1** | `!cvFile` | Sang Node 2 | Sang Node 3 | C1_01 | C1_02 |
+| **Node 3** | `!job` | Sang Node 4 | Sang Node 5 | C1_02 | C1_03 |
+| **Node 5** | `avatarFile` | Sang Node 6 | Sang Node 7 | C1_05 | C1_06 |
+| **Node 7** | `!fileUrls \|\| fileUrls.length === 0` | Sang Node 8 | Sang Node 9 | C1_03 | C1_04 |
+| **Node 9** | `isPDF \|\| isImage` | Sang Node 10 | Sang Node 11 | C1_05 | C1_04 |
+| **Node 11** | `!email` | Sang Node 12 | Sang Node 13 | C1_04 | C1_05 |
+| **Node 13** | `candidate` (đã tồn tại) | Sang Node 14 | Sang Node 15 | C1_06 | C1_05 |
+| **Node 16** | `!newCandidate` | Sang Node 17 | Sang Node 18 | C1_07 | C1_05 |
+
+$\Rightarrow$ Tất cả 8 cặp nhánh rẽ (16 nhánh) đều được thực thi đầy đủ thông qua tập ca kiểm thử của C1 kết hợp thêm ca C2_01 (kiểm tra `uploadCloud` trả về `null`).
+
+---
+
+### C. Sinh đường đi và ca kiểm thử ứng với độ đo C3 (Phủ điều kiện con)
+Mục tiêu độ đo C3: Các điều kiện con trong các biểu thức phức hợp tại Node 7 và Node 9 đều nhận cả hai giá trị Chân và Giả ít nhất một lần.
+
+#### Bảng ma trận điều kiện con C3:
+| Điểm quyết định | Điều kiện con tương ứng | Giá trị kiểm tra | Ca kiểm thử tương ứng | Nhánh thực thi | Kết quả biểu thức |
+| :---: | :--- | :---: | :---: | :---: | :---: |
+| **Node 7** | $A$: `!fileUrls` | **True** (fileUrls = null) | **TC_C3_01** | Sang Node 8 | **True** (Short-circuit) |
+| **Node 7** | $A$: `!fileUrls` | **False** (fileUrls = []) | **TC_C3_02** | Đánh giá tiếp $B$ | - |
+| **Node 7** | $B$: `fileUrls.length === 0` | **True** (len = 0) | **TC_C3_02** | Sang Node 8 | **True** (Lỗi upload) |
+| **Node 7** | $B$: `fileUrls.length === 0` | **False** (len = 1) | **TC_C3_03** | Sang Node 9 | **False** (Đi tiếp) |
+| **Node 9** | $C$: `cvFile.mimetype === 'application/pdf'` | **True** (file PDF) | **TC_C3_04** | Sang Node 10 | **True** (Short-circuit gọi AI) |
+| **Node 9** | $C$: `cvFile.mimetype === 'application/pdf'` | **False** (file ảnh) | **TC_C3_05** | Đánh giá tiếp $D$ | - |
+| **Node 9** | $D$: `cvFile.mimetype.startsWith('image/')` | **True** (image/png) | **TC_C3_05** | Sang Node 10 | **True** (Gọi AI) |
+| **Node 9** | $D$: `cvFile.mimetype.startsWith('image/')` | **False** (text/plain) | **TC_C3_06** | Sang Node 11 | **False** (Bỏ qua gọi AI) |
+
+#### Bảng danh sách ca kiểm thử chi tiết cho độ đo C3:
+| TT | Tên ca kiểm thử | Điều kiện con kích hoạt | Dữ liệu đầu vào (Input) | Đầu ra mong đợi |
+| :---: | :--- | :---: | :--- | :--- |
+| **TC_C3_01** | Kiểm tra lỗi upload khi Cloud trả về null | $A = \text{True}$ | `cvFile = PDF`, `uploadCloud` trả về `null` | Ném lỗi `"Upload CV thất bại"` |
+| **TC_C3_02** | Kiểm tra lỗi upload khi Cloud trả về mảng rỗng | $A = \text{False}, B = \text{True}$ | `cvFile = PDF`, `uploadCloud` trả về `[]` | Ném lỗi `"Upload CV thất bại"` |
+| **TC_C3_03** | Upload Cloud thành công có đường dẫn URL | $A = \text{False}, B = \text{False}$ | `cvFile = PDF`, `uploadCloud` trả về `['url1']` | Đi tiếp sang Node 9 |
+| **TC_C3_04** | Tệp PDF kích hoạt OCR Gemini | $C = \text{True}$ | `mimetype = 'application/pdf'` | Thực thi Node 10 (Gọi Gemini) |
+| **TC_C3_05** | Tệp ảnh PNG kích hoạt OCR Gemini | $C = \text{False}, D = \text{True}$ | `mimetype = 'image/png'` | Thực thi Node 10 (Gọi Gemini) |
+| **TC_C3_06** | Tệp văn bản thuần TXT bỏ qua OCR | $C = \text{False}, D = \text{False}$ | `mimetype = 'text/plain'` | Bỏ qua Node 10, sang Node 11 |
+
+---
+
+## 5.4. KIỂM THỬ VÒNG LẶP (LOOP TESTING) CHO USE CASE 06
+
+Theo giáo trình kiểm thử phần mềm CSE462, với mỗi đơn vị chương trình có xử lý danh sách hoặc vòng lặp (vòng lặp lồng nhau hoặc xử lý mảng lặp đơn giản), ta cần sinh các ca kiểm thử theo **7 trường hợp chuẩn**:
+1. Vòng lặp thực hiện 0 lần
+2. Vòng lặp thực hiện 1 lần
+3. Vòng lặp thực hiện 2 lần
+4. Vòng lặp thực hiện $k$ lần ($2 < k < n - 1$)
+5. Vòng lặp thực hiện $n - 1$ lần
+6. Vòng lặp thực hiện $n$ lần (Tối đa)
+7. Vòng lặp thực hiện $n + 1$ lần (Vượt giới hạn)
+
+### Áp dụng vào UC_06:
+Trong phương thức `execute`, cấu trúc lặp xuất hiện ở hai vị trí trọng yếu:
+1. **Vòng lặp nén/upload danh sách tệp `filesToUpload`:** Danh sách tệp đính kèm tối đa theo cấu hình Multer $n = 5$ tệp.
+2. **Vòng lặp duyệt trích xuất kỹ năng/kinh nghiệm từ kết quả OCR:** Mảng kỹ năng ứng viên trích xuất tối đa $n = 50$ kỹ năng.
+
+#### Bảng ca kiểm thử vòng lặp cho danh sách tệp đính kèm (`filesToUpload`, $n = 5$):
+| TT | Trường hợp kiểm thử vòng lặp | Số lần lặp ($m$) | Dữ liệu kiểm thử cụ thể | Kết quả mong đợi |
+| :---: | :--- | :---: | :--- | :--- |
+| **LOOP_01** | Vòng lặp 0 lần (Không có file) | $m = 0$ | `cvFile = null`, không avatar | Ném lỗi `"No file uploaded"` (Dừng tại Node 1) |
+| **LOOP_02** | Vòng lặp 1 lần (Chỉ có CV) | $m = 1$ | `cvFile = "cv.pdf"`, không avatar | `filesToUpload` có 1 phần tử, upload thành công |
+| **LOOP_03** | Vòng lặp 2 lần (CV + Avatar) | $m = 2$ | `cvFile = "cv.pdf"`, `avatarFile = "ava.png"` | `filesToUpload` có 2 phần tử, upload thành công cả 2 |
+| **LOOP_04** | Vòng lặp $k$ lần ($2 < k < n-1$) | $m = 3$ | CV + Avatar + 1 file chứng chỉ bổ sung | `filesToUpload` có 3 phần tử, upload thành công |
+| **LOOP_05** | Vòng lặp $n - 1$ lần | $m = 4$ | CV + Avatar + 2 file chứng chỉ | Xử lý mảng 4 tệp bình thường |
+| **LOOP_06** | Vòng lặp $n$ lần (Tối đa cấu hình) | $m = 5$ | Gửi đúng 5 file đính kèm | Xử lý mảng 5 tệp thành công |
+| **LOOP_07** | Vòng lặp $n + 1$ lần (Vượt giới hạn) | $m = 6$ | Gửi 6 file đính kèm vượt mức | Multer/Hệ thống ném lỗi `"LIMIT_FILE_COUNT"` |
 
 ---
 
